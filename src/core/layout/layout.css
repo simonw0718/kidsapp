@@ -1,0 +1,72 @@
+/* 之後可以再針對 iPad 橫向微調，目前先給基本容器 */
+.app-layout-root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-layout-safe-area {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-shell {
+  width: 100%;
+  height: 100%;
+}
+
+.page-container {
+  width: 100%;
+  height: 100%;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.page-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.home-games-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.game-card {
+  flex: 1 1 200px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.game-card-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.game-card-description {
+  font-size: 14px;
+  opacity: 0.8;
+}
