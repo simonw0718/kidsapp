@@ -1,10 +1,73 @@
-/* 之後可以再針對 iPad 橫向微調，目前先給基本容器 */
+/* === Global === */
+
+body {
+  margin: 0;
+  color: #000000; /* 全站文字預設黑色，避免深色模式吃字 */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* === Global: 關掉文字選取，適合小朋友操作 === */
+
+html,
+body,
+#root {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* iOS 長按不要跳出選單 */
+}
+
+/* 整個 app 預設都不能選字 */
+.app-layout-root * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 如果之後有需要可以選字的區塊（例如家長說明文字），用這個 class 解鎖 */
+.text-selectable {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+/* === Global Typography 控制集中區 === */
+
+:root {
+  /* 全站標題（上方「算數練習」） */
+  --font-size-page-title: 24px;
+
+  /* Home 卡片標題與說明 */
+  --font-size-game-card-title: 16px;
+  --font-size-game-card-desc: 14px;
+
+  /* 算盤題目字（可依 iPad / 手機調整） */
+  --abacus-question-font-size: clamp(52px, 6vw, 60px);
+
+  /* 題目下方狀態文字（目前暫時沒用到） */
+  --abacus-status-font-size: 14px;
+
+  /* 答案按鈕文字大小 */
+  --abacus-option-font-size: 20px;
+
+  /* 下一題按鈕文字大小 */
+  --abacus-next-font-size: 18px;
+
+  /* 算盤右下角總和文字 */
+  --abacus-total-font-size: 14px;
+
+  /* 「答案是～」主字與注音大小 */
+  --abacus-answer-main-char-size: 46px;
+  --abacus-answer-bpm-size: 15px;
+}
+
+/* === Base layout === */
+
 .app-layout-root {
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #f6f6f6;
 }
 
 .app-layout-safe-area {
@@ -25,7 +88,10 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  color: #000; /* 再保險一次 */
 }
+
+/* === Header & 頁面標題 === */
 
 .page-header {
   display: flex;
@@ -35,14 +101,65 @@
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: var(--font-size-page-title);
   margin: 0;
+}
+
+/* === Abacus header 右側：難度選擇 + 回首頁 === */
+
+.abacus-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 難度區塊容器 */
+.abacus-difficulty-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff5f5cc;
+  border: 1px solid #ffcdd2;
+}
+
+/* 「難度」這兩個字 */
+.abacus-difficulty-label {
+  font-size: 14px;
+  color: #165321;
+}
+
+/* 紅圈圈按鈕：1 / 2 / 3 */
+.abacus-difficulty-pill {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid #1e4f27;
+  background: #ffffff;
+  color: #1e4f27;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* 被選到的難度：紅底白字（目前是深綠，之後可以再換色） */
+.abacus-difficulty-pill--active {
+  background: #0d2607;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(122, 80, 77, 0.35);
 }
 
 .page-content {
   flex: 1;
-  overflow: auto;
+  overflow: hidden; /* 遊戲頁先不要有捲動，避免手機滑動干擾 */
 }
+
+/* === Home page simple grid === */
 
 .home-games-grid {
   display: flex;
@@ -56,7 +173,7 @@
   border-radius: 12px;
   border: 1px solid #ddd;
   background: #fff;
-  font-size: 16px;
+  font-size: var(--font-size-game-card-title);
   text-align: left;
   cursor: pointer;
 }
@@ -67,6 +184,445 @@
 }
 
 .game-card-description {
-  font-size: 14px;
+  font-size: var(--font-size-game-card-desc);
   opacity: 0.8;
+}
+
+/* Back button basic style */
+
+.back-to-home-button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* === Orientation overlay (portrait only) === */
+
+.orientation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.orientation-overlay-content {
+  max-width: 320px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.orientation-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.orientation-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.orientation-text {
+  font-size: 14px;
+  color: #555;
+}
+
+/* === Abacus play page layout (左右版型) === */
+
+.abacus-play-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  height: 100%;
+}
+
+.abacus-left {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.abacus-left-inner {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.abacus-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 右側上下兩框距離 */
+}
+
+/* 題目區：高度由內容決定，但不超過整個右側的 45% */
+.abacus-question-panel {
+  flex: 0 0 auto;
+  max-height: 45%;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #ffffff;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  color: #000;
+}
+
+/* 題目文字（10 + 12 = ?） */
+.abacus-question-text {
+  font-size: var(--abacus-question-font-size);
+  font-weight: 800;
+  color: #000000;
+  text-align: center;
+}
+
+/* 題目下方的小插圖（think / answer） */
+.abacus-question-illustration {
+  max-width: 80%;  /* 不超出框寬度 */
+  max-height: 60%; /* 頂多佔題目區高度的一部分，避免擠爆 */
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* 題目下方狀態文字（目前暫不顯示，可保留） */
+.abacus-status-text {
+  font-size: var(--abacus-status-font-size);
+  color: #555;
+  margin-top: 4px;
+}
+
+/* === 選項區（右下白框） === */
+.abacus-options-panel {
+  flex: 1 1 auto;
+  min-height: 0;          /* 讓它可以在小螢幕時被壓縮 */
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #000;
+}
+
+.abacus-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 答案選項按鈕 */
+.abacus-option-button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: var(--abacus-option-font-size);
+  background: #fff;
+  text-align: center;
+  color: #000;
+}
+
+.abacus-option-button--correct {
+  background: #c8e6c9;
+  border-color: #66bb6a;
+}
+
+.abacus-option-button--incorrect {
+  background: #ffcdd2;
+  border-color: #ef5350;
+}
+
+/* 答錯後被鎖住的選項：反灰、不能再按 */
+.abacus-option-button--disabled,
+.abacus-option-button:disabled {
+  background: #f5f5f5;
+  color: #999;
+  border-color: #ddd;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* 下一題按鈕 */
+.abacus-next-button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: var(--abacus-next-font-size);
+  background: #42a5f5;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* 保留「下一題」按鈕的固定高度，避免出現／消失時整個答案區跳動 */
+.abacus-next-button-slot {
+  margin-top: 8px;
+  min-height: 56px; /* 跟按鈕高度差不多 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 下一題按鈕：內部是國字＋注音的小一號版本 */
+.abacus-next-button-inner {
+  display: flex;
+  align-items: center;      /* ✅ 改成置中對齊 */
+  justify-content: center;
+  gap: 16px;
+  line-height: 1;
+}
+
+/* 只影響「下一題」裡的國字大小 */
+.abacus-next-button-inner .bpm-main-char {
+  font-size: 32px; /* 比「答案是」小一點 */
+}
+
+/* 只影響「下一題」裡的注音大小與位置 */
+.abacus-next-button-inner .bpm-column {
+  font-size: 12px;
+  transform: translateY(0);  /* ✅ 取消往上移，讓整串跟國字比較置中 */
+}
+
+/* 調號靠右但不要太外面 */
+.abacus-next-button-inner .bpm-tone {
+  right: -0.4em;
+}
+
+/* 輕聲點，如果之後有用到也順便縮一點 */
+.abacus-next-button-inner .bpm-tone-dot {
+  top: -0.6em;
+}
+
+
+/* 下一題裡面的箭頭 */
+.abacus-next-arrow {
+  font-size: 24px;
+  margin-left: 4px;
+}
+
+/* Start button on entry page */
+.abacus-start-button {
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 18px;
+  background: #42a5f5;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+/* === Abacus board basic styles === */
+
+.abacus-board {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 6px solid #d2a673; /* 木框感（之後可以再調） */
+  padding: 12px 16px;
+  box-sizing: border-box;
+  background: #fdf6e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  touch-action: none; /* 整個算盤區吃掉 touch，避免頁面捲動 */
+}
+
+.abacus-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.abacus-row-track {
+  position: relative;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+
+.abacus-row-line {
+  position: absolute;
+  left: 0.5%;
+  right: 0.5%; /* 灰線更長，接近木框寬度 */
+  height: 6px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.abacus-row-beads {
+  position: relative;
+  width: 99%;             /* 盡量貼近左右灰線 */
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;              /* ★ 珠子間距：可自行調 */
+  padding-left: 1%;       /* 讓第一顆珠子貼左端灰線 */
+  padding-right: 1%;      /* 為右邊 transform 預留空間 */
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* 算盤珠子本體 */
+.abacus-bead {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px; /* 保持圓形 */
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #eee;
+  transform: translateX(10px); /* 左端貼齊灰線（可微調） */
+  transition: transform 0.16s ease-out;
+}
+
+/* 在右邊的珠子會一起滑到右側，貼近灰線右端 */
+.abacus-bead--right {
+  transform: translateX(160px); /* ★ 右側貼齊灰線（依實測可再微調） */
+}
+
+/* 被選取／拖曳中的珠子群，暫時高亮 */
+.abacus-bead--active {
+  box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.55);
+  transform: scale(1.05) translateX(1px);
+}
+
+/* 如果在右邊又是 active，要保留右邊位移 */
+.abacus-bead--right.abacus-bead--active {
+  transform: scale(1.05) translateX(160px);
+}
+
+/* 行顏色（先用簡單色帶，之後再換成真正木珠顏色） */
+.abacus-row-color-0 .abacus-bead {
+  background: #f8bbd0;
+}
+.abacus-row-color-1 .abacus-bead {
+  background: #ef9a9a;
+}
+.abacus-row-color-2 .abacus-bead {
+  background: #fff59d;
+}
+.abacus-row-color-3 .abacus-bead {
+  background: #ffe082;
+}
+.abacus-row-color-4 .abacus-bead {
+  background: #c5e1a5;
+}
+.abacus-row-color-5 .abacus-bead {
+  background: #81c784;
+}
+.abacus-row-color-6 .abacus-bead {
+  background: #90caf9;
+}
+.abacus-row-color-7 .abacus-bead {
+  background: #b39ddb;
+}
+
+/* 算盤右下角總和文字 */
+.abacus-total-label {
+  margin-top: 8px;
+  font-size: var(--abacus-total-font-size);
+  text-align: right;
+  color: #000;
+}
+
+/* === Abacus Answer Label（答案是～ ＋ 注音） === */
+
+.abacus-answer-label {
+  display: flex;
+  align-items: flex-end; /* 國字底線對齊 */
+  justify-content: center;
+  gap: 28px;             /* 字與字之間距離 */
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+/* 一個「字＋注音」 */
+.bpm-word {
+  display: flex;
+  align-items: center;  /* ✅ 改成垂直置中，國字 & 注音中心對齊 */
+}
+
+/* 左邊的國字 */
+.bpm-main-char {
+  font-size: var(--abacus-answer-main-char-size); /* 主字大小控制點 */
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* 右邊整串注音（聲母＋韻母＋調號）直排 */
+.bpm-column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;      /* ✅ 讓注音自身也在這一柱裡置中 */
+  margin-left: 6px;             /* 在國字右側 */
+  font-size: var(--abacus-answer-bpm-size); /* 注音大小控制點 */
+  line-height: 1;
+  /* ❌ 原本的 translateY(-10px) 拿掉，避免往上偏
+  transform: translateY(-10px);
+  */
+}
+
+/* 聲母、韻母本身 */
+.bpm-onset,
+.bpm-rime {
+  display: block;
+}
+
+/* 一般調號（ˊ ˇ ˋ）：放在注音「右側、中間附近」 */
+.bpm-tone {
+  position: absolute;
+  right: -0.6em;
+  top: 50%;
+  transform: translateY(-50%);  /* 以整柱中線為基準，對齊 1～3 個堆疊 */
+}
+
+/* 輕聲點（˙）：放在整串注音上方 */
+.bpm-tone-dot {
+  position: absolute;
+  right: 0;
+  top: -0.8em;
+}
+
+/* 波浪號 ～ */
+.bpm-tilde {
+  font-size: var(--abacus-answer-main-char-size);
+  margin-left: 8px;
+}
+
+/* === Abacus: 禁止選取文字，避免長按出現選字框（保險一次） === */
+.abacus-board,
+.abacus-row,
+.abacus-row-track,
+.abacus-row-beads,
+.abacus-bead {
+  -webkit-user-select: none;
+  user-select: none;
 }

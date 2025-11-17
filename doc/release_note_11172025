@@ -1,0 +1,158 @@
+# Release Note — 算盤算數練習模組（Abacus Module）
+
+## 版本概覽
+此版本主要完成「算盤算數練習」模組的第一輪可用版本，包含題目生成邏輯、難度調整、UI/UX 調整，以及注音排版元件化。
+
+---
+
+## 新功能（Features）
+
+### 1. 題目生成 & 難度機制
+- 新增 `useAbacusGame` 參數化題目生成：
+  - `minValue`: 題目兩數字最小值
+  - `maxValue`: 題目兩數字最大值
+  - `maxResult`: 題目正確答案最大值
+  - `allowedOperators`: 允許的運算子陣列（`"+"`、`"-"`）
+- 題目生成規則：
+  - 支援加法與減法。
+  - 減法一律調整為「前者 ≥ 後者」，不會出現負數。
+  - 題目與選項會反覆生成直到 `answer <= maxResult`。
+  - 每題產生 3 個選項，包含 1 個正確答案與 2 個誤差 ±1~4 的干擾選項。
+
+### 2. 難度分級（Difficulty 1 / 2 / 3）
+- 難度設定與說明：
+  - **難度 1**：`1 ~ 19` 的加法練習，答案 `≤ 60`。
+  - **難度 2**：`1 ~ 19` 的加減混合，答案 `≤ 60`，減法不出現負數。
+  - **難度 3**：`1 ~ 40` 的加減混合，答案 `≤ 60`，減法不出現負數。
+- UI 呈現：
+  - 於 header 右側顯示「難度 1 / 2 / 3」圓形切換按鈕。
+  - 被選難度有明顯高亮狀態。
+  - 切換難度時：
+    - 立即重抽題目。
+    - 顯示對應難度說明 `alert`。
+    - 重新隨機換一組角色圖（think / answer）。
+
+### 3. 題目插圖（Think / Answer Avatar）
+- 建立 `avatarPairs` 工具，支援多組插圖：
+  - 每組包含 `think` 與 `answer` 圖片。
+  - `AbacusPlayPage` 會根據狀態 `idle / incorrect / correct` 切換：
+    - 未答對：顯示 `think`。
+    - 答對：顯示 `answer`。
+- 每一題會隨機抽一組 avatar pair：
+  - 題目切換時重新抽圖。
+  - 可無限擴充 `think-X.png` / `answer-X.png`。
+
+---
+
+## UX / UI 調整
+
+### 1. 版面佈局
+- 左右版型：
+  - 左側：完整算盤（8 列 × 10 珠）。
+  - 右側上方：題目 + 插圖區。
+  - 右側下方：答案區（「答案是～」+ 選項 + 下一題）。
+- 題目區：
+  - 題目字級使用 CSS 變數 `--abacus-question-font-size`（支援 iPad / desktop）。
+  - 題目區高度由內容決定，最多占右側高度的 45%，避免壓縮答案區。
+- 答案選項區：
+  - 按鈕高度及 padding 調整，適合小朋友手指點擊。
+  - 下方預留固定高度的「下一題」按鈕槽（`abacus-next-button-slot`）避免按鈕出現/消失時畫面跳動。
+
+### 2. 算盤互動調整
+- 珠子尺寸調整為 40×40 px，並同步調整滑動距離 (`translateX`)。
+- 改良觸控拖曳邏輯：
+  - 必須點到珠子才會啟動拖曳（點灰線或空白無效）。
+  - 同一次拖曳只處理一次移動，避免多次誤觸。
+  - Touch / Mouse 使用不同靈敏度門檻，提升 iPad 實際操作順暢度。
+  - PointerUp 階段有「超寬鬆」二次判定，避免小幅滑動被吃掉。
+- 被拖曳中的珠子群會加上高亮邊框（`abacus-bead--active`），操作感更明確。
+- 算盤右下角顯示目前總和 `total`。
+
+### 3. 防誤觸設計
+- 全站預設關閉文字選取：
+  - `html, body, #root` 與 `.app-layout-root *` 都設 `user-select: none`。
+  - iOS 長按關閉呼叫選單（`-webkit-touch-callout: none`）。
+- 若未來需要有可選文字區塊，可使用 `.text-selectable` class 覆寫。
+
+---
+
+## 注音排版與共用元件
+
+### 1. BpmWord 共用元件
+- 新增 `BpmWord` 元件：`src/components/common/BpmWord.tsx`
+- Props：
+  - `char`: 國字。
+  - `onset?`: 聲母（如 `ㄉ`、`ㄕ`），可含多符號（會自動垂直拆行）。
+  - `rime?`: 韻母（如 `ㄧ` 或 `ㄧㄚ`），亦支援多符號拆行。
+  - `tone?`: 調號（`˙`、`ˊ`、`ˇ`、`ˋ` 可選）。
+- 排版規則：
+  - 國字在左，注音縱排在右側堆疊。
+  - `onset` + `rime` 皆會依字元拆成多行堆疊，解決「ㄧㄚ」「ㄧㄣ」等組合問題。
+  - `tone === "˙"`：顯示在上方（`bpm-tone-dot`）。
+  - 其它調號：顯示在右側中間（`bpm-tone`）。
+  - 注音列利用 `.bpm-column` 控制垂直位置，可統一調整置中/上移。
+
+### 2. 統一樣式控制
+- 在 `layout.css` 中定義：
+  - 共用 class：`.bpm-word`, `.bpm-main-char`, `.bpm-column`, `.bpm-onset`, `.bpm-rime`, `.bpm-tone`, `.bpm-tone-dot`, `.bpm-tilde`。
+  - 使用 CSS 變數控制字級：
+    - `--abacus-answer-main-char-size`
+    - `--abacus-answer-bpm-size`
+- 「答案是～」：
+  - 改用 `BpmWord` 渲染：
+    - `答`：`onset="ㄉ"`, `rime="ㄚ"`, `tone="ˊ"`
+    - `案`：`rime="ㄢ"`, `tone="ˋ"`
+    - `是`：`onset="ㄕ"`, `tone="ˋ"`
+- 「下一題」：
+  - 使用較小尺寸的注音樣式（透過 `.abacus-next-button-inner` 下的樣式覆寫）：
+    - `下`：`onset="ㄒ"`, `rime="ㄧ", "ㄚ"`（已改成兩個 `BpmWord` 以避免三符號錯位）
+    - `一`：`onset="ㄧ"`
+    - `題`：`onset="ㄊ"`, `rime="ㄧ"`, `tone="ˊ"`
+
+---
+
+## 作答流程行為調整
+
+### 1. 答題與選項狀態
+- `status` 狀態機：
+  - `"idle"`：尚未作答。
+  - `"incorrect"`：曾選過錯誤答案。
+  - `"correct"`：答對。
+- 行為：
+  - 點選選項後，立即更新 `status` 與 `selected`。
+  - 若答錯：
+    - 該選項會套用 `abacus-option-button--incorrect` + `--disabled`：
+      - 背景紅色系、反灰、無法再次點擊。
+    - 其它選項仍可繼續作答。
+  - 若答對：
+    - 正確選項呈現綠色。
+    - 所有選項視為「不需再互動」，`disabled` 防呆處理。
+
+### 2. 下一題按鈕行為
+- 只有在 `status === "correct"` 時才會顯示「下一題」按鈕。
+- 按下「下一題」：
+  - 呼叫 `nextQuestion()` 重新生成題目。
+  - 重新隨機抽一組 avatar pair。
+- 目的：
+  - 小朋友若答錯，必須修正到答對才能進入下一題。
+  - 避免「狂按下一題」跳題，確保有練習到。
+
+---
+
+## 其他技術細節
+
+- 新增 `UseAbacusGameOptions` 型別，讓 `useAbacusGame` 接收完整設定。
+- 在 `AbacusPlayPage` 中使用 `useMemo` 緩存：
+  - `plusOnly` / `plusMinus` 運算子陣列。
+  - `gameOptions`（依難度不同而改變），避免不必要 re-render。
+- 對 `avatarPairs` 做邊界保護：
+  - 若沒有任何 avatar 資料，`avatarIndex` 會設為 `-1`，不會渲染破圖。
+
+---
+
+## 已知 / 待辦（TODO）
+
+- [ ] 未來可針對手機 / iPad 做 RWD 微調（例如題目字級、右側欄位比例）。
+- [ ] 難度切換目前使用 `window.alert`，可考慮改為自訂 Modal 動畫。
+- [ ] `BpmWord` 尚未支援「多字串組」的自動分詞（目前以單字為主，組詞由上層自行切分）。
+- [ ] 算盤列數與珠子數目前寫死 8×10，可考慮做成 props 以擴充更多玩法。
