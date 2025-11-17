@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kidsapp-v3';
+const CACHE_NAME = 'kidsapp-v4'; // 記得改版號，確保新 SW 生效
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [
@@ -8,7 +8,7 @@ const ASSETS = [
   '/icons/icon-512x512.png',
 ];
 
-// 安裝階段：預先快取核心資源（注意：這裡是 index.html，不是根目錄 /）
+// 安裝階段：預先快取核心資源
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// 取用階段：cache-first，並處理 SPA 導航 & redirect 問題
+// 取用階段
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -39,11 +39,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 導航請求（使用者在 PWA 裡換頁）
+  const url = new URL(request.url);
+
+  // 只處理同網域
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // ⚠ 關鍵修正：
+  // 導航請求一律交給瀏覽器，不用 SW 介入
+  // 避免把「含 redirect 的 response」丟給 iOS，造成白畫面
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL))
-    );
     return;
   }
 
@@ -71,6 +77,7 @@ self.addEventListener('fetch', (event) => {
 
           return response;
         })
+        // （選擇性）如果真的離線，對非導航請求就放棄，或回 offline 頁
         .catch(() => caches.match(OFFLINE_URL));
     })
   );

@@ -1,123 +1,89 @@
-## [2025-11-17] PWA & Cloudflare Pages Integration — Init + Deployment Ready
+## [2025-11-17] PWA & Cloudflare Pages Integration — Init
 
-### 🎯 專案進入 PWA 化與正式部署階段
+### 🎯 專案進入 PWA 化與正式部署規劃
 
-本次更新完成 Kid App 的完整 PWA 架構，並成功部署至 Cloudflare Pages（https://kidsapp.pages.dev/）。  
-所有配置均依照「全靜態 SPA」與「跨平台 PWA」的要求完成，支援 iPad / Android 的安裝與離線啟動。
+本次更新建立了整個 Kid App 的 PWA 基礎架構，並指定使用 Cloudflare Pages 做全靜態託管。所有設定皆遵循「單一前端靜態 SPA」與「本機紀錄」規範。
 
----
+### 🧱 技術基底決策
+- 使用 Vite + React + TypeScript 作為專案主架構。
+- 以 Cloudflare Pages 作為最終部署平台。
+- 採用 SPA（單頁式應用程式）設計，支援未來多遊戲模組切換。
 
-## 🧱 技術基底決策
+### 📦 新增 PWA 文件與設定
+- `/public/manifest.webmanifest`  
+  - 設定 App 名稱、icons、啟動模式、橫向顯示等。
+- `/public/sw.js`  
+  - 建立 cache-first service worker，支援離線使用。
+- `/public/icons/`  
+  - 新增 PWA 所需 icon 尺寸（192 / 512）。
 
-- 採用 **Vite + React + TypeScript** 作為主框架。
-- 使用 **Cloudflare Pages** 進行全靜態託管，並啟用自動化 CI/CD。
-- 全站採用 **SPA 路由（react-router-dom）**。
-- CSS 統一由 `layout.css` 控制全站視覺。
+### 🔧 App 入口與 Service Worker 註冊
+- 在 `src/main.tsx` 加入 service worker 自動註冊邏輯。
 
----
-
-## 📦 新增 / 調整的 PWA 相關檔案
-
-### 1. `public/manifest.webmanifest`
-- 設定 App 名稱、描述、icons、start_url。
-- 強制橫向 `landscape`，優化 iPad 遊戲體驗。
-- 設定 PWA display 模式為 `standalone`。
-
-### 2. `public/sw.js`
-- 建立 **cache-first service worker**。
-- 支援：  
-  - 首次安裝快取  
-  - App 離線啟動  
-  - 基礎 fetch fallback  
-- Cloudflare Pages 部署後 scope 正確設於 `/`。
-
-### 3. `public/icons/`
-- 新增 192x192 / 512x512 icon（使用新角色圖）。
-
----
-
-## 🔧 App 層級實作
-
-### 1. Service Worker 註冊（`src/main.tsx`）
-- App 在 load 後會自動註冊 `sw.js`。
-- 支援更新時自動啟動新版 service worker。
-
-### 2. PageContainer 建置完成
-- 統一所有頁面的 Header / Content Layout。
-
-### 3. `layout.css` 完整整合
-- 恢復 AbacusPlayPage 所有 `.abacus-*` 樣式。
-- 移除 Vite scaffold 原始樣式干擾。
-
----
-
-## 🛠️ 路由與頁面串接完成
-
-- `/` → Home 主選單。
-- `/abacus` → 小小算珠加減樂入口頁。
-- `/games/abacus/play` → 算盤遊戲頁（AbacusPlayPage）。
-- `/picture-match` → 圖像字卡入口頁（PictureMatchEntryPage）。
-
-新增 feature-level 出口：
-
-- `src/features/abacus/index.ts`
-- `src/features/pictureMatch/index.ts`
-
----
-
-## 📌 UI 與 Layout 相關修復
-
-- 修正 `.abacus-play-layout` 樣式遺失 → 原因為 layout.css 未被 main.tsx 引入。
-- 重建全站 reset，使所有遊戲排版一致。
-- 確保所有元件支援 iPad 寬螢幕。
-
----
-
-# 🚀 PWA — 安裝體驗優化（New）
-
-### ✔ 新增 `usePwaInstallPrompt`（`src/core/pwa/usePwaInstallPrompt.ts`）
-- 監聽 `beforeinstallprompt` 事件。
-- 提供 `isInstallable / isInstalled / promptInstall()` 三大狀態。
-- 監聽 `appinstalled` 自動隱藏 banner。
-
-### ✔ HomePage 新增安裝提示 Banner
-- Android / Chrome → 提供「安裝到這台裝置」按鈕。
-- iOS（Safari）→ 顯示「分享 → 加入主畫面」安裝教學。
-- 使用者關閉 Banner 本次 session 即不再顯示。
-
----
-
-# 🌐 Cloudflare Pages — 部署正式完成（kidsapp.pages.dev）
-
-### ✔ Build 設定
-- Build command：`npm run build`
+### 🌐 Cloudflare Pages 部署規範
+- Build 指令：`npm run build`
 - Output：`dist`
-- Node Version：20.x
-- Framework preset：None（Vite 官方建議）
+- SPA Fallback：自動支援
 
-### ✔ 上線後檢查結果
-- manifest 正常載入：`/manifest.webmanifest`
-- SW 成功註冊：`/sw.js`
-- icons 正常顯示
-- 所有路由支援 Cloudflare SPA fallback：
-  - `/`
+本次更新為後續遊戲模組（算盤、圖像字卡、情緒劇場等）提供完整的 PWA 與部署基礎。
+
+---
+
+### 路由與入口頁建置
+
+- 安裝並導入 `react-router-dom`，建立 SPA 路由架構。
+- 新增 `AppRouter` 與三個頁面：
+  - `/`：主入口 HomePage（遊戲選單）
+  - `/abacus`：小小算珠加減樂頁面（待掛入實際模組）
+  - `/picture-match`：圖像字卡配對頁面（待掛入實際模組）
+- 新增 `GameCard` 元件作為入口頁遊戲卡片。
+- 更新 PWA icon，改用新角色圖製作 192x192 / 512x512 icons。
+
+### 🛠️ 路由串接完成 & Layout 修復（Abacus 模組）
+
+- 完成 `/abacus` 與 `/games/abacus/play` 的完整串接，入口頁與玩法頁連動正常。
+- 保留原本 Abacus 模組的兩層頁面架構：
+  - `AbacusEntryPage`：主入口頁
+  - `AbacusPlayPage`：遊戲操作頁
+- 新增 feature-level 出口：
+  - `src/features/abacus/index.ts`
+  - `src/features/pictureMatch/index.ts`
+- 修正 AbacusPlayPage 排版異常問題：
+  - 原因為 layout.css 未被載入導致所有 `.abacus-*` 樣式遺失。
+  - 已於 `src/main.tsx` 正式引入 `./core/layout/layout.css`，並恢復完整版面。
+- 移除 Vite scaffold 預設樣式干擾，統一由 layout.css 控版。
+
+### 📌 Home 入口頁串接完成
+
+- HomePage 已可正常引導至：
   - `/abacus`
-  - `/games/abacus/play`
   - `/picture-match`
+- 所有子頁面皆可透過 SPA Router 正常切換。
 
 ---
 
-# 🔍 iPad / PWA 安裝檢查
+## 🚀 PWA 實作進入主階段
 
-### ✔ Safari 開啟首頁時
-- 顯示 iOS 版安裝教學 Banner（已驗證）。
+### ✔ Service Worker（sw.js）
+- 建立 cache-first 架構，支援離線啟動核心靜態資源。
+- 安裝階段快取固定資源（`index.html`、manifest、icons）。
+- Safari 導航請求不再由 service worker 攔截，避免 `Response served by service worker has redirections` 問題。
 
-### ✔ 「加入主畫面」後
-- 正確顯示自訂 App Icon。
-- 啟動後不再顯示 Safari UI（standalone 模式）。
-- 可離線啟動首頁（符合 PWA 要求）。
-- 進入所有路由不會跳 404（SPA fallback 正常）。
+### ✔ Main App Lifecycle
+- 在 `src/main.tsx` 完成全站 SW 自動註冊。
+- 確保所有 layout 與 feature-level CSS 於最上層載入。
 
----
+### ✔ Manifest
+- PWA icon 已正式更換為新角色圖（192 / 512）。
+- 強制 landscape 模式以符合 iPad 遊戲情境。
 
-本次更新代表 Kid App 已從開發階段進入「**正式可安裝 / 可離線 / 可部署**」的完整產品模式。
+### 🍎 iOS / iPadOS PWA 體驗優化
+- 在 `index.html` 新增 Apple PWA 所需設定：
+  - `apple-touch-icon`
+  - `apple-mobile-web-app-capable`
+  - `apple-mobile-web-app-title`
+- 修正 iPad「加入主畫面」後：
+  - icon 缺失問題
+  - 啟動時出現 Safari 白畫面與 `Response served by service worker has redirections` 的錯誤。
+
+這次更新代表 PWA 架構已經「正式可開始在 iPad 上測試安裝 & 離線運作」，後續可進入實際遊戲模組與 QA 階段。
