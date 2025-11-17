@@ -56,7 +56,7 @@ body,
 
   /* 「答案是～」主字與注音大小 */
   --abacus-answer-main-char-size: 46px;
-  --abacus-answer-bpm-size: 15px;
+  --abacus-answer-bpm-size: 20px;
 }
 
 /* === Base layout === */
@@ -399,12 +399,12 @@ body,
 
 /* 只影響「下一題」裡的國字大小 */
 .abacus-next-button-inner .bpm-main-char {
-  font-size: 32px; /* 比「答案是」小一點 */
+  font-size: 36px; /* 比「答案是」小一點 */
 }
 
 /* 只影響「下一題」裡的注音大小與位置 */
 .abacus-next-button-inner .bpm-column {
-  font-size: 12px;
+  font-size: 15px;
   transform: translateY(0);  /* ✅ 取消往上移，讓整串跟國字比較置中 */
 }
 

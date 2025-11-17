@@ -1,0 +1,78 @@
+## [2025-11-17] PWA & Cloudflare Pages Integration — Init
+
+### 🎯 專案進入 PWA 化與正式部署規劃
+
+本次更新建立了整個 Kid App 的 PWA 基礎架構，並指定使用 Cloudflare Pages 做全靜態託管。所有設定皆遵循「單一前端靜態 SPA」與「本機紀錄」規範。
+
+### 🧱 技術基底決策
+- 使用 Vite + React + TypeScript 作為專案主架構。
+- 以 Cloudflare Pages 作為最終部署平台。
+- 採用 SPA（單頁式應用程式）設計，支援未來多遊戲模組切換。
+
+### 📦 新增 PWA 文件與設定
+- `/public/manifest.webmanifest`  
+  - 設定 App 名稱、icons、啟動模式、橫向顯示等。
+- `/public/sw.js`  
+  - 建立 minimal cache-first service worker，支援離線使用。
+- `/public/icons/`  
+  - 新增 PWA 所需 icon 尺寸（192 / 512）。
+
+### 🔧 App 入口與 Service Worker 註冊
+- 在 `src/main.tsx` 加入 service worker 自動註冊邏輯。
+
+### 🌐 Cloudflare Pages 部署規範
+- Build 指令：`npm run build`
+- Output：`dist`
+- SPA Fallback：自動支援
+
+本次更新為後續遊戲模組（算盤、圖像字卡、情緒劇場等）提供完整的 PWA 與部署基礎。
+
+### 路由與入口頁建置
+
+- 安裝並導入 `react-router-dom`，建立 SPA 路由架構。
+- 新增 `AppRouter` 與三個頁面：
+  - `/`：主入口 HomePage（遊戲選單）
+  - `/abacus`：小小算珠加減樂頁面（待掛入實際模組）
+  - `/picture-match`：圖像字卡配對頁面（待掛入實際模組）
+- 新增 `GameCard` 元件作為入口頁遊戲卡片。
+- 更新 PWA icon，改用新角色圖製作 192x192 / 512x512 icons。
+
+### 🛠️ 路由串接完成 & Layout 修復（Abacus 模組）
+
+- 完成 `/abacus` 與 `/games/abacus/play` 的完整串接，入口頁與玩法頁連動正常。
+- 保留原本 Abacus 模組的兩層頁面架構：
+  - `AbacusEntryPage`：主入口頁
+  - `AbacusPlayPage`：遊戲操作頁
+- 新增 feature-level 出口：
+  - `src/features/abacus/index.ts`
+  - `src/features/pictureMatch/index.ts`
+- 修正 AbacusPlayPage 排版異常問題：
+  - 原因為 layout.css 未被載入導致所有 `.abacus-*` 樣式遺失。
+  - 已於 `src/main.tsx` 正式引入 `./core/layout/layout.css`，並恢復完整版面。
+- 移除 Vite scaffold 預設樣式干擾，統一由 layout.css 控版。
+
+### 📌 Home 入口頁串接完成
+
+- HomePage 已可正常引導至：
+  - `/abacus`
+  - `/picture-match`
+- 所有子頁面皆可透過 SPA Router 正常切換。
+
+---
+
+## 🚀 PWA 實作進入主階段
+
+### ✔ Service Worker（sw.js）
+- 已建立 cache-first 架構，可離線啟動。
+- 安裝階段快取固定資源（`index.html`、manifest、icons）。
+- 所有 fetch 預設走 cache-first，再 fallback 網路。
+
+### ✔ Main App Lifecycle
+- 在 `src/main.tsx` 完成全站 SW 自動註冊。
+- 確保所有 layout 與 feature-level CSS 於最上層載入。
+
+### ✔ Manifest
+- PWA icon 已正式更換為新角色圖（192 / 512）。
+- 強制 landscape 模式以符合 iPad 遊戲情境。
+
+這次更新代表 PWA 架構已經「正式可開始測試安裝 & 離線運作」。接下來進入部署與 QA 階段。

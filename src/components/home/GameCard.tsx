@@ -33,17 +33,15 @@ export const GameCard: React.FC<GameCardProps> = ({
       }}
     >
       <div>
-        {subtitle && (
-          <div
-            style={{
-              fontSize: "14px",
-              opacity: 0.7,
-              marginBottom: "4px"
-            }}
-          >
-            {subtitle}
-          </div>
-        )}
+        <div
+          style={{
+            fontSize: "14px",
+            opacity: 0.7,
+            marginBottom: "4px"
+          }}
+        >
+          {subtitle}
+        </div>
         <h2
           style={{
             fontSize: "20px",
