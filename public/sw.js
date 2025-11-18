@@ -1,4 +1,5 @@
-const CACHE_NAME = 'kidsapp-v4'; // 記得改版號，確保新 SW 生效
+// /public/sw.js
+const CACHE_NAME = 'kidsapp-v5'; // 記得改版號，確保新 SW 生效
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [
@@ -46,14 +47,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ⚠ 關鍵修正：
-  // 導航請求一律交給瀏覽器，不用 SW 介入
-  // 避免把「含 redirect 的 response」丟給 iOS，造成白畫面
+  // ⚠ 導航請求一律交給瀏覽器，不用 SW 介入
   if (request.mode === 'navigate') {
     return;
   }
 
-  // 其他資源：一般 cache-first
+  // ⚠ 圖片一律交給瀏覽器（不走 cache-first，不離線 fallback）
+  //   避免：PNG 拿到錯誤的 HTML / 舊版快取 → 圖片不出現或不更新
+  if (request.destination === 'image') {
+    return;
+  }
+
+  // 其他靜態資源：一般 cache-first
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
@@ -77,7 +82,7 @@ self.addEventListener('fetch', (event) => {
 
           return response;
         })
-        // （選擇性）如果真的離線，對非導航請求就放棄，或回 offline 頁
+        // 只對「我們有預先快取的東西」做離線 fallback
         .catch(() => caches.match(OFFLINE_URL));
     })
   );

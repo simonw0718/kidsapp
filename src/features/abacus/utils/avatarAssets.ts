@@ -6,16 +6,19 @@ export interface AvatarPair {
   answer: string;
 }
 
+// 幫 Vite 的 import.meta.glob 補型別
+type ImageModule = { default: string };
+
 // 自動收集 abacus 資料夾底下的 think-*.png / answer-*.png
-// 路徑是相對於這個檔案的位置：features/abacus/utils → ../../.. → src
-const thinkModules = import.meta.glob(
+// 路徑是相對於這個檔案的位置：features/abacus/utils → ../../../assets/abacus
+const thinkModules = import.meta.glob<ImageModule>(
   "../../../assets/abacus/think-*.png",
   {
     eager: true,
   }
 );
 
-const answerModules = import.meta.glob(
+const answerModules = import.meta.glob<ImageModule>(
   "../../../assets/abacus/answer-*.png",
   {
     eager: true,
@@ -33,7 +36,7 @@ const extractIndex = (path: string): number | null => {
 export const avatarPairs: AvatarPair[] = Object.keys(thinkModules)
   .map((thinkPath) => {
     const index = extractIndex(thinkPath);
-    if (!index) return null;
+    if (!index) return null; // 目前檔名從 1 開始，所以 index=0 不會被用到
 
     // 預期對應檔名：answer-X.png
     const expectedAnswerPath = thinkPath.replace("think-", "answer-");
@@ -44,8 +47,8 @@ export const avatarPairs: AvatarPair[] = Object.keys(thinkModules)
       return null;
     }
 
-    const think = (thinkModules[thinkPath] as any).default as string;
-    const answer = (answerModule as any).default as string;
+    const think = thinkModules[thinkPath].default;
+    const answer = answerModule.default;
 
     return { index, think, answer } as AvatarPair;
   })

@@ -174,6 +174,7 @@ export const AbacusPlayPage: React.FC = () => {
             {/* 題目下方插圖：think / answer 成對切換 */}
             {statusImg && (
               <img
+                key={statusImg} // 🔑 用圖片 URL 當 key，強制 Safari 重建 <img>，避免不更新
                 src={statusImg}
                 alt={statusImgAlt}
                 className="abacus-question-illustration"
