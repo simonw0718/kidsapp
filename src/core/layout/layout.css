@@ -43,6 +43,21 @@ body,
   --font-size-game-card-title: 16px;
   --font-size-game-card-desc: 14px;
 
+  /* [iOS PWA Safe Area 設定] */
+  /* 這些變數會自動偵測 iOS 的安全區域，避免內容被瀏海或底部橫條遮住 */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* [頁面邊距設定] 可調整頁面內容與螢幕邊緣的距離 */
+  --page-padding-top: 12px;
+  /* 上方額外間距 */
+  --page-padding-horizontal: 16px;
+  /* 左右間距 */
+  --page-padding-bottom: 12px;
+  /* 下方額外間距 */
+
   /* [以下為舊版變數，目前主要由 abacus.css 控制，可忽略] */
   --abacus-question-font-size: clamp(52px, 6vw, 60px);
   --abacus-status-font-size: 14px;
@@ -102,12 +117,27 @@ body,
   gap: 12px;
 }
 
+/* === Page Container === */
+/* [頁面容器設定] 控制整個頁面的 padding，包含 iOS 安全區域 */
+.page-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /* [iOS 安全區域 Padding] 結合安全區域與自訂間距 */
+  padding-top: calc(var(--safe-area-top) + var(--page-padding-top));
+  padding-left: calc(var(--safe-area-left) + var(--page-padding-horizontal));
+  padding-right: calc(var(--safe-area-right) + var(--page-padding-horizontal));
+  padding-bottom: calc(var(--safe-area-bottom) + var(--page-padding-bottom));
+}
+
 .page-content {
   flex: 1;
   overflow-y: auto;
-  /* [頁面內容與標題間距] 調整內容區域與頁面標題的距離 */
-  padding: 0 20px 20px;
-  /* 上 0px (移除上方間距)，左右 20px，下 20px */
+  /* [頁面內容內距] 內容區域的額外間距，已由 page-container 提供主要間距 */
+  padding: 0 4px 4px;
+  /* 減少 padding 因為 page-container 已經提供了主要間距 */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
