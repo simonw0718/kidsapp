@@ -18,7 +18,7 @@ export const StimulusDisplay: React.FC<StimulusDisplayProps> = ({ item, mode, on
                 className={`pm-stimulus-card ${isPlaying ? 'pm-stimulus-card--playing' : ''} ${isEnglishOrDino ? 'pm-stimulus-card--clickable' : ''}`}
                 style={{
                     /* [題目字體大小控制] */
-                    fontSize: isEnglishOrDino ? '3rem' : '3rem', // 英文/恐龍模式: 4rem, 注音模式: 由 ZhuyinWord 組件控制
+                    fontSize: isEnglishOrDino ? '2.5rem' : '2.5rem', // 英文/恐龍模式: 4rem, 注音模式: 由 ZhuyinWord 組件控制
                 }}
             >
                 {isEnglishOrDino ? (

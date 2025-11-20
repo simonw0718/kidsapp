@@ -37,7 +37,11 @@ export const HomePage: React.FC = () => {
         width: "100vw",
         height: "100vh",
         boxSizing: "border-box",
-        padding: "24px",
+        // [iOS 安全區域 Padding] 使用 CSS 變數確保內容不被系統 UI 遮住
+        paddingTop: "calc(var(--safe-area-top) + var(--page-padding-top) + 12px)",
+        paddingLeft: "calc(var(--safe-area-left) + var(--page-padding-horizontal) + 8px)",
+        paddingRight: "calc(var(--safe-area-right) + var(--page-padding-horizontal) + 8px)",
+        paddingBottom: "calc(var(--safe-area-bottom) + var(--page-padding-bottom) + 12px)",
         display: "flex",
         flexDirection: "column",
         gap: "16px",

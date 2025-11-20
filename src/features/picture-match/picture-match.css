@@ -227,11 +227,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    /* [垂直對齊方式] 改為 flex-start 避免被上方按鈕遮住 */
+    justify-content: flex-start;
     height: 100%;
     gap: 20px;
     /* [標題與內容間距] 調整「請選擇遊戲模式」與頁面頂部的距離，數值越小越緊密 */
     padding: 20px;
+    /* [上方間距] 確保內容不會被 BackToHomeButton 遮住 */
+    margin-top: 20px;
 }
 
 .pm-entry-visual {
