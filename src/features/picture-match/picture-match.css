@@ -1,0 +1,398 @@
+/* src/features/picture-match/picture-match.css */
+
+/* === Game Layout === */
+.pm-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* === Header Controls === */
+.pm-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pm-difficulty-select {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 2px solid #FF9800;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.pm-difficulty-select:hover {
+    background-color: #FFF3E0;
+}
+
+.pm-difficulty-select:focus {
+    border-color: #F57C00;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+.pm-mode-switch-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 2px solid #666;
+    background-color: transparent;
+    color: #666;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* === Card Grid === */
+.pm-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* === Stimulus Display === */
+.pm-stimulus-container {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.pm-stimulus-card {
+    /* [題目字體大小控制] */
+    /* fontSize is handled inline due to dynamic value based on mode */
+    font-weight: bold;
+    color: #333;
+    padding: 20px 40px;
+    border-radius: 20px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pm-stimulus-card--playing {
+    box-shadow: 0 0 20px #4CAF50;
+}
+
+.pm-stimulus-card--clickable {
+    cursor: pointer;
+}
+
+.pm-stimulus-label {
+    font-size: 1.5rem;
+    color: #666;
+}
+
+/* === Next Button === */
+.pm-next-btn {
+    margin-top: 32px;
+    padding: 16px 32px;
+    font-size: 24px;
+    border-radius: 50px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* === Responsive: Mobile Portrait === */
+@media (max-width: 480px) and (orientation: portrait) {
+    .pm-game-container {
+        padding: 10px;
+        justify-content: flex-start;
+    }
+
+    .pm-header-controls {
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .pm-difficulty-select {
+        padding: 6px 10px;
+        font-size: 12px;
+        flex: 0 0 auto;
+    }
+
+    .pm-mode-switch-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        flex: 0 0 auto;
+    }
+
+    .pm-stimulus-container {
+        margin-bottom: 20px;
+        gap: 8px;
+    }
+
+    .pm-stimulus-card {
+        padding: 12px 24px;
+    }
+
+    .pm-stimulus-label {
+        font-size: 1.2rem;
+    }
+
+    .pm-card-grid {
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .pm-next-btn {
+        margin-top: 16px;
+        padding: 12px 24px;
+        font-size: 20px;
+    }
+}
+
+/* === Responsive: Mobile Landscape === */
+@media (max-height: 500px) and (orientation: landscape) {
+    .pm-game-container {
+        padding: 4px 20px;
+        flex-direction: row;
+        gap: 24px;
+    }
+
+    .pm-stimulus-container {
+        margin-bottom: 0;
+        flex: 0 0 auto;
+    }
+
+    .pm-stimulus-card {
+        padding: 10px 20px;
+    }
+
+    .pm-stimulus-label {
+        display: none;
+        /* Hide label in landscape to save space */
+    }
+
+    .pm-card-grid {
+        grid-template-columns: repeat(4, 1fr);
+        /* 4 columns in one row */
+        gap: 12px;
+        margin-top: 0;
+        flex: 1;
+        height: auto;
+        align-items: center;
+    }
+
+    /* Adjust StimulusDisplay in landscape via global class override or specific selector if needed */
+    /* We might need to target the StimulusDisplay container specifically */
+
+    .pm-next-btn {
+        margin-top: 0;
+        position: absolute;
+        bottom: 10px;
+        right: 20px;
+        padding: 8px 24px;
+        font-size: 18px;
+    }
+}
+
+/* === Entry Page === */
+.pm-entry-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 20px;
+    /* [標題與內容間距] 調整「請選擇遊戲模式」與頁面頂部的距離，數值越小越緊密 */
+    padding: 20px;
+}
+
+.pm-entry-visual {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pm-entry-image {
+    max-width: 100%;
+    width: 400px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.pm-entry-image:hover {
+    transform: scale(1.05);
+}
+
+.pm-entry-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 0;
+    /* 調整標題與「請選擇遊戲模式」的距離，0 = 緊密，20px = 較寬鬆 */
+    text-align: center;
+}
+
+.pm-entry-options {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pm-entry-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* [按鈕尺寸調整] */
+    width: 280px;
+    height: 280px;
+    border-radius: 30px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.pm-entry-btn:hover {
+    transform: scale(1.05);
+}
+
+.pm-entry-btn--english {
+    background-color: #4CAF50;
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+}
+
+.pm-entry-btn--zhuyin {
+    background-color: #FF9800;
+    /* [背景色] 注音模式按鈕顏色 */
+    box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+    /* [陰影] */
+}
+
+.pm-entry-btn--dinosaur {
+    background-color: #9C27B0;
+    /* [背景色] 恐龍模式按鈕顏色 (紫色) */
+    box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3);
+    /* [陰影] */
+}
+
+.pm-entry-icon {
+    font-size: 5rem;
+    margin-bottom: 10px;
+}
+
+.pm-entry-label {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.pm-entry-sublabel {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin-top: 8px;
+}
+
+/* Responsive Entry Page */
+@media (max-width: 600px) {
+    .pm-entry-image {
+        width: 90%;
+        max-width: 300px;
+    }
+
+    .pm-entry-title {
+        font-size: 1.5rem;
+    }
+
+    .pm-entry-options {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .pm-entry-btn {
+        width: 100%;
+        max-width: 280px;
+        height: 200px;
+        /* Reduce height on mobile */
+    }
+
+    .pm-entry-icon {
+        font-size: 4rem;
+    }
+
+    .pm-entry-label {
+        font-size: 1.5rem;
+    }
+}
+
+/* Start Overlay */
+.pm-start-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    cursor: pointer;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.pm-start-image {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15));
+}
+
+.pm-start-overlay:hover .pm-start-image {
+    transform: scale(1.05) rotate(-2deg);
+}
+
+.pm-start-overlay:active .pm-start-image {
+    transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

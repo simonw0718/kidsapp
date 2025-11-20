@@ -1,8 +1,28 @@
-simonwang@MacBookAir kidapp % tree
+(.venv) simonwang@MacBookAir kidapp % tree
 .
+├── dist
+│   ├── assets
+│   │   ├── answer-1-KLG2CvW6.png
+│   │   ├── answer-2-B-xBPn36.png
+│   │   ├── answer-3-BRujYa-j.png
+│   │   ├── index-BYs1OUML.js
+│   │   ├── index-sP5Sww8l.css
+│   │   ├── think-1-DPbOdWfP.png
+│   │   ├── think-2-DycarsZb.png
+│   │   └── think-3-DaJtcaaQ.png
+│   ├── icons
+│   │   ├── icon-192.png
+│   │   └── icon-512.png
+│   ├── index.html
+│   ├── manifest.webmanifest
+│   ├── sw.js
+│   └── vite.svg
 ├── doc
+│   ├── abacus_entry.png
 │   ├── icon.png
-│   └── release_note_11172025
+│   ├── release_note_11172025
+│   ├── release_note_11182025
+│   └── tree_11172025
 ├── eslint.config.js
 ├── index.html
 ├── node_modules
@@ -4868,13 +4888,6 @@ simonwang@MacBookAir kidapp % tree
 │   │   ├── README.md
 │   │   └── types
 │   │       └── index.d.ts
-│   ├── fsevents
-│   │   ├── fsevents.d.ts
-│   │   ├── fsevents.js
-│   │   ├── fsevents.node
-│   │   ├── LICENSE
-│   │   ├── package.json
-│   │   └── README.md
 │   ├── gensync
 │   │   ├── index.js
 │   │   ├── index.js.flow
@@ -6832,6 +6845,11 @@ simonwang@MacBookAir kidapp % tree
 ├── package-lock.json
 ├── package.json
 ├── public
+│   ├── icons
+│   │   ├── icon-192.png
+│   │   └── icon-512.png
+│   ├── manifest.webmanifest
+│   ├── sw.js
 │   └── vite.svg
 ├── README.md
 ├── src
@@ -6846,22 +6864,27 @@ simonwang@MacBookAir kidapp % tree
 │   │   │   ├── think-2.png
 │   │   │   └── think-3.png
 │   │   ├── icons
+│   │   │   └── kid-icon-source.png
 │   │   ├── illustrationns
 │   │   ├── react.svg
 │   │   └── ui
 │   ├── components
-│   │   └── common
-│   │       ├── AppShell.tsx
-│   │       ├── BackToHomeButton.tsx
-│   │       ├── BpmWord.tsx
-│   │       ├── GameCard.tsx
-│   │       └── PageContainer.tsx
+│   │   ├── common
+│   │   │   ├── AppShell.tsx
+│   │   │   ├── BackToHomeButton.tsx
+│   │   │   ├── BpmWord.tsx
+│   │   │   ├── GameCard.tsx
+│   │   │   └── PageContainer.tsx
+│   │   └── home
+│   │       └── GameCard.tsx
 │   ├── core
 │   │   ├── audio
 │   │   │   └── audioPlayer.ts
 │   │   ├── layout
 │   │   │   ├── layout.css
 │   │   │   └── Layout.tsx
+│   │   ├── pwa
+│   │   │   └── usePwaInstallPrompt.ts
 │   │   └── storage
 │   │       ├── localStorageClient.ts
 │   │       └── storageKeys.ts
@@ -6873,19 +6896,27 @@ simonwang@MacBookAir kidapp % tree
 │   │   │   │   └── AbacusBoard.tsx
 │   │   │   ├── hooks
 │   │   │   │   └── useAbacusGame.ts
+│   │   │   ├── index.ts
 │   │   │   ├── types.ts
 │   │   │   └── utils
 │   │   │       └── avatarAssets.ts
 │   │   ├── home
 │   │   │   └── HomePage.tsx
 │   │   └── pictureMatch
+│   │       ├── index.ts
 │   │       └── PictureMatchEntryPage.tsx
 │   ├── index.css
-│   └── main.tsx
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── AbacusPage.tsx
+│   │   ├── HomePage.tsx
+│   │   └── PictureMatchPage.tsx
+│   └── routes
+│       └── AppRouter.tsx
 ├── tsconfig.app.json
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
 
-649 directories, 6238 files
-simonwang@MacBookAir kidapp % 
+656 directories, 6262 files
+(.venv) simonwang@MacBookAir kidapp % 

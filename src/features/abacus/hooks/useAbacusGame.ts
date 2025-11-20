@@ -93,8 +93,18 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
     (value: number) => {
       setSelected(value);
       if (value === question.answer) {
+        // Play correct sound
+        const correctAudio = new Audio('/audio/correct_sound.mp3');
+        correctAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
+        correctAudio.play().catch(err => console.warn('Failed to play correct sound:', err));
+
         setStatus("correct");
       } else {
+        // Play failure sound
+        const failureAudio = new Audio('/audio/failure_sound.mp3');
+        failureAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
+        failureAudio.play().catch(err => console.warn('Failed to play failure sound:', err));
+
         setStatus("incorrect");
       }
     },

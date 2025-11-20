@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "../../components/common/PageContainer";
 import { BackToHomeButton } from "../../components/common/BackToHomeButton";
+import "./abacus.css"; // Ensure CSS is imported
 
 export const AbacusEntryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,18 +13,29 @@ export const AbacusEntryPage: React.FC = () => {
       title="小小算珠加減樂"
       headerRight={<BackToHomeButton />}
     >
-      <p>
-        滑動算珠，感受數量的變化，再選出正確的答案！
-      </p>
-      <p>一開始先從簡單的加法練習開始，不用怕算錯，慢慢玩就會越來越熟。</p>
+      <div className="abacus-entry-container">
+        <div className="abacus-entry-visual">
+          {/* Custom entry image */}
+          <img
+            src="/icons/abacus_entry.png"
+            alt="算珠加減樂"
+            className="abacus-entry-image"
+          />
+        </div>
 
-      <button
-        type="button"
-        className="abacus-start-button"
-        onClick={() => navigate("/games/abacus/play")}
-      >
-        開始加法練習 ➜
-      </button>
+        <div className="abacus-entry-content">
+          <h2 className="abacus-entry-subtitle">準備好開始數數了嗎？</h2>
+
+          <button
+            type="button"
+            className="abacus-start-button-large"
+            onClick={() => navigate("/games/abacus/play")}
+          >
+            <span className="start-icon">▶</span>
+            開始遊戲
+          </button>
+        </div>
+      </div>
     </PageContainer>
   );
 };

@@ -1,0 +1,768 @@
+/* src/features/abacus/abacus.css */
+
+/* === Abacus Typography & Sizing (可調整參數區) === */
+/* [珠算參數設定] 此區塊定義了所有可調整的尺寸變數 */
+.abacus-play-layout {
+  /* 
+     [字體大小設定]
+     使用 clamp(最小值, 視窗比例, 最大值) 來確保在不同螢幕上的可讀性。
+     調整方式：修改括號內的數值。
+  */
+
+  /* 題目字體大小 (例如：5 + 3 = ?) */
+  --abacus-question-font-size: clamp(36px, 7.5vh, 90px);
+
+  /* 選項按鈕文字大小 */
+  --abacus-option-font-size: clamp(16px, 2.5vh, 24px);
+
+  /* 下一題按鈕文字大小 */
+  --abacus-next-font-size: clamp(16px, 2.5vh, 20px);
+
+  /* 右下角總和顯示文字大小 */
+  --abacus-total-font-size: clamp(12px, 1.5vh, 16px);
+
+  /* 答案顯示區的主字大小 (數字或國字) */
+  --abacus-answer-main-char-size: clamp(24px, 4vh, 46px);
+
+  /* 答案顯示區的注音大小 */
+  --abacus-answer-bpm-size: clamp(12px, 2vh, 20px);
+
+  /* 
+     [算盤珠子設定]
+  */
+  /* 珠子大小 (直徑) */
+  --bead-size: clamp(30px, 5vh, 46px);
+
+  /* 
+     珠子滑動距離 (預設值)
+     注意：實際距離會被下方的 container query 覆蓋，請至 .abacus-row-beads 修改
+  */
+  --bead-gap: 200px;
+}
+
+/* === Header Right === */
+.abacus-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.abacus-difficulty-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fff5f5cc;
+  border: 1px solid #ffcdd2;
+}
+
+.abacus-difficulty-label {
+  font-size: 14px;
+  color: #165321;
+}
+
+.abacus-difficulty-pill {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid #1e4f27;
+  background: #ffffff;
+  color: #1e4f27;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.abacus-difficulty-pill--active {
+  background: #0d2607;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(122, 80, 77, 0.35);
+}
+
+/* === Main Layout === */
+.abacus-play-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  height: 100%;
+  width: 100%;
+  padding-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.abacus-left {
+  flex: 1.8;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.abacus-left-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.abacus-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* === Question Panel === */
+.abacus-question-panel {
+  flex: 4.5;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #ffffff;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  color: #000;
+  min-height: 0;
+}
+
+.abacus-question-text {
+  font-size: var(--abacus-question-font-size);
+  font-weight: 800;
+  color: #000000;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.abacus-question-illustration {
+  max-width: 100%;
+  max-height: 60%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* === Options Panel === */
+.abacus-options-panel {
+  flex: 5.5;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+  color: #000;
+  min-height: 0;
+}
+
+.abacus-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.abacus-option-button {
+  width: 100%;
+  padding: 0.6em 0;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: var(--abacus-option-font-size);
+  background: #fff;
+  text-align: center;
+  color: #000;
+  transition: all 0.2s;
+  height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.abacus-option-button:active {
+  transform: scale(0.98);
+}
+
+.abacus-option-button--correct {
+  background: #c8e6c9;
+  border-color: #66bb6a;
+}
+
+.abacus-option-button--incorrect {
+  background: #ffcdd2;
+  border-color: #ef5350;
+}
+
+.abacus-option-button--disabled,
+.abacus-option-button:disabled {
+  background: #f5f5f5;
+  color: #999;
+  border-color: #ddd;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* === Next Button === */
+.abacus-next-button-slot {
+  margin-top: auto;
+  min-height: 4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.abacus-next-button {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: none;
+  font-size: var(--abacus-next-font-size);
+  background: #42a5f5;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(66, 165, 245, 0.2);
+  transition: transform 0.1s;
+}
+
+.abacus-next-button:active {
+  transform: scale(0.98);
+}
+
+.abacus-next-button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  line-height: 1;
+}
+
+.abacus-next-button-inner .bpm-main-char {
+  font-size: 1.5em;
+}
+
+.abacus-next-button-inner .bpm-column {
+  /* 使用預設比例，不需額外設定 */
+  transform: translateY(0);
+}
+
+.abacus-next-button-inner .bpm-tone {
+  right: -0.4em;
+}
+
+.abacus-next-arrow {
+  font-size: 1.2em;
+  margin-left: 4px;
+}
+
+/* === Abacus Board === */
+.abacus-board {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 6px solid #d2a673;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  background: #fdf6e9;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  touch-action: none;
+  overflow: hidden;
+}
+
+.abacus-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  /* Enable container queries for dynamic gap calculation */
+  container-type: inline-size;
+}
+
+.abacus-row-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  touch-action: none;
+}
+
+.abacus-row-line {
+  position: absolute;
+  left: 0.5%;
+  right: 0.5%;
+  height: 6px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.abacus-row-beads {
+  position: relative;
+  width: 99%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: calc(var(--bead-size) * 0.2);
+  padding-left: 1%;
+  padding-right: 1%;
+  box-sizing: border-box;
+  z-index: 1;
+
+  /* 
+     [珠子滑動距離動態計算]
+     這是最關鍵的參數，決定珠子往右滑會停在哪裡。
+     公式：總寬度 (100cqw) - (珠子大小 * 係數)
+     
+     調整方式：
+     修改下方的乘數 (目前為 13)。
+     - 數字越大 (例如 13.5)：珠子離右邊界越遠 (往左靠)
+     - 數字越小 (例如 12.5)：珠子離右邊界越近 (往右靠)
+  */
+  /* [核心參數] 修改此處的 13 來調整滑動距離 */
+  --bead-gap: calc(100cqw - (var(--bead-size) * 13));
+}
+
+.abacus-bead {
+  width: var(--bead-size);
+  height: var(--bead-size);
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #eee;
+  transform: translateX(calc(var(--bead-size) * 0.25));
+  transition: transform 0.16s ease-out;
+  flex-shrink: 0;
+}
+
+.abacus-bead--right {
+  transform: translateX(var(--bead-gap));
+}
+
+.abacus-bead--active {
+  box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.55);
+  transform: scale(1.05) translateX(calc(var(--bead-size) * 0.025));
+  z-index: 2;
+}
+
+.abacus-bead--right.abacus-bead--active {
+  transform: scale(1.05) translateX(var(--bead-gap));
+}
+
+/* Row Colors */
+.abacus-row-color-0 .abacus-bead {
+  background: #f8bbd0;
+}
+
+.abacus-row-color-1 .abacus-bead {
+  background: #ef9a9a;
+}
+
+.abacus-row-color-2 .abacus-bead {
+  background: #fff59d;
+}
+
+.abacus-row-color-3 .abacus-bead {
+  background: #ffe082;
+}
+
+.abacus-row-color-4 .abacus-bead {
+  background: #c5e1a5;
+}
+
+.abacus-row-color-5 .abacus-bead {
+  background: #81c784;
+}
+
+.abacus-row-color-6 .abacus-bead {
+  background: #90caf9;
+}
+
+.abacus-row-color-7 .abacus-bead {
+  background: #b39ddb;
+}
+
+.abacus-total-label {
+  margin-top: 4px;
+  font-size: var(--abacus-total-font-size);
+  text-align: right;
+  color: #000;
+}
+
+/* === Answer Label === */
+.abacus-answer-label {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.5em;
+  margin-bottom: 8px;
+  margin-top: 4px;
+  font-size: var(--abacus-answer-main-char-size);
+}
+
+/* 
+   [注音樣式已移至 layout.css] 
+   現在全站共用同一套注音 CSS，請至 src/core/layout/layout.css 修改。
+*/
+
+/* === Entry Page Styles === */
+.abacus-entry-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  gap: 24px;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.abacus-entry-visual {
+  position: relative;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.abacus-entry-image {
+  max-width: 100%;
+  width: 400px;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.abacus-entry-image:hover {
+  transform: scale(1.05);
+}
+
+.abacus-entry-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.abacus-entry-subtitle {
+  font-size: clamp(18px, 4vw, 28px);
+  color: #5d4037;
+  margin: 0;
+  font-weight: 600;
+}
+
+.abacus-start-button-large {
+  width: 100%;
+  padding: 16px 32px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  color: white;
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(67, 160, 71, 0.3);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.abacus-start-button-large:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 8px rgba(67, 160, 71, 0.2);
+}
+
+.start-icon {
+  font-size: 0.8em;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes sparkle {
+  0% {
+    transform: scale(0.8) rotate(-10deg);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+}
+
+/* === Responsive: Portrait Mode (iPad) === */
+@media (max-aspect-ratio: 1/1) or (max-width: 768px) {
+  .abacus-play-layout {
+    flex-direction: column;
+  }
+
+  .abacus-left {
+    flex: 1.2;
+    width: 100%;
+  }
+
+  .abacus-right {
+    flex: 1;
+    width: 100%;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .abacus-question-panel {
+    flex: 1;
+    height: 100%;
+    max-height: none;
+  }
+
+  .abacus-options-panel {
+    flex: 1;
+    height: 100%;
+  }
+
+  .abacus-play-layout {
+    /* Increased font size */
+    --abacus-question-font-size: clamp(30px, 6vw, 54px);
+    --abacus-option-font-size: clamp(14px, 3vw, 20px);
+    --bead-size: clamp(24px, 6vh, 40px);
+  }
+}
+
+/* === Responsive: Small Mobile Portrait (iPhone Vertical) === */
+@media (max-width: 480px) and (orientation: portrait) {
+  .abacus-play-layout {
+    gap: 16px;
+    /* Increased gap between board and controls */
+    padding-bottom: 8px;
+    flex-direction: column;
+  }
+
+  .abacus-left {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .abacus-right {
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 16px;
+    /* Increased gap between question and options */
+    width: 100%;
+  }
+
+  .abacus-question-panel {
+    padding: 8px;
+    flex: 0 0 auto;
+    height: auto;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .abacus-question-text {
+    font-size: 36px;
+    /* Increased font size */
+    margin: 0;
+  }
+
+  .abacus-question-illustration {
+    display: block;
+    max-height: 60px;
+    width: auto;
+  }
+
+  .abacus-options-panel {
+    padding: 8px;
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .abacus-options {
+    flex-direction: row;
+    gap: 12px;
+    /* Increased gap between buttons */
+  }
+
+  .abacus-option-button {
+    height: 48px;
+    /* Slightly taller */
+    font-size: 22px;
+    padding: 0;
+  }
+
+  .abacus-answer-label {
+    display: none;
+  }
+
+  .abacus-difficulty-label {
+    display: none;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  .abacus-difficulty-pill {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+
+  /* Bead adjustments - Even smaller to prevent overflow */
+  .abacus-play-layout {
+    --bead-size: clamp(14px, 5.5vw, 22px);
+    /* Reduced max size */
+    /* Gap is handled by container query now */
+  }
+
+  .abacus-board {
+    padding: 4px 8px;
+  }
+
+  .abacus-row-beads {
+    padding-left: 0.5%;
+    padding-right: 0.5%;
+  }
+
+  /* Entry Page Mobile Adjustments */
+  .abacus-entry-emoji {
+    font-size: 100px;
+  }
+
+  .abacus-start-button-large {
+    font-size: 24px;
+    padding: 12px 24px;
+  }
+}
+
+/* === Responsive: Mobile Landscape (iPhone Horizontal) === */
+@media (max-height: 500px) and (orientation: landscape) {
+  .abacus-play-layout {
+    flex-direction: row;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+
+  .abacus-left {
+    flex: 1.5;
+    height: 100%;
+  }
+
+  .abacus-right {
+    flex: 1;
+    height: 100%;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .abacus-question-panel {
+    flex: 1;
+    padding: 4px;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .abacus-question-text {
+    font-size: 30px;
+    /* Increased font size */
+  }
+
+  .abacus-question-illustration {
+    max-height: 50px;
+    width: auto;
+  }
+
+  .abacus-options-panel {
+    flex: 1.2;
+    padding: 4px;
+  }
+
+  .abacus-options {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .abacus-option-button {
+    height: 36px;
+    font-size: 16px;
+    flex: 1;
+    min-width: 60px;
+  }
+
+  /* Bead adjustments */
+  .abacus-play-layout {
+    --bead-size: clamp(16px, 9vh, 28px);
+  }
+
+  .abacus-board {
+    padding: 4px 12px;
+  }
+
+  .abacus-answer-label {
+    display: none;
+  }
+
+  .abacus-difficulty-label {
+    display: none;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  .abacus-difficulty-pill {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+
+  /* Entry Page Landscape Adjustments */
+  .abacus-entry-container {
+    flex-direction: row;
+    /* Side by side */
+    gap: 40px;
+  }
+
+  .abacus-entry-emoji {
+    font-size: 100px;
+  }
+}

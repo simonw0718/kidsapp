@@ -1,6 +1,6 @@
 // src/pages/HomePage.tsx
 import React, { useEffect, useState } from "react";
-import { GameCard } from "../components/home/GameCard";
+import { Link } from "react-router-dom";
 import { usePwaInstallPrompt } from "../core/pwa/usePwaInstallPrompt";
 
 export const HomePage: React.FC = () => {
@@ -8,18 +8,18 @@ export const HomePage: React.FC = () => {
   const [dismissed, setDismissed] = useState(false);
   const [isIosLike, setIsIosLike] = useState(false);
 
-useEffect(() => {
-  if (typeof window === "undefined") return;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  const ua = window.navigator.userAgent || "";
-  const isIphoneOrIpad = /iPhone|iPad|iPod/.test(ua);
+    const ua = window.navigator.userAgent || "";
+    const isIphoneOrIpad = /iPhone|iPad|iPod/.test(ua);
 
-  // iPadOS 很常回報成 Macintosh，但有觸控
-  const isTouchMac =
-    ua.includes("Macintosh") && "ontouchend" in window;
+    // iPadOS 很常回報成 Macintosh，但有觸控
+    const isTouchMac =
+      ua.includes("Macintosh") && "ontouchend" in window;
 
-  setIsIosLike(isIphoneOrIpad || isTouchMac);
-}, []);
+    setIsIosLike(isIphoneOrIpad || isTouchMac);
+  }, []);
 
   const shouldShowBanner =
     !dismissed && !isInstalled && (isInstallable || isIosLike);
@@ -76,22 +76,70 @@ useEffect(() => {
         style={{
           flex: 1,
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "16px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "24px",
+          alignItems: "start",
         }}
       >
-        <GameCard
+        <Link
           to="/abacus"
-          subtitle="數學小遊戲"
-          title="小小算珠加減樂"
-          description="用虛擬算盤玩加減，慢慢練習不用急。"
-        />
-        <GameCard
+          style={{
+            display: "block",
+            textDecoration: "none",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 0, 0, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.15)";
+          }}
+        >
+          <img
+            src="/icons/abacus_entry.png"
+            alt="小小算珠加減樂"
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+            }}
+          />
+        </Link>
+
+        <Link
           to="/picture-match"
-          subtitle="語文小遊戲"
-          title="圖像字卡配對"
-          description="聽一聽、看一看，把圖像跟注音/單字連在一起。"
-        />
+          style={{
+            display: "block",
+            textDecoration: "none",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 0, 0, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.15)";
+          }}
+        >
+          <img
+            src="/icons/match_entry.png"
+            alt="圖像字卡配對"
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+            }}
+          />
+        </Link>
       </section>
 
       {shouldShowBanner && (

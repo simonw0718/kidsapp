@@ -8,8 +8,10 @@ export const BackToHomeButton: React.FC = () => {
     <button
       className="back-to-home-button"
       onClick={() => navigate("/")}
+      aria-label="回到首頁"
+      title="回到首頁"
     >
-      ⬅ 回到首頁
+      🏠
     </button>
   );
 };

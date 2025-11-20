@@ -1,5 +1,6 @@
 // src/features/abacus/AbacusPlayPage.tsx
 import React, { useMemo, useState } from "react";
+import "./abacus.css"; // Import feature-specific styles
 import { PageContainer } from "../../components/common/PageContainer";
 import { BackToHomeButton } from "../../components/common/BackToHomeButton";
 import {
