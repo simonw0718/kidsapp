@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { VOCAB_LIST } from '../data/vocab';
 import type { VocabItem, DifficultyLevel } from '../data/vocab';
 import { useAudio } from './useAudio';
+import { weightManager } from '../../../core/learning/weightManager';
 
 interface GameState {
     currentQuestion: VocabItem | null;
@@ -41,9 +42,8 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         // If list is empty (shouldn't happen if data is correct), fallback to full list
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
 
-        // Pick a random target
-        const targetIndex = Math.floor(Math.random() * sourceList.length);
-        const target = sourceList[targetIndex];
+        // Pick a target using weighted selection for adaptive learning
+        const target = weightManager.selectByWeight(sourceList, (item) => item.id);
 
         // Pick 3 distractors
         // Distractors can come from the FULL list to make it a bit more interesting?
@@ -81,7 +81,14 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     const handleOptionClick = (item: VocabItem) => {
         if (gameState.status === 'correct') return;
 
-        if (item.id === gameState.currentQuestion?.id) {
+        const isCorrect = item.id === gameState.currentQuestion?.id;
+
+        // Update weight for adaptive learning
+        if (gameState.currentQuestion) {
+            weightManager.updateWeight(gameState.currentQuestion.id, isCorrect);
+        }
+
+        if (isCorrect) {
             // Play correct sound
             const correctAudio = new Audio('/audio/correct_sound.mp3');
             correctAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5

@@ -13,7 +13,7 @@
   --abacus-question-font-size: clamp(36px, 7.5vh, 90px);
 
   /* 選項按鈕文字大小 */
-  --abacus-option-font-size: clamp(16px, 2.5vh, 24px);
+  --abacus-option-font-size: clamp(16px, 3vh, 28px);
 
   /* 下一題按鈕文字大小 */
   --abacus-next-font-size: clamp(16px, 2.5vh, 20px);

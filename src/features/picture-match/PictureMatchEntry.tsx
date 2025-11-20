@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageContainer } from '../../components/common/PageContainer';
 import { BackToHomeButton } from '../../components/common/BackToHomeButton';
+import { weightManager } from '../../core/learning/weightManager';
 import './picture-match.css';
 
 interface PictureMatchEntryProps {
@@ -8,6 +9,13 @@ interface PictureMatchEntryProps {
 }
 
 export const PictureMatchEntry: React.FC<PictureMatchEntryProps> = ({ onSelectMode }) => {
+    const handleResetProgress = () => {
+        if (window.confirm('確定要重置學習進度嗎？這將清除所有題目的練習記錄。')) {
+            weightManager.resetWeights();
+            alert('學習進度已重置！');
+        }
+    };
+
     return (
         <PageContainer
             title="圖像字卡配對"
@@ -47,6 +55,13 @@ export const PictureMatchEntry: React.FC<PictureMatchEntryProps> = ({ onSelectMo
                         <span className="pm-entry-sublabel">Dinosaur Mode</span>
                     </button>
                 </div>
+
+                <button
+                    onClick={handleResetProgress}
+                    className="pm-reset-progress-btn"
+                >
+                    🔄 重置學習進度
+                </button>
             </div>
         </PageContainer>
     );
