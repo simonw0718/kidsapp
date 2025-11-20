@@ -1,11 +1,19 @@
 /* === Global === */
 
+/* === Global === */
+
 body {
   margin: 0;
   color: #000000;
   /* 全站文字預設黑色，避免深色模式吃字 */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+  /* [Global Scroll Lock] 禁止全站捲動 */
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  /* 確保 iOS Safari 不會彈性捲動 */
 }
 
 /* === Global: 關掉文字選取，適合小朋友操作 === */
@@ -17,6 +25,10 @@ body,
   user-select: none;
   -webkit-touch-callout: none;
   /* iOS 長按不要跳出選單 */
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  /* 確保 root 也不會捲動 */
 }
 
 /* 整個 app 預設都不能選字 */
@@ -71,13 +83,15 @@ body,
 /* === Base layout === */
 
 .app-layout-root {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f6f6f6;
   gap: 12px;
+  overflow: hidden;
+  /* 確保 layout root 不捲動 */
 }
 
 /* === Back to Home Button === */
@@ -109,6 +123,7 @@ body,
 .app-shell {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .page-header-right {
@@ -130,11 +145,14 @@ body,
   padding-left: calc(var(--safe-area-left) + var(--page-padding-horizontal));
   padding-right: calc(var(--safe-area-right) + var(--page-padding-horizontal));
   padding-bottom: calc(var(--safe-area-bottom) + var(--page-padding-bottom));
+  overflow: hidden;
+  /* 確保容器不捲動 */
 }
 
 .page-content {
   flex: 1;
-  overflow-y: auto;
+  /* [Global Scroll Lock] 移除 overflow-y: auto，改為 hidden */
+  overflow: hidden;
   /* [頁面內容內距] 內容區域的額外間距，已由 page-container 提供主要間距 */
   padding: 0 4px 4px;
   /* 減少 padding 因為 page-container 已經提供了主要間距 */
@@ -143,6 +161,8 @@ body,
   flex-direction: column;
   color: #000;
   /* 再保險一次 */
+  min-height: 0;
+  /* 重要：讓 flex item 可以縮小 */
 }
 
 /* === Header & 頁面標題 === */

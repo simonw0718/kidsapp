@@ -1,0 +1,341 @@
+# Release Note — 圖像字卡配對遊戲完整實作 + iOS PWA 優化
+
+## 版本概覽
+此版本完成「圖像字卡配對」(Picture Match) 遊戲的完整實作，包含遊戲邏輯、音效系統、注音排版、難度分級、自適應學習系統，以及 iOS PWA 全螢幕體驗優化。同時新增 50 個詞彙資料，並建立完整的格式調整文件。
+
+---
+
+## 🎮 新功能（Features）
+
+### 1. Picture Match 遊戲核心實作
+
+#### 遊戲邏輯 (`useGameLogic.ts`)
+- **題目生成機制**：
+  - 根據難度篩選詞彙池
+  - 使用權重系統選擇刺激詞（答錯的詞會更容易再次出現）
+  - 隨機生成 4 個選項（1 個正確答案 + 3 個干擾選項）
+  - 確保選項不重複且來自相同難度等級
+  
+- **作答流程**：
+  - 點擊選項後立即判斷正確性
+  - 答對：播放正確音效，顯示綠色勾勾，1 秒後自動進入下一題
+  - 答錯：播放錯誤音效，顯示紅色叉叉，該選項變灰且無法再次點擊
+  - 支援連續答錯，直到選到正確答案
+
+- **難度分級**：
+  - **難度 1**：基礎詞彙（動物、顏色、數字等）
+  - **難度 2**：進階詞彙（食物、物品、自然等）
+  - **難度 3**：恐龍專題（19 種恐龍名稱）
+  - 切換難度時立即重新生成題目
+
+#### 音效系統 (`useAudio.ts`)
+- **iOS 音效解鎖機制**：
+  - 實作「Ready GO」啟動畫面
+  - 用戶點擊後解鎖 iOS 音效播放限制
+  - 預載所有音效檔案，避免播放延遲
+  
+- **音效類型**：
+  - 刺激詞語音（自動播放）
+  - 選項點擊音效
+  - 正確答案音效 (`correct_sound.mp3`)
+  - 錯誤答案音效 (`failure_sound.mp3`)
+  
+- **播放控制**：
+  - 支援音效開關切換
+  - 防止音效重疊播放
+  - 自動清理已播放的音效資源
+
+#### 注音排版 (`ZhuyinWord.tsx`)
+- **注音解析器** (`zhuyinParser.ts`)：
+  - 自動將完整注音拆解為聲母、韻母、聲調
+  - 支援特殊符號（˙、ˊ、ˇ、ˋ）
+  - 處理輕聲（˙）的特殊位置
+  
+- **排版規則**：
+  - 國字在左，注音縱排在右
+  - 聲母、韻母垂直堆疊
+  - 聲調符號正確定位（輕聲在上方，其他在右側）
+  - 使用 CSS 變數控制字級大小
+
+---
+
+### 2. 自適應學習系統
+
+#### Weight Manager (`weightManager.ts`)
+- **權重機制**：
+  - 預設權重：1.0
+  - 答對：權重 -0.2（最低 1.0）
+  - 答錯：權重 +0.3（最高 5.0）**← 本日優化：降低增幅**
+  - 權重越高，出題機率越大
+  
+- **加權隨機選題**：
+  - 根據權重計算總和
+  - 使用加權隨機算法選擇題目
+  - 確保答錯的題目更容易再次出現，但不會過於頻繁
+  
+- **學習記錄** (`learningStorage.ts`)：
+  - 記錄每個詞彙的答對/答錯次數
+  - 記錄最後出現時間
+  - 使用 localStorage 持久化儲存
+  - 支援重置功能
+
+#### 權重調整優化
+- **問題**：原本答錯時權重增加 1.0，導致該題目出現機率提升過高
+- **解決**：將權重增加值從 1.0 降低至 0.3
+- **效果**：學習體驗更加平衡，不會因為答錯幾題就讓那些題目一直重複出現
+
+---
+
+### 3. 詞彙資料擴充
+
+#### 新增 50 個詞彙項目
+- **食物類**：藍莓、起司、雞肉、巧克力、甜甜圈、葡萄、蜂蜜、熱狗、芒果、肉、麵條、洋蔥、爆米花、馬鈴薯、南瓜、米飯、玫瑰、三明治、湯、草莓、西瓜等
+- **物品類**：碗、杯子、叉子、刀子、盤子、湯匙、桌子、望遠鏡、窗戶等
+- **自然類**：仙人掌、雲、火、閃電、山、海洋、雨、雪、星星、向日葵、鬱金香、龍捲風、火山、水等
+- **數字類**：二、三、四、五
+
+#### 音效檔案配套
+- 為所有新詞彙錄製對應的 mp3 音效檔
+- 統一放置於 `public/audio/picture-match/` 目錄
+- 檔名與詞彙 ID 一致，方便管理
+
+#### 恐龍專題完整化
+- 補齊 19 種恐龍的圖片與音效：
+  - 異特龍 (Allosaurus)
+  - 甲龍 (Ankylosaurus)
+  - 始祖鳥 (Archaeopteryx)
+  - 腕龍 (Brachiosaurus)
+  - 食肉牛龍 (Carnotaurus)
+  - 雙脊龍 (Dilophosaurus)
+  - 梁龍 (Diplodocus)
+  - 禽龍 (Iguanodon)
+  - 小盜龍 (Microraptor)
+  - 滄龍 (Mosasaurus)
+  - 厚頭龍 (Pachycephalosaurus)
+  - 副櫛龍 (Parasaurolophus)
+  - 蛇頸龍 (Plesiosaurus)
+  - 無齒翼龍 (Pteranodon)
+  - 棘龍 (Spinosaurus)
+  - 劍龍 (Stegosaurus)
+  - 三角龍 (Triceratops)
+  - 暴龍 (Tyrannosaurus)
+  - 迅猛龍 (Velociraptor)
+
+---
+
+### 4. iOS PWA 全螢幕體驗優化
+
+#### Safe Area 支援
+- **問題**：iOS PWA 模式下，內容被瀏海/底部橫條遮擋
+- **解決方案**：
+  - 在 `layout.css` 中使用 `env(safe-area-inset-*)` 變數
+  - 為所有頁面容器添加安全區域 padding
+  - 確保內容不會被系統 UI 遮擋
+
+#### 全局佈局調整
+- **PageContainer 優化**：
+  - 調整全局 padding 以適應 iOS 安全區域
+  - 確保返回按鈕、標題、內容區域都在可見範圍內
+  
+- **Picture Match Entry 頁面修正**：
+  - 修正標題與「請選擇遊戲模式」之間的間距
+  - 調整難度選擇卡片的佈局
+  - 確保在 iPhone/iPad 上都能正常顯示
+
+- **HomePage 優化**：
+  - 調整遊戲卡片間距
+  - 優化入口圖示顯示
+  - 確保所有內容在 iOS PWA 模式下可見
+
+---
+
+## 🎨 UI/UX 調整
+
+### 1. Picture Match 遊戲介面
+
+#### 入口頁面 (`PictureMatchEntry.tsx`)
+- **難度選擇卡片**：
+  - 三個難度卡片並排顯示
+  - 每個卡片顯示難度名稱與說明
+  - 點擊後進入對應難度的遊戲
+  
+- **版面配置**：
+  - 標題：「圖像字卡配對」
+  - 副標題：「請選擇遊戲模式」
+  - 難度卡片區域
+  - 返回首頁按鈕
+
+#### 遊戲頁面 (`PictureMatchGame.tsx`)
+- **Header 區域**：
+  - 左側：返回按鈕
+  - 中間：遊戲標題
+  - 右側：難度下拉選單 + 音效開關
+  
+- **刺激區域** (`StimulusDisplay.tsx`)：
+  - 顯示目標詞彙的圖片
+  - 顯示注音（使用 `ZhuyinWord` 元件）
+  - 播放語音按鈕
+  - 答對/答錯狀態圖示（✓ / ✗）
+  
+- **選項區域** (`ImageCard.tsx`)：
+  - 4 個圖片選項卡片
+  - 每個卡片包含圖片與注音
+  - 支援點擊互動
+  - 答錯後該選項變灰且無法再次點擊
+  - 答對後顯示綠色邊框
+
+### 2. 響應式設計
+
+#### 桌面版 (Desktop)
+- 刺激區域與選項區域並排顯示
+- 選項卡片 2×2 網格佈局
+- 較大的圖片與字體尺寸
+
+#### 平板版 (iPad)
+- 刺激區域置頂
+- 選項區域在下方，2×2 網格
+- 適中的圖片與字體尺寸
+
+#### 手機版 (Mobile)
+- 垂直佈局
+- 選項卡片 2×2 網格，較小尺寸
+- 確保所有內容在一個畫面內可見
+
+---
+
+## 📝 文件與維護性改善
+
+### 1. 格式調整指南 (`FormatAdjustmentGuide.md`)
+- **目的**：集中管理所有可調整的 CSS 參數
+- **內容**：
+  - 全局佈局參數（安全區域、padding）
+  - Picture Match 遊戲參數（字體大小、間距、顏色）
+  - Abacus 遊戲參數
+  - 響應式斷點設定
+  
+- **格式**：
+  - 每個參數都有中文說明
+  - 標註參數位置（檔案名稱與行號）
+  - 提供建議值範圍
+
+### 2. CSS 中文註解
+- 在 `picture-match.css` 中為所有可調整屬性添加中文註解
+- 在 `abacus.css` 中為關鍵參數添加說明
+- 方便未來維護與調整
+
+---
+
+## 🔧 技術改善
+
+### 1. 程式碼結構優化
+
+#### Feature 模組化
+- Picture Match 功能完整模組化：
+  - `components/`：UI 元件
+  - `hooks/`：遊戲邏輯與音效管理
+  - `data/`：詞彙資料
+  - `utils/`：工具函數
+  - `picture-match.css`：樣式檔案
+
+#### 共用核心系統
+- `core/learning/`：學習記錄與權重管理
+- `core/layout/`：全局佈局與樣式
+- `components/common/`：共用元件
+
+### 2. TypeScript 型別完善
+- 為所有元件添加完整的 Props 型別定義
+- 為 hooks 添加返回值型別
+- 修正所有型別錯誤與警告
+
+### 3. 效能優化
+- 音效預載機制，減少播放延遲
+- 使用 `useMemo` 和 `useCallback` 避免不必要的重新渲染
+- 圖片資源優化（使用 PNG 格式，適當壓縮）
+
+---
+
+## 🐛 Bug 修復
+
+### 1. Picture Match 選項數量問題
+- **問題**：遊戲有時會顯示 5 個選項而非 4 個
+- **原因**：選項生成邏輯有重複項目
+- **解決**：改善隨機選項生成算法，確保選項不重複且數量正確
+
+### 2. iOS 音效無法播放
+- **問題**：iOS 裝置上音效無法自動播放
+- **原因**：iOS 限制音效必須由用戶互動觸發
+- **解決**：實作「Ready GO」啟動畫面，用戶點擊後解鎖音效
+
+### 3. PWA 內容被遮擋
+- **問題**：iOS PWA 模式下，內容被瀏海/底部橫條遮擋
+- **解決**：使用 CSS `safe-area-inset` 變數調整 padding
+
+### 4. 注音排版錯位
+- **問題**：多符號注音（如「ㄧㄚ」）排版錯誤
+- **解決**：實作注音解析器，正確拆解聲母、韻母、聲調
+
+---
+
+## 📦 新增檔案清單
+
+### 核心系統
+- `src/core/learning/learningStorage.ts` - 學習記錄儲存
+- `src/core/learning/weightManager.ts` - 權重管理系統
+
+### Picture Match 遊戲
+- `src/features/picture-match/PictureMatchEntry.tsx` - 入口頁面
+- `src/features/picture-match/PictureMatchGame.tsx` - 遊戲主頁面
+- `src/features/picture-match/components/StimulusDisplay.tsx` - 刺激顯示元件
+- `src/features/picture-match/components/ImageCard.tsx` - 圖片卡片元件
+- `src/features/picture-match/components/ZhuyinWord.tsx` - 注音排版元件
+- `src/features/picture-match/hooks/useGameLogic.ts` - 遊戲邏輯
+- `src/features/picture-match/hooks/useAudio.ts` - 音效管理
+- `src/features/picture-match/data/vocab.ts` - 詞彙資料（150+ 項）
+- `src/features/picture-match/utils/zhuyinParser.ts` - 注音解析器
+- `src/features/picture-match/picture-match.css` - 遊戲樣式
+
+### 文件
+- `doc/FormatAdjustmentGuide.md` - 格式調整指南
+- `doc/match_entry.png` - 入口頁面截圖
+
+### 資源檔案
+- `public/images/picture-match/ready-go.png` - 啟動畫面圖片
+- `public/images/picture-match/dinosaurs/*.png` - 19 張恐龍圖片
+- `public/audio/correct_sound.mp3` - 正確音效
+- `public/audio/failure_sound.mp3` - 錯誤音效
+- `public/audio/picture-match/*.mp3` - 150+ 個詞彙語音檔
+
+### Abacus 新增
+- `src/assets/abacus/think-4.png` - 思考角色圖
+- `src/assets/abacus/answer-4.png` - 答對角色圖
+
+---
+
+## 🎯 已知問題與待辦事項
+
+### 待優化項目
+- [ ] 難度切換時可考慮添加過場動畫
+- [ ] 學習統計頁面（顯示答對率、學習進度等）
+- [ ] 更多詞彙主題（交通工具、職業、情緒等）
+- [ ] 支援自訂詞彙集
+- [ ] 多人對戰模式
+
+### 技術債務
+- [ ] 音效檔案可考慮使用 Web Audio API 進行更精細的控制
+- [ ] 圖片資源可考慮使用 WebP 格式以減少檔案大小
+- [ ] 可考慮實作 Service Worker 快取策略以支援離線使用
+
+---
+
+## 📊 統計資訊
+
+- **新增程式碼檔案**：15 個
+- **新增圖片資源**：22 個
+- **新增音效檔案**：150+ 個
+- **詞彙總數**：150+ 個（涵蓋 3 個難度等級）
+- **支援平台**：iOS、iPadOS、Android、Desktop（PWA）
+- **程式碼行數**：約 2000+ 行（Picture Match 相關）
+
+---
+
+本次更新代表「圖像字卡配對」遊戲已完整實作並可正式使用，具備完整的遊戲邏輯、自適應學習系統、音效互動，以及跨平台 PWA 支援。後續可專注於內容擴充與使用者體驗優化。

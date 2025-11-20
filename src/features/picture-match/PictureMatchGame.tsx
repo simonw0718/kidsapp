@@ -97,14 +97,15 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode }) => {
                             ))}
                         </div>
 
-                        {status === 'correct' && (
+                        <div className="pm-next-btn-container">
                             <button
                                 onClick={nextQuestion}
-                                className="pm-next-btn"
+                                className={`pm-next-btn ${status === 'correct' ? 'pm-next-btn--visible' : ''}`}
+                                disabled={status !== 'correct'}
                             >
                                 下一題 ➜
                             </button>
-                        )}
+                        </div>
                     </>
                 )}
             </div>

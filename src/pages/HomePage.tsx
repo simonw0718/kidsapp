@@ -80,9 +80,12 @@ export const HomePage: React.FC = () => {
         style={{
           flex: 1,
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "24px",
-          alignItems: "start",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", /* Reduced min-width for better fit */
+          gap: "16px", /* Reduced gap */
+          alignItems: "center", /* Center vertically */
+          justifyContent: "center",
+          overflow: "hidden", /* Prevent scroll */
+          padding: "0 16px",
         }}
       >
         <Link
@@ -94,6 +97,9 @@ export const HomePage: React.FC = () => {
             overflow: "hidden",
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            maxWidth: "400px", /* Limit max width */
+            margin: "0 auto", /* Center in grid cell */
+            width: "100%",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";
@@ -124,6 +130,9 @@ export const HomePage: React.FC = () => {
             overflow: "hidden",
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            maxWidth: "400px",
+            margin: "0 auto",
+            width: "100%",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";

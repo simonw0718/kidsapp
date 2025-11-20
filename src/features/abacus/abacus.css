@@ -94,6 +94,8 @@
   width: 100%;
   padding-bottom: 16px;
   box-sizing: border-box;
+  overflow: hidden;
+  /* Ensure no scroll */
 }
 
 .abacus-left {
