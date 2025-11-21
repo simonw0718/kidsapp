@@ -1,5 +1,5 @@
 // src/features/abacus/hooks/useAbacusGame.ts
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { AbacusQuestion, Operator } from "../types";
 
 type Status = "idle" | "correct" | "incorrect";
@@ -27,7 +27,7 @@ const generateQuestion = (
   allowedOperators: Operator[]
 ): AbacusQuestion => {
   // 保證一定找到符合條件的題目
-  // eslint-disable-next-line no-constant-condition
+  // 保證一定找到符合條件的題目
   while (true) {
     const operator =
       allowedOperators[randomInt(0, allowedOperators.length - 1)];
@@ -73,7 +73,10 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
   const minValue = options?.minValue ?? 1;
   const maxValue = options?.maxValue ?? 19;
   const maxResult = options?.maxResult ?? 60;      // ★ 最大總和
-  const allowedOperators = options?.allowedOperators ?? ["+"];
+
+  // Memoize default operators to avoid re-renders
+  const defaultOperators = useMemo<Operator[]>(() => ["+"], []);
+  const allowedOperators = options?.allowedOperators ?? defaultOperators;
 
   const [question, setQuestion] = useState<AbacusQuestion>(() =>
     generateQuestion(minValue, maxValue, maxResult, allowedOperators)

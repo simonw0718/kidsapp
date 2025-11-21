@@ -24,10 +24,22 @@
 *   **入口頁面 (Entry Page)**
     *   `.pm-entry-container`: 調整入口頁面的整體間距。
     *   `.pm-entry-title`: 調整標題文字大小與距離。
-    *   `.pm-entry-btn`: **[重要]** 調整模式選擇按鈕的尺寸 (`width`, `height`) 與顏色。
-        *   `.pm-entry-btn--english`: 英文模式顏色。
-        *   `.pm-entry-btn--zhuyin`: 注音模式顏色。
-        *   `.pm-entry-btn--dinosaur`: 恐龍模式顏色。
+    *   `.pm-entry-options`: **[重要]** 控制模式選擇按鈕的排列方式。
+        *   預設 (桌面): 2x2 網格排列
+        *   直式 (手機/平板): 2x2 網格排列，`gap: 16px`
+        *   橫式 (手機/平板): 1x3 單行排列，`gap: 12px`，使用 `aspect-ratio` 和 `max-height: 50vh` 防止重疊
+    *   `.pm-entry-btn`: **[重要]** 調整模式選擇按鈕的尺寸。
+        *   預設: `width: 280px`, `height: 280px`
+        *   直式: `aspect-ratio: 1`, `max-width: 180px`
+        *   橫式: `aspect-ratio: 1`, `max-height: 50vh`
+        *   `.pm-entry-btn--english`: 英文模式顏色 (綠色)。
+        *   `.pm-entry-btn--zhuyin`: 注音模式顏色 (橘色)。
+        *   `.pm-entry-btn--dinosaur`: 恐龍模式顏色 (紫色)。
+    
+    *   **Ready Go 圖片 (開場動畫)**
+        *   `.pm-start-image`: **[重要]** 調整開場圖片的大小 (`max-width`)。
+            *   預設 (桌面/平板): `400px`
+            *   手機直向: `280px` (位於 `@media (max-width: 480px)` 區塊內)
 
 #### 1.2 程式碼組件
 
@@ -79,7 +91,32 @@
 
 ---
 
-## 3. iOS PWA 安全區域與邊距設定
+## 3. 注音符號調號設定 (Zhuyin Tone Marks)
+
+### 檔案位置：`src/core/layout/layout.css`
+
+注音符號的調號（˙ˊˇˋ）顯示設定，影響整個 App 中所有注音的調號外觀。
+
+*   **`.bpm-tone`** - 一般調號（ˊˇˋ）
+    *   `font-size: 1.3em` - **[調整]** 調號大小（相對於注音符號）
+    *   `font-weight: 900` - **[調整]** 調號粗細（100-900，數字越大越粗）
+    *   `color: #d32f2f` - **[調整]** 調號顏色（目前為紅色，可改為其他顏色如 `#000` 黑色）
+    *   `right: -0.8em` - **[調整]** 調號與注音的水平間距
+
+*   **`.bpm-tone-dot`** - 輕聲調號（˙）
+    *   `font-size: 1.3em` - **[調整]** 輕聲大小
+    *   `font-weight: 900` - **[調整]** 輕聲粗細
+    *   `color: #d32f2f` - **[調整]** 輕聲顏色
+    *   `top: -1em` - **[調整]** 輕聲與注音的垂直間距
+
+**調整建議**：
+*   若調號太大：將 `font-size` 改為 `1.1em` 或 `1em`
+*   若調號太粗：將 `font-weight` 改為 `700` 或 `600`
+*   若想改顏色：修改 `color` 值（例如 `#0066cc` 藍色、`#000000` 黑色）
+
+---
+
+## 4. iOS PWA 安全區域與邊距設定
 
 ### 檔案位置：`src/core/layout/layout.css`
 
@@ -116,8 +153,176 @@
 
 ---
 
-## 4. 通用調整建議
+## 4. 動物指令大冒險 (Animal Commands)
 
-*   **響應式設計 (Responsive Design)**: 兩個遊戲都包含 `@media` 查詢，針對手機直式 (Portrait) 與橫式 (Landscape) 有不同的樣式設定。若需調整手機版面，請搜尋 CSS 檔案中的 `@media` 區塊。
+### 檔案位置：`src/features/animal-commands/animal-commands.css`
+
+#### 4.1 版面結構說明
+
+**桌面版 (Desktop)**: 左右分欄（地圖區 + 控制區）  
+**手機直向 (Mobile Portrait)**: 上下分欄（地圖在上，控制在下）  
+**手機橫向 (Mobile Landscape)**: 左右分欄（地圖在左，控制在右）
+
+#### 4.1.1 入口頁面 (Entry Page) 手機版調整
+
+*   **`.ac-entry-container`** - 入口頁面容器
+    *   **手機版**: `gap: 12px` - **[重要]** 整體間距（原本 24px）
+    *   **手機版**: `padding: 8px` - 容器內距（原本 16px）
+    *   **手機版**: `justify-content: flex-start` - 從頂部開始排列，避免標題被遮住
+
+*   **`.ac-entry-visual`** - Emoji 視覺元素
+    *   **手機版**: `gap: 12px` - emoji 間距（原本 16px）
+    *   **手機版**: `margin-bottom: 8px` - 下方間距（原本 16px）
+
+*   **`.ac-entry-emoji`** - Emoji 大小
+    *   **手機版**: `font-size: 36px` - **[重要]** emoji 大小（原本 48px）
+
+*   **`.ac-entry-subtitle`** - 副標題
+    *   **手機版**: `font-size: 15px` - 文字大小（原本 18px）
+
+*   **`.ac-mode-grid`** - 模式選擇網格
+    *   **手機版**: `grid-template-columns: 1fr` - 單欄顯示
+    *   **手機版**: `gap: 10px` - **[重要]** 卡片間距（原本 16px）
+
+*   **`.ac-mode-card`** - 模式選擇卡片
+    *   **手機版**: `padding: 12px` - **[重要]** 卡片內距（原本 20px）
+    *   **手機版**: `gap: 4px` - 內部元素間距（原本 8px）
+    *   **手機版**: `border-radius: 12px` - 圓角（原本 16px）
+    *   **手機版**: `border-width: 2px` - 邊框粗細（原本 3px）
+
+*   **模式卡片文字大小調整**:
+    *   `.ac-mode-number`: `font-size: 12px`（原本 14px）
+    *   `.ac-mode-name`: `font-size: 16px`（原本 18px）
+    *   `.ac-mode-desc`: `font-size: 13px`（原本 14px）
+    *   `.ac-mode-info`: `font-size: 11px`（原本 12px）
+
+#### 4.2 整體佈局調整
+
+*   **`.ac-game-layout`** - 遊戲主容器
+    *   **桌面版**: `gap: 20px` - 左右面板間距，`padding: 12px` - 整體內距
+    *   **手機直向**: `gap: 16px` - **[調整]** 上下面板間距（原本 4px），增加間距讓兩者不相連
+    *   **手機橫向**: `gap: 6px` - 左右面板間距，`padding: 4px` - 整體內距
+
+*   **`.ac-left-panel`** - 地圖區域
+    *   **手機直向**: `max-height: 35vh` - **[重要]** 地圖最大高度（原本 38vh），再縮小一點
+    *   **手機橫向**: `max-width: 45vw` - **[重要]** 地圖最大寬度（原本 48vw）
+    *   **平板直向**: `max-height: 45vh` - 地圖最大高度（原本 50vh）
+
+*   **`.ac-right-panel`** - 控制區域
+    *   **桌面版**: `width: 320px` - **[重要]** 右側面板固定寬度
+
+#### 4.3 地圖容器調整
+
+*   **`.ac-grid-container`** - 遊戲地圖容器
+    *   **桌面版**:
+        *   `max-width: 450px` - **[調整]** 地圖最大寬度（原本 500px）
+        *   `padding: 16px` - 地圖內距
+        *   `gap: 6px` - 格子間距
+    *   **手機直向**:
+        *   `max-width: 75vw` - **[調整]** 地圖最大寬度（原本 80vw）
+        *   `max-height: 75vw` - **[調整]** 地圖最大高度（原本 80vw）
+        *   `padding: 6px` - **[調整]** 地圖內距（原本 8px）
+        *   `gap: 2px` - **[調整]** 格子間距（原本 3px）
+    *   **手機橫向**:
+        *   `max-width: 40vh` - **[調整]** 地圖最大寬度（原本 45vh）
+        *   `max-height: 75vh` - **[調整]** 地圖最大高度（原本 80vh）
+        *   `padding: 6px` - 地圖內距
+        *   `gap: 2px` - 格子間距
+
+*   **`.ac-grid-cell`** - 單個格子
+    *   **桌面版**: `min-width: 55px`, `min-height: 55px` - **[調整]** （原本 60px）
+    *   **平板直向**: `min-width: 45px`, `min-height: 45px` - **[調整]** （原本 50px）
+    *   **手機直向**: `min-width: 25px`, `min-height: 25px` - **[調整]** （原本 28px）
+    *   **手機橫向**: `min-width: 24px`, `min-height: 24px` - **[調整]** （原本 25px）
+
+*   **`.ac-grid-item`** - 地圖物件（兔子🐰、紅蘿蔔🥕、石頭🪨）
+    *   **桌面版**: `font-size: 42px` - **[調整]** （原本 48px）
+    *   **平板直向**: `font-size: 36px` - **[調整]** （原本 40px）
+    *   **手機直向**: `font-size: clamp(16px, 4vw, 24px)` - **[調整]** （原本 18-24px）
+    *   **手機橫向**: `font-size: clamp(16px, 3.5vh, 22px)` - **[調整]** （原本 18-24px）
+    *   **注意**: 此 font-size 僅控制 emoji 物件（🥕🪨）的大小，不影響角色圖片
+
+*   **角色圖片大小調整** - 兔子/恐龍圖片
+    *   檔案: `src/features/animal-commands/components/GridMap.tsx`
+    *   位置: 第 79-80 行的 `style` 屬性
+    *   目前設定: `width: 'clamp(20px, 100%, 60px)'`, `height: 'clamp(20px, 100%, 60px)'`
+    *   調整方式:
+        *   增大角色: 將 `60px` 改為更大的值（例如 `80px`）
+        *   縮小角色: 將 `60px` 改為更小的值（例如 `40px`）
+        *   最小尺寸: 調整 `20px` 來控制最小顯示大小
+
+#### 4.4 控制區域調整
+
+*   **`.ac-command-section`** - 指令區容器（Mode 3-4 使用）
+    *   `gap: 8px` - **[調整]** 指令區內部間距（原本 12px）
+
+*   **`.ac-sequence-wrapper`** - 指令序列包裝器
+    *   `gap: 8px` - **[調整]** 序列與控制面板間距（原本 12px）
+
+#### 4.5 教學提示調整
+
+*   **`.ac-tutorial-bubble`** - 教學提示氣泡
+    *   **桌面版**: `font-size: 16px`, `padding: 12px 16px`, `margin-top: 12px`
+    *   **手機直向**: `font-size: 12px`, `padding: 4px 8px`, `margin-top: 4px` - **[調整]**
+    *   **手機橫向**: `font-size: 11px`, `padding: 2px 6px`, `margin-top: 2px` - **[調整]**
+
+#### 4.6 響應式斷點 (Breakpoints)
+
+*   **手機直向**: `@media (orientation: portrait) and (max-width: 768px)`
+*   **手機橫向**: `@media (orientation: landscape) and (max-height: 500px)`
+*   **平板直向**: `@media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px)`
+*   **桌面版**: `@media (min-width: 1025px)`
+
+### 5. 首頁 (HomePage) 佈局調整
+
+位於 `src/core/layout/layout.css`：
+
+*   **`.home-game-grid`** - 遊戲選單網格
+    *   **預設**: `max-width: 800px`, `gap: 16px`
+    *   **iPad 橫向**: `max-width: 640px` **[調整]**, `gap: 32px` **[調整]**, `padding: 0 48px` **[調整]**
+    *   *說明：為了避免在 iPad 橫向模式下卡片過大造成重疊，限制了最大寬度並增加了間距。*
+
+### 6. 文字與圖示調整 (Text & Icons)
+
+若需要修改按鈕上的文字（如「前進」、「左轉」）或圖示（如 ⬆️, ↩️），請參考以下檔案：
+
+*   **模式 1 & 2 (直接控制)**:
+    *   檔案: `src/features/animal-commands/components/DirectControlPanel.tsx`
+    *   搜尋 `getIcon` 函式修改圖示。
+    *   搜尋 `getLabel` 函式修改文字。
+
+*   **模式 3 & 4 (指令序列)**:
+    *   檔案: `src/features/animal-commands/components/CommandPalette.tsx`
+    *   搜尋 `getIcon` 函式修改圖示。
+    *   搜尋 `getLabel` 函式修改文字。
+
+*   **程式碼中已標記 `// [修改]` 註解方便搜尋。**
+
+> [!IMPORTANT]
+> **注意：** `direct-control-panel.css` 檔案底部有 `@media (max-width: 768px)` 區塊，這是針對手機與平板的設定。如果您修改了上方的數值卻發現手機上沒變化，請檢查底部的這個區塊，這裡的數值會覆蓋上方的設定。
+
+#### 4.7 常見調整情境
+
+**地圖太小**:
+1. 增加 `.ac-grid-container` 的 `max-width` 和 `max-height`
+2. 增加 `.ac-grid-cell` 的 `min-width` 和 `min-height`
+3. 增加 `.ac-grid-item` 的 `font-size`
+
+**地圖太大（超出螢幕）**:
+1. 減少 `.ac-left-panel` 的 `max-height`（直向）或 `max-width`（橫向）
+2. 減少 `.ac-grid-container` 的 `max-width` 和 `max-height`
+3. 減少 `.ac-grid-container` 的 `padding`
+
+**控制區太擠**:
+1. 增加 `.ac-command-section` 的 `gap`
+2. 增加 `.ac-sequence-wrapper` 的 `gap`
+3. 調整 `.ac-right-panel` 的 `width`（桌面版）
+
+---
+
+## 5. 通用調整建議
+
+*   **響應式設計 (Responsive Design)**: 所有遊戲都包含 `@media` 查詢，針對手機直式 (Portrait) 與橫式 (Landscape) 有不同的樣式設定。若需調整手機版面，請搜尋 CSS 檔案中的 `@media` 區塊。
 *   **字體單位**: 建議使用 `rem` 或 `clamp()` 函數，以確保在不同裝置上都有良好的閱讀體驗。
 *   **iOS PWA 測試**: 修改 safe area 相關設定後，建議在實際 iOS 裝置上以 PWA 模式測試，確保內容不會被系統 UI 遮住。
+*   **中文註解**: 所有 CSS 檔案中，可調整的參數都有 `[調整]` 標記和中文說明，方便快速定位。

@@ -1,5 +1,5 @@
 //src/features/picture-match/hooks/useGameLogic.ts
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { VOCAB_LIST } from '../data/vocab';
 import type { VocabItem, DifficultyLevel } from '../data/vocab';
 import { useAudio } from './useAudio';
@@ -16,13 +16,7 @@ interface GameState {
 export type GameDifficulty = DifficultyLevel | 'mix' | 'dinosaur';
 
 export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | 'zhuyin' | 'dinosaur' = 'english') => {
-    const [gameState, setGameState] = useState<GameState>({
-        currentQuestion: null,
-        options: [],
-        status: 'idle',
-        selectedId: null,
-        score: 0,
-    });
+    // Old useState removed - Fixed duplicate declaration
 
     const { play, isPlaying, unlockAudio } = useAudio();
 
@@ -36,29 +30,31 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         return VOCAB_LIST.filter(item => item.difficulty === difficulty);
     }, [difficulty]);
 
-    const generateQuestion = useCallback(() => {
+    // Pure-ish function to pick a question
+    const pickQuestion = useCallback(() => {
         const filteredList = getFilteredVocab();
-
-        // If list is empty (shouldn't happen if data is correct), fallback to full list
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
-
-        // Pick a target using weighted selection for adaptive learning
         const target = weightManager.selectByWeight(sourceList, (item) => item.id);
-
-        // Pick 3 distractors
-        // Distractors can come from the FULL list to make it a bit more interesting?
-        // Or should they be strictly from the same difficulty?
-        // Let's keep them from the same difficulty for fairness in Level 1, 
-        // but maybe allow full list for Mix?
-        // For simplicity and fairness, let's use the same sourceList for distractors.
-
         const otherItems = sourceList.filter(item => item.id !== target.id);
         const shuffledOthers = [...otherItems].sort(() => 0.5 - Math.random());
         const distractors = shuffledOthers.slice(0, 3);
-
-        // Combine and shuffle options
         const options = [target, ...distractors].sort(() => 0.5 - Math.random());
+        return { target, options };
+    }, [getFilteredVocab]);
 
+    const [gameState, setGameState] = useState<GameState>(() => {
+        const { target, options } = pickQuestion();
+        return {
+            currentQuestion: target,
+            options,
+            status: 'idle',
+            selectedId: null,
+            score: 0,
+        };
+    });
+
+    const generateQuestion = useCallback(() => {
+        const { target, options } = pickQuestion();
         setGameState(prev => ({
             ...prev,
             currentQuestion: target,
@@ -66,17 +62,26 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
             status: 'idle',
             selectedId: null,
         }));
-
-        // Auto-play audio for the new question ONLY if mode is english
-        if (target.audio && mode === 'english') {
-            play(target.audio, target.word);
-        }
-    }, [play, getFilteredVocab, mode]);
+    }, [pickQuestion]);
 
     // Initial question - regenerate when difficulty changes
+    // Skip first run because useState already initialized it
+    const isFirstRun = useRef(true);
     useEffect(() => {
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
+        }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         generateQuestion();
     }, [generateQuestion, difficulty]);
+
+    // Auto-play audio when question changes
+    useEffect(() => {
+        if (gameState.currentQuestion?.audio && mode === 'english') {
+            play(gameState.currentQuestion.audio, gameState.currentQuestion.word);
+        }
+    }, [gameState.currentQuestion, mode, play]);
 
     const handleOptionClick = (item: VocabItem) => {
         if (gameState.status === 'correct') return;

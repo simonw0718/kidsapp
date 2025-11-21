@@ -4,6 +4,7 @@ import { HomePage } from "../pages/HomePage";
 import { AbacusPage } from "../pages/AbacusPage";
 import { PictureMatchPage } from "../pages/PictureMatchPage";
 import { AbacusPlayPage } from "../features/abacus"; // ← 從 feature 直接拉玩法頁
+import { AnimalEntry, AnimalGame } from "../features/animal-commands";
 
 export const AppRouter: React.FC = () => {
   return (
@@ -20,6 +21,10 @@ export const AppRouter: React.FC = () => {
 
       {/* 圖像字卡 */}
       <Route path="/picture-match" element={<PictureMatchPage />} />
+
+      {/* 動物指令大冒險 */}
+      <Route path="/animal-commands" element={<AnimalEntry />} />
+      <Route path="/animal-commands/play" element={<AnimalGame />} />
     </Routes>
   );
 };

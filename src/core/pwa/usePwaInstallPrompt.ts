@@ -14,19 +14,16 @@ interface BeforeInstallPromptEvent extends Event {
 export function usePwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window.navigator as any).standalone === true
+    );
+  });
 
   useEffect(() => {
-    // 先檢查是不是已經以 PWA 模式安裝
-    const isStandalone =
-      window.matchMedia?.("(display-mode: standalone)").matches ||
-      // iOS Safari 專用
-      (window.navigator as any).standalone === true;
-
-    if (isStandalone) {
-      setIsInstalled(true);
-    }
-
     const handleBeforeInstallPrompt = (e: Event) => {
       // 阻止瀏覽器預設的迷你 bar，改成由我們自己觸發
       e.preventDefault();

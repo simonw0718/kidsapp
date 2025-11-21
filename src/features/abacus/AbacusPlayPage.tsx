@@ -63,10 +63,14 @@ export const AbacusPlayPage: React.FC = () => {
   const avatarCount = avatarPairs.length;
 
   // 每一題隨機決定使用哪一組（index: 0 ~ avatarCount-1）
-  const [avatarIndex, setAvatarIndex] = useState<number>(() => {
-    if (avatarCount === 0) return -1;
-    return Math.floor(Math.random() * avatarCount);
-  });
+  const [avatarIndex, setAvatarIndex] = useState<number>(-1);
+
+  // 當題目改變時（下一題或難度改變），重新隨機選圖
+  React.useEffect(() => {
+    if (avatarCount > 0) {
+      setAvatarIndex(Math.floor(Math.random() * avatarCount));
+    }
+  }, [question, avatarCount]);
 
   // 點選答案
   const handleOptionClick = (value: number) => {
@@ -91,10 +95,7 @@ export const AbacusPlayPage: React.FC = () => {
 
     nextQuestion();
 
-    // 下一題重新抽一組圖
-    if (avatarCount > 0) {
-      setAvatarIndex(Math.floor(Math.random() * avatarCount));
-    }
+    // 下一題重新抽一組圖 (handled by useEffect)
   };
 
   // 切換難度：重抽題目、重抽角色圖組，並彈出說明視窗
@@ -104,9 +105,7 @@ export const AbacusPlayPage: React.FC = () => {
     setDifficulty(level);
     nextQuestion();
 
-    if (avatarCount > 0) {
-      setAvatarIndex(Math.floor(Math.random() * avatarCount));
-    }
+    // (handled by useEffect)
 
     window.alert(difficultyDescriptions[level]);
   };

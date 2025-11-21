@@ -1,0 +1,77 @@
+.ac-palette {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: #fff3e0;
+    border-radius: 16px;
+    border: 2px solid #ffe0b2;
+}
+
+.ac-command-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ac-command-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.ac-command-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ac-cmd-icon {
+    font-size: 24px;
+}
+
+.ac-cmd-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #5d4037;
+}
+
+/* Specific colors */
+.ac-btn-forward {
+    border-left: 6px solid #4caf50;
+}
+
+.ac-btn-left {
+    border-left: 6px solid #2196f3;
+}
+
+.ac-btn-right {
+    border-left: 6px solid #2196f3;
+}
+
+.ac-btn-jump {
+    border-left: 6px solid #ff9800;
+}
+
+@media (orientation: landscape) {
+    .ac-palette {
+        width: 140px;
+    }
+}
+
+@media (orientation: portrait) {
+    .ac-palette {
+        flex-direction: row;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .ac-command-btn {
+        flex: 0 0 auto;
+        min-width: 100px;
+    }
+}

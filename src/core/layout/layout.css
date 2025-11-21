@@ -184,21 +184,50 @@ body,
 /* Responsive Header */
 @media (max-width: 600px) {
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .page-header-right {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
+    order: -1;
+    /* Move to left */
+    flex-shrink: 0;
   }
 
   .page-title {
-    font-size: 20px;
-    white-space: normal;
-    /* Allow wrapping on very small screens */
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+
+  .back-to-home-button {
+    font-size: 36px;
+    /* Smaller on mobile */
+    padding: 4px;
+  }
+}
+
+/* Responsive Header - Landscape Mode */
+@media (orientation: landscape) and (max-height: 500px) {
+  .page-header {
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  .back-to-home-button {
+    font-size: 28px;
+    padding: 2px;
+  }
+
+  .page-header-right {
+    gap: 6px;
   }
 }
 
@@ -246,20 +275,61 @@ body,
 /* [聲調符號位置] */
 .bpm-tone {
   position: absolute;
-  right: -0.6em;
-  /* 聲調在注音右側的距離 */
+  right: -0.8em;
+  /* [調整] 聲調在注音右側的距離 - 增加間距讓調號更明顯 */
   top: 50%;
   transform: translateY(-50%);
+  font-size: 1.3em;
+  /* [調整] 調號大小 - 放大讓調號更清楚 */
+  font-weight: 900;
+  /* [調整] 調號粗細 - 加粗讓調號更明顯 */
+  color: #d32f2f;
+  /* [調整] 調號顏色 - 紅色讓調號更醒目 */
 }
 
 .bpm-tone-dot {
   position: absolute;
   right: 0;
-  top: -0.8em;
-  /* 輕聲在注音上方的距離 */
+  top: -1em;
+  /* [調整] 輕聲在注音上方的距離 - 增加間距 */
+  font-size: 1.3em;
+  /* [調整] 輕聲大小 - 放大 */
+  font-weight: 900;
+  /* [調整] 輕聲粗細 - 加粗 */
+  color: #d32f2f;
+  /* [調整] 輕聲顏色 - 紅色 */
 }
 
 .bpm-tilde {
   font-size: 1em;
   margin-left: 0.2em;
+}
+
+/* === HomePage Grid Layout === */
+.home-game-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  align-content: center;
+  box-sizing: border-box;
+}
+
+/* [iPad 橫向調整] iPad Landscape Adjustment */
+@media (min-width: 1024px) and (max-height: 800px) and (orientation: landscape) {
+  .home-game-grid {
+    gap: 32px;
+    /* [調整] 增加卡片間距 */
+    padding: 0 48px;
+    /* [調整] 增加左右內距 */
+    max-width: 640px;
+    /* [調整] 限制最大寬度，避免卡片過大 */
+  }
 }

@@ -8,9 +8,10 @@ import './picture-match.css';
 
 interface PictureMatchGameProps {
     mode: 'english' | 'zhuyin' | 'dinosaur';
+    onSwitchMode: () => void;
 }
 
-export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode }) => {
+export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwitchMode }) => {
     // If mode is 'dinosaur', set initial difficulty to 'dinosaur', otherwise default to 1
     const [difficulty, setDifficulty] = useState<GameDifficulty>(mode === 'dinosaur' ? 'dinosaur' : 1);
     const [gameStarted, setGameStarted] = useState(false);
@@ -42,9 +43,12 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode }) => {
 
     return (
         <PageContainer
-            title={mode === 'english' ? '字卡 - 英文' : '字卡 - 注音'}
+            title={mode === 'english' ? '字卡 - 英文' : mode === 'dinosaur' ? '字卡 - 恐龍' : '字卡 - 注音'}
             headerRight={
                 <div className="pm-header-controls">
+                    <button onClick={onSwitchMode} className="pm-mode-switch-btn">
+                        切換模式
+                    </button>
                     {/* Difficulty dropdown */}
                     <select
                         value={difficulty}

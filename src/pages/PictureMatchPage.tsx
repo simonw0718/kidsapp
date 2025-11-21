@@ -9,5 +9,5 @@ export const PictureMatchPage: React.FC = () => {
     return <PictureMatchEntry onSelectMode={setGameMode} />;
   }
 
-  return <PictureMatchGame mode={gameMode} />;
+  return <PictureMatchGame mode={gameMode} onSwitchMode={() => setGameMode(null)} />;
 };

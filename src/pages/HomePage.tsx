@@ -1,25 +1,19 @@
 // src/pages/HomePage.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePwaInstallPrompt } from "../core/pwa/usePwaInstallPrompt";
 
 export const HomePage: React.FC = () => {
   const { isInstallable, isInstalled, promptInstall } = usePwaInstallPrompt();
   const [dismissed, setDismissed] = useState(false);
-  const [isIosLike, setIsIosLike] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
+  const [isIosLike] = useState(() => {
+    if (typeof window === "undefined") return false;
     const ua = window.navigator.userAgent || "";
     const isIphoneOrIpad = /iPhone|iPad|iPod/.test(ua);
-
     // iPadOS 很常回報成 Macintosh，但有觸控
-    const isTouchMac =
-      ua.includes("Macintosh") && "ontouchend" in window;
-
-    setIsIosLike(isIphoneOrIpad || isTouchMac);
-  }, []);
+    const isTouchMac = ua.includes("Macintosh") && "ontouchend" in window;
+    return isIphoneOrIpad || isTouchMac;
+  });
 
   const shouldShowBanner =
     !dismissed && !isInstalled && (isInstallable || isIosLike);
@@ -77,16 +71,7 @@ export const HomePage: React.FC = () => {
       </header>
 
       <section
-        style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", /* Reduced min-width for better fit */
-          gap: "16px", /* Reduced gap */
-          alignItems: "center", /* Center vertically */
-          justifyContent: "center",
-          overflow: "hidden", /* Prevent scroll */
-          padding: "0 16px",
-        }}
+        className="home-game-grid"
       >
         <Link
           to="/abacus"
@@ -97,9 +82,10 @@ export const HomePage: React.FC = () => {
             overflow: "hidden",
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
-            maxWidth: "400px", /* Limit max width */
-            margin: "0 auto", /* Center in grid cell */
+            maxWidth: "360px",
+            margin: "0 auto",
             width: "100%",
+            aspectRatio: "1/1", /* Maintain square aspect ratio */
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";
@@ -115,7 +101,8 @@ export const HomePage: React.FC = () => {
             alt="小小算珠加減樂"
             style={{
               width: "100%",
-              height: "auto",
+              height: "100%",
+              objectFit: "cover",
               display: "block",
             }}
           />
@@ -130,9 +117,10 @@ export const HomePage: React.FC = () => {
             overflow: "hidden",
             boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
             transition: "transform 0.3s ease, box-shadow 0.3s ease",
-            maxWidth: "400px",
+            maxWidth: "360px",
             margin: "0 auto",
             width: "100%",
+            aspectRatio: "1/1",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";
@@ -148,11 +136,50 @@ export const HomePage: React.FC = () => {
             alt="圖像字卡配對"
             style={{
               width: "100%",
-              height: "auto",
+              height: "100%",
+              objectFit: "cover",
               display: "block",
             }}
           />
         </Link>
+
+        <Link
+          to="/animal-commands"
+          style={{
+            display: "block",
+            textDecoration: "none",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            maxWidth: "360px",
+            margin: "0 auto",
+            width: "100%",
+            aspectRatio: "1/1",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 0, 0, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.15)";
+          }}
+        >
+          <img
+            src="/icons/animal_entry.png"
+            alt="動物指令大冒險"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+        </Link>
+
+        {/* Placeholder for 4th game */}
+        <div style={{ width: "100%", maxWidth: "360px", aspectRatio: "1/1" }}></div>
       </section>
 
       {shouldShowBanner && (
