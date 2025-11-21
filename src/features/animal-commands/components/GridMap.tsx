@@ -11,6 +11,7 @@ interface GridMapProps {
     lakes?: Position[];
     isWon: boolean;
     isLost: boolean;
+    isCollision?: boolean;
     character?: 'rabbit' | 'dino';
     isJumping?: boolean;
 }
@@ -24,6 +25,7 @@ export const GridMap: React.FC<GridMapProps> = ({
     lakes = [],
     isWon,
     isLost,
+    isCollision = false,
     character = 'rabbit',
     isJumping = false
 }) => {
@@ -35,7 +37,13 @@ export const GridMap: React.FC<GridMapProps> = ({
         }
     }
 
-    const getPlayerImage = (char: 'rabbit' | 'dino', dir: Direction, jumping: boolean) => {
+    const getPlayerImage = (char: 'rabbit' | 'dino', dir: Direction, jumping: boolean, won: boolean) => {
+        if (won) {
+            return char === 'rabbit'
+                ? '/images/animals-game/rabbit_win.png'
+                : '/images/animals-game/dino_win.png';
+        }
+
         if (jumping) {
             return char === 'rabbit'
                 ? '/images/animals-game/rabbit_jump.png'
@@ -74,16 +82,12 @@ export const GridMap: React.FC<GridMapProps> = ({
                         {isLake && <div className="ac-grid-item ac-lake">🌊</div>}
                         {isPlayer && (
                             <div
-                                className={`ac-grid-item ac-player ${isWon ? 'ac-player-win' : ''} ${isLost ? 'ac-player-lost' : ''} ${isJumping ? `ac-jump-${playerDir}` : ''}`}
+                                className={`ac-grid-item ac-player ${isWon ? 'ac-player-win' : ''} ${isLost ? 'ac-player-lost' : ''} ${isCollision ? 'ac-player-collision' : ''} ${isJumping && !isWon ? `ac-jump-${playerDir}` : ''}`}
                             >
                                 <img
-                                    src={getPlayerImage(character, playerDir, isJumping)}
+                                    src={getPlayerImage(character, playerDir, isJumping, isWon)}
                                     alt="player"
-                                    style={{
-                                        width: 'clamp(20px, 14vmin, 140px)',
-                                        height: 'clamp(20px, 14vmin, 140px)',
-                                        objectFit: 'contain'
-                                    }}
+                                    className="ac-player-img"
                                 />
                             </div>
                         )}

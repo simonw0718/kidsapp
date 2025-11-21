@@ -20,13 +20,8 @@
     text-align: center;
 }
 
-.dc-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    /* [調整] 按鈕間距 */
-    flex: 1;
-}
+.dc-buttons
+/* Layout moved to animal-commands.css */
 
 .dc-btn {
     display: flex;
@@ -92,36 +87,4 @@
 
 .dc-btn-right {
     border-left: 6px solid #2196f3;
-}
-
-.dc-btn-jump {
-    border-left: 6px solid #ff9800;
-}
-
-/* Responsive */
-@media (orientation: portrait) {
-    .dc-buttons {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-    .dc-btn {
-        min-height: 55px;
-        /* [調整] 手機版按鈕最小高度 */
-        padding: 4px;
-    }
-
-    .dc-btn-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        /* [調整] 手機版圖示大小 - 已放大 */
-    }
-
-    .dc-btn-label {
-        font-size: 18px;
-        /* [調整] 手機版文字大小 - 已放大 */
-    }
 }

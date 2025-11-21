@@ -16,8 +16,8 @@ export const DirectControlPanel: React.FC<DirectControlPanelProps> = ({
     const getIcon = (cmd: string) => {
         switch (cmd) {
             case 'forward': return '⬆️';
-            case 'left': return '↩️'; // Turn left
-            case 'right': return '↪️'; // Turn right
+            case 'left': return '⬅️'; // Turn left
+            case 'right': return '➡️'; // Turn right
             case 'jump': return '🦘';
             default: return '?';
         }

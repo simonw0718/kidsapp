@@ -27,17 +27,54 @@
     transition: transform 0.3s ease;
 }
 
+.ac-player-img {
+    width: clamp(20px, 14vmin, 140px);
+    height: clamp(20px, 14vmin, 140px);
+    object-fit: contain;
+}
+
+/* Tablet Landscape Adjustment */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+    .ac-player-img {
+        width: clamp(40px, 12vmin, 120px);
+        height: clamp(40px, 12vmin, 120px);
+    }
+}
+
 .ac-player {
     z-index: 10;
     transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
 }
 
 .ac-player-win {
-    animation: bounce 0.5s infinite alternate;
+    animation: win-scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+    z-index: 100;
 }
 
-.ac-player-lost {
-    animation: shake 0.5s ease-in-out;
+@keyframes win-scale {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(2);
+    }
+}
+
+.ac-player-collision {
+    animation: collision-flash 0.5s ease-in-out;
+}
+
+@keyframes collision-flash {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 0 red);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 10px red);
+    }
 }
 
 @keyframes bounce {

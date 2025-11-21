@@ -13,6 +13,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
 
     const [isJumping, setIsJumping] = useState(false);
 
+    const [isCollision, setIsCollision] = useState(false);
+
     // Player state
     const [playerPos, setPlayerPos] = useState<Position>({ x: 0, y: 0 });
     const [playerDir, setPlayerDir] = useState<Direction>('right');
@@ -33,6 +35,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setIsWon(false);
         setIsLost(false);
         setIsJumping(false);
+        setIsCollision(false);
         setCurrentCommandIndex(-1);
     }, [gameMode]);
 
@@ -42,6 +45,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setIsWon(false);
         setIsLost(false);
         setIsJumping(false);
+        setIsCollision(false);
         setPlayerPos({ x: initialPosRef.current.x, y: initialPosRef.current.y });
         setPlayerDir(initialPosRef.current.dir);
         setCurrentCommandIndex(-1);
@@ -58,6 +62,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setIsWon(false);
         setIsLost(false);
         setIsJumping(false);
+        setIsCollision(false);
         setCurrentCommandIndex(-1);
     };
 
@@ -144,6 +149,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
 
         // In direct control mode, ignore invalid moves instead of setting isLost
         if (hitObstacle || outOfBounds) {
+            setIsCollision(true);
+            setTimeout(() => setIsCollision(false), 500);
             return;
         }
 
@@ -198,9 +205,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             }
             setIsPlaying(false);
             // Mode 3: Clear commands after execution
-            if (modeConfig.clearOnExecute) {
-                setTimeout(() => setCommands([]), 500);
-            }
+            // [修復] 確保執行完畢後清空指令序列
+            setTimeout(() => setCommands([]), 500);
             return;
         }
 
@@ -211,6 +217,9 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         const { newPos, newDir, hitObstacle, outOfBounds } = calculateNextState(currPos, currDir, cmd);
 
         if (hitObstacle || outOfBounds) {
+            setIsCollision(true);
+            setTimeout(() => setIsCollision(false), 500);
+
             setIsLost(true);
             setIsPlaying(false);
             // Mode 4: Reset on failure
@@ -250,6 +259,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setIsWon(false);
         setIsLost(false);
         setIsJumping(false);
+        setIsCollision(false);
         setCurrentCommandIndex(-1);
 
         timerRef.current = setTimeout(() => executeStep(0), 500);
@@ -259,6 +269,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         if (timerRef.current) clearTimeout(timerRef.current);
         setIsPlaying(false);
         setIsJumping(false);
+        setIsCollision(false);
         setCurrentCommandIndex(-1);
     };
 
@@ -275,6 +286,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         isWon,
         isLost,
         isJumping,
+        isCollision,
         playerPos,
         playerDir,
         currentCommandIndex,

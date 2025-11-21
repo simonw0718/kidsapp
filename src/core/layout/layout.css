@@ -14,6 +14,8 @@ body {
   height: 100vh;
   position: fixed;
   /* 確保 iOS Safari 不會彈性捲動 */
+  touch-action: manipulation;
+  /* [Global Zoom Lock] 禁止雙擊縮放 */
 }
 
 /* === Global: 關掉文字選取，適合小朋友操作 === */

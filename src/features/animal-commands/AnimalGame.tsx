@@ -10,7 +10,12 @@ import { CommandSequence } from './components/CommandSequence';
 import { ControlPanel } from './components/ControlPanel';
 import './animal-commands.css';
 
+import { useGameLock } from '../../core/hooks/useGameLock';
+
 export const AnimalGame: React.FC = () => {
+    // [Zoom Lock] Lock viewport for game
+    useGameLock();
+
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const initialMode = Number(searchParams.get('mode') || 1) as 1 | 2 | 3 | 4;
@@ -27,6 +32,7 @@ export const AnimalGame: React.FC = () => {
         isWon,
         isLost,
         isJumping,
+        isCollision,
         playerPos,
         playerDir,
         currentCommandIndex,
@@ -42,12 +48,6 @@ export const AnimalGame: React.FC = () => {
         if (isWon) {
             const audio = new Audio('/sounds/correct_sound.mp3');
             audio.play().catch(() => { });
-
-            setTimeout(() => {
-                if (window.confirm('恭喜過關！要挑戰下一關嗎？')) {
-                    nextLevel();
-                }
-            }, 1500);
         }
     }, [isWon, nextLevel]);
 
@@ -120,12 +120,22 @@ export const AnimalGame: React.FC = () => {
                         isWon={isWon}
                         isLost={isLost}
                         isJumping={isJumping}
+                        isCollision={isCollision}
                         character={character}
                     />
                 </div>
 
                 <div className="ac-right-panel">
-                    {modeConfig.isDirect ? (
+                    {isWon ? (
+                        <div className="ac-win-menu">
+                            <button className="ac-win-btn ac-win-btn-next" onClick={nextLevel}>
+                                NEXT ➡️
+                            </button>
+                            <button className="ac-win-btn ac-win-btn-mode" onClick={() => navigate('/animal-commands')}>
+                                CHANGE MODE 🔄
+                            </button>
+                        </div>
+                    ) : modeConfig.isDirect ? (
                         /* Mode 1-2: Direct Control */
                         <DirectControlPanel
                             allowedCommands={modeConfig.allowedCommands}

@@ -15,64 +15,44 @@
 }
 
 .ac-sequence-list {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    min-height: 60px;
-}
-
-.ac-seq-slot {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.2s;
-}
-
-.ac-slot-empty {
-    background: #eeeeee;
-    border: 2px dashed #bdbdbd;
-}
-
-.ac-slot-active {
-    border-color: #ff9800;
-    background: #fff3e0;
-    transform: scale(1.1);
-    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
-}
-
-.ac-seq-icon {
-    font-size: 24px;
-}
-
-.ac-slot-number {
-    font-size: 14px;
-    color: #bdbdbd;
-}
-
-@media (orientation: landscape) {
     .ac-sequence-list {
-        flex-direction: column;
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        min-height: 0;
+        /* Layout moved to animal-commands.css */
+        padding-bottom: 4px;
+        min-height: 60px;
     }
 
-    .ac-sequence-container {
-        height: 100%;
+    .ac-seq-slot {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: #e0e0e0;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
     }
 
-    .ac-sequence-list {
-        flex: 1;
+    .ac-slot-empty {
+        background: #eeeeee;
+        border: 2px dashed #bdbdbd;
+    }
+
+    .ac-slot-active {
+        border-color: #ff9800;
+        background: #fff3e0;
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .ac-seq-icon {
+        font-size: 24px;
+    }
+
+    .ac-slot-number {
+        font-size: 14px;
+        /* Layout is controlled by parent (animal-commands.css) */
     }
 }
