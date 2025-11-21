@@ -76,8 +76,8 @@ export const GridMap: React.FC<GridMapProps> = ({
                                     src={getPlayerImage(character, playerDir, isJumping)}
                                     alt="player"
                                     style={{
-                                        width: 'clamp(20px, 100%, 80px)',
-                                        height: 'clamp(20px, 100%, 80px)',
+                                        width: 'clamp(20px, 14vmin, 140px)',
+                                        height: 'clamp(20px, 14vmin, 140px)',
                                         objectFit: 'contain'
                                     }}
                                 />

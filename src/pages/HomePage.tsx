@@ -40,6 +40,8 @@ export const HomePage: React.FC = () => {
         flexDirection: "column",
         gap: "16px",
         background: "#f7f4ff",
+        overflowY: "auto", // 允許首頁上下捲動
+        WebkitOverflowScrolling: "touch", // iOS 平滑捲動
       }}
     >
       <header

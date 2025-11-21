@@ -20,6 +20,7 @@ export const PictureMatchEntry: React.FC<PictureMatchEntryProps> = ({ onSelectMo
         <PageContainer
             title="圖像字卡配對"
             headerRight={<BackToHomeButton />}
+            scrollable={true}
         >
             <div className="pm-entry-container">
 

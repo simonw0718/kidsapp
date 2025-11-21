@@ -165,6 +165,22 @@ body,
   /* 重要：讓 flex item 可以縮小 */
 }
 
+/* [可捲動頁面] 允許非遊戲頁面（如首頁、入口頁面）上下捲動 */
+.page-container.scrollable {
+  overflow-y: auto;
+  /* 允許垂直捲動 */
+  -webkit-overflow-scrolling: touch;
+  /* iOS 平滑捲動 */
+}
+
+.page-container.scrollable .page-content {
+  overflow-y: auto;
+  /* 內容區域也允許捲動 */
+  -webkit-overflow-scrolling: touch;
+  min-height: auto;
+  /* 允許內容超出視窗高度 */
+}
+
 /* === Header & 頁面標題 === */
 
 .page-header {

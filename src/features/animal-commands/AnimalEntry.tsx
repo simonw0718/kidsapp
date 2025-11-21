@@ -17,6 +17,7 @@ export const AnimalEntry: React.FC = () => {
         <PageContainer
             title="動物指令大冒險"
             headerRight={<BackToHomeButton />}
+            scrollable={true}
         >
             <div className="ac-entry-container">
                 <div className="ac-entry-header">

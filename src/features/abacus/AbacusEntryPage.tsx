@@ -10,8 +10,9 @@ export const AbacusEntryPage: React.FC = () => {
 
   return (
     <PageContainer
-      title="小小算珠加減樂"
+      title="珠算遊戲"
       headerRight={<BackToHomeButton />}
+      scrollable={true}
     >
       <div className="abacus-entry-container">
         <div className="abacus-entry-visual">
