@@ -282,6 +282,21 @@
     transform: scale(1.05);
 }
 
+/* [卡片翻轉動畫] Card Flip Animation */
+.pm-image-card {
+    perspective: 1000px;
+    /* [調整] 3D 透視距離 */
+}
+
+.pm-card-face {
+    backface-visibility: hidden;
+}
+
+.pm-card-face--back {
+    transform: rotateY(180deg);
+}
+
+/* === Card Grid === */
 .pm-entry-title {
     font-size: 2rem;
     color: #333;

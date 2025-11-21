@@ -56,6 +56,54 @@
     *   **卡片比例**: `style` 中的 `aspectRatio` 控制卡片形狀 (目前為 `'1'` 正方形)。
     *   **圖片大小**: `img` 標籤的 `style` 中，`width` 和 `height` 控制圖片在卡片中的佔比 (目前為 `80%`)。
     *   **Emoji 大小**: 當沒有圖片時，Emoji 的 `fontSize` (目前為 `5rem`)。
+    *   **翻牌動畫 (英文模式專用)**:
+        *   **翻牌速度**: 在 `transition` 中調整 `transform 0.6s`，數值越大翻牌越慢
+        *   **背面背景色**: `.pm-card-face--back` 的 `backgroundColor: '#FFF9E6'` (淡黃色)
+        *   **背面圓角**: `.pm-card-face--back` 的 `borderRadius: '24px'`
+        *   **翻牌後字體大小**: `.pm-card-face--back` 的 `fontSize: '3rem'` (第 111 行)
+            *   **調整方式**: 修改 `'3rem'` 為其他數值
+            *   更大字體：`'4rem'`、`'5rem'`
+            *   更小字體：`'2rem'`、`'2.5rem'`
+            *   此參數控制翻牌後國字與注音的整體大小
+
+*   **`components/ZhuyinWord.tsx`** (翻牌背面顯示的中文+注音)
+    *   **字與字之間的間距**: 第 23 行 `gap: '20px'`
+        *   調整方式：修改 `'20px'` 為其他數值，如 `'15px'`、`'25px'`
+    *   **對齊方式**: 第 24 行 `alignItems: 'baseline'`
+        *   `baseline`: 國字與注音基線對齊
+        *   `center`: 垂直置中對齊
+
+#### 1.3 注音符號樣式 (BpmWord)
+
+**檔案位置**: `src/core/layout/layout.css` (第 261-319 行)
+
+*   **國字大小**: `.bpm-main-char`
+    *   `font-size: 1em` - 跟隨父層字體大小
+    *   `font-weight: 700` - 字體粗細
+    *   **調整方式**: 修改 `font-size` 為 `1.2em`、`0.9em` 等
+
+*   **注音符號大小**: `.bpm-column`
+    *   `font-size: 0.45em` - 注音符號相對於國字的大小 (約 45%)
+    *   `margin-left: 0.15em` - 國字與注音的間距
+    *   **調整方式**: 
+        *   更大注音：改為 `0.5em`、`0.55em`
+        *   更小注音：改為 `0.4em`、`0.35em`
+
+*   **聲調符號 (ˊˇˋ)**: `.bpm-tone`
+    *   `font-size: 1.3em` - 調號大小
+    *   `font-weight: 900` - 調號粗細
+    *   `color: #d32f2f` - 調號顏色 (紅色)
+    *   `right: -0.8em` - 調號在注音右側的距離
+    *   **調整方式**:
+        *   更大調號：改 `font-size` 為 `1.5em`
+        *   不同顏色：改 `color` 為 `#FF5722`、`#000` 等
+        *   調整位置：改 `right` 為 `-1em`、`-0.6em`
+
+*   **輕聲符號 (˙)**: `.bpm-tone-dot`
+    *   `font-size: 1.3em` - 輕聲大小
+    *   `font-weight: 900` - 輕聲粗細
+    *   `color: #d32f2f` - 輕聲顏色 (紅色)
+    *   `top: -1em` - 輕聲在注音上方的距離
 
 ---
 

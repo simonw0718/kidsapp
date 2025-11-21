@@ -1,279 +1,259 @@
-# Release Note — 動物指令大冒險跳躍動畫 + 介面優化 (2025-11-21)
+# Release Note — 圖片配對翻牌動畫 + 恐龍詞庫更新 (2025-11-21)
 
 ## 版本概覽
-此版本主要完成「動物指令大冒險」遊戲的跳躍動畫功能，並針對手機橫式佈局進行大幅優化。同時改善圖像字卡配對的入口頁面佈局，並增強注音符號調號的可見度。
+此版本為「圖片配對遊戲」新增了卡片翻牌動畫功能（英文模式專用），實作智慧字體大小調整與自動分行顯示，並更新恐龍詞庫內容。同時完善了格式調整指南文檔。
 
 ---
 
 ## 🎮 新功能（Features）
 
-### 1. 動物指令大冒險 - 跳躍動畫實作
+### 1. 卡片翻牌動畫（Card Flip Animation）
 
-#### 跳躍動畫系統
-- **角色專屬跳躍圖片**：
-  - 兔子：`rabbit_jump.png`
-  - 恐龍：`dino_jump.png`
-  - 執行跳躍指令時自動切換至跳躍圖片
+#### 英文模式專用功能
+- **觸發時機**：英文模式答對時，正確答案卡片自動翻轉
+- **翻牌內容**：
+  - 正面：英文單字圖片/Emoji
+  - 背面：中文字 + 注音符號（使用 `ZhuyinWord` 組件）
   
-- **方向性弧形動畫**：
-  - 根據角色朝向（上/下/左/右）執行對應的跳躍動畫
-  - 動畫軌跡：向目標方向移動 2 格，並帶有弧形效果
-  - 使用 CSS `transform` 實現平滑的跳躍動作
-  - 跳躍過程中角色會放大 1.2 倍，模擬跳躍高度
+- **動畫效果**：
+  - 3D 翻轉動畫：`rotateY(180deg)`
+  - 翻轉速度：`0.6s`（可調整）
+  - 背面背景色：淡黃色 `#FFF9E6`
+  - 翻轉後卡片自動提升至最上層（`z-index: 10`），防止被遮擋
+
+#### 實作細節
+- **檔案**：`src/features/picture-match/components/ImageCard.tsx`
+- **技術**：
+  - 使用 `transform-style: preserve-3d` 實現 3D 效果
+  - 使用 `backface-visibility: hidden` 隱藏背面
+  - 前後兩面使用絕對定位重疊
+  - 透過 `showFlipped` prop 控制翻轉狀態
+
+### 2. 智慧字體大小調整（Dynamic Font Sizing）
+
+#### 自動判斷中文字數
+- **規則**：
+  - **1-2 個字**：使用 `3rem` 大字體（例如：魚龍、冠龍）
+  - **3 個字以上**：使用 `1.5rem` 小字體（例如：南方巨獸龍）
   
-- **動畫時序控制**：
-  - 動畫時長：1 秒（可調整）
-  - 跳躍完成後自動恢復為原本的方向圖片
-  - 支援直接控制模式（模式 1、2）和預排指令模式（模式 3、4）
+- **實作邏輯**：
+  - 新增 `getFlipFontSize()` 函數
+  - 只計算中文字數（`item.chinese.length`），不包含注音
+  - 自動套用，無需手動設定
+
+### 3. 自動分行顯示（Automatic Line Breaking）
+
+#### 長詞語分兩行
+- **規則**：
+  - **1-3 個字**：單行顯示
+  - **4 個字以上**：自動分成兩行
+  
+- **分行邏輯**：
+  - 使用 `Math.ceil(maxLength / 2)` 計算每行字數
+  - 盡量平均分配（例如：5 個字 → 3字/2字）
+  - 垂直排列，行間距 `12px`
   
 - **實作細節**：
-  - `useAnimalGame.ts`：新增 `isJumping` 狀態管理
-  - `GridMap.tsx`：條件渲染跳躍圖片，應用方向性動畫 class
-  - `grid-map.css`：定義 4 個方向的跳躍 keyframes 動畫
+  - **檔案**：`src/features/picture-match/components/ZhuyinWord.tsx`
+  - 新增 `renderRow()` 函數處理每一行
+  - 使用 `flexDirection: 'column'` 垂直排列
+  - 每行獨立渲染，保持注音與中文對應
+
+---
+
+## 📚 詞庫更新
+
+### 恐龍詞庫更新（Dinosaur Vocabulary）
+
+#### 新增 3 個恐龍
+- **Protoceratops** (原角龍) - ㄩㄢˊ ㄐㄧㄠˇ ㄌㄨㄥˊ
+- **Therizinosaurus** (鐮刀龍) - ㄌㄧㄢˊ ㄉㄠ ㄌㄨㄥˊ
+- **Microraptor** (小盜龍) - ㄒㄧㄠˇ ㄉㄠˋ ㄌㄨㄥˊ
+
+#### 移除 3 個恐龍
+- Spinosaurus (棘龍)
+- Pachycephalosaurus (厚頭龍)
+- Mosasaurus (滄龍)
+
+#### 保留 6 個恐龍
+- Compsognathus (美頜龍)
+- Mamenchisaurus (馬門溪龍)
+- Giganotosaurus (南方巨獸龍)
+- Ichthyosaurus (魚龍)
+- Corythosaurus (冠龍)
+- Oviraptor (偷蛋龍)
+
+#### 注音修正
+- **Brachiosaurus** (腕龍)：`ㄨㄢˋ` → `ㄨㄢˇ`
+- **Corythosaurus** (冠龍)：`ㄍㄨㄢ` → `ㄍㄨㄢˋ`
 
 ---
 
 ## 🎨 UI/UX 調整
 
-### 1. 圖像字卡配對 - 入口頁面佈局優化
+### 1. 翻牌卡片視覺優化
 
-#### 響應式佈局改進
-- **直式模式（手機/平板）**：
-  - 改為 **2×2 網格排列**
-  - 三個模式按鈕以 2 列顯示
-  - 按鈕使用 `aspect-ratio: 1` 保持正方形
-  - 最大寬度：`170px`（手機直式）
-  
-- **橫式模式（手機/平板/iPad）**：
-  - 改為 **1×3 單行排列**
-  - 三個按鈕橫向並排
-  - 使用 `max-height: 50vh` 限制高度，防止與 header 重疊
-  - 使用 `clamp()` 函數動態調整文字大小
-  - 確保在各種螢幕尺寸下都能完整顯示
-  
-- **新增恐龍模式按鈕顏色**：
-  - 紫色主題（`#9C27B0`）
-  - 與英文模式（綠色）、注音模式（橘色）形成區別
+#### 背面設計
+- **背景色**：淡黃色 `#FFF9E6`，與正面白色區分
+- **圓角**：`24px`，與正面一致
+- **內距**：`16px`，確保文字不貼邊
+- **字間距**：`20px`，清晰易讀
+- **行間距**：`12px`（多行時），層次分明
 
-### 2. 動物指令大冒險 - 手機橫式佈局大幅優化
+#### 層級管理
+- **翻轉後**：`z-index: 10`，顯示在最上層
+- **一般狀態**：`z-index: 1`，正常層級
+- **目的**：防止翻牌後的文字被其他卡片遮擋
 
-#### Header 尺寸縮減
-- **全局 Header 優化**（`layout.css`）：
-  - 標題字體：24px → **16px**
-  - 返回按鈕：36px → **28px**
-  - 上下間距：16px → **6px**
-  - 適用於所有遊戲的手機橫式模式
-  
-#### 遊戲佈局調整
-- **地圖區域**：
-  - 最大寬度：45vw → **42vw**（釋放更多空間給控制區）
-  - 最大高度：75vh → **85vh**（充分利用垂直空間）
-  - 格子最小尺寸：24px → **20px**
-  - 內距：6px → **4px**
-  
-- **整體佈局**：
-  - 整體內距：4px → **2px**
-  - 左右間距：6px（維持）
-  - 確保地圖與控制區都能完整顯示，不會被截斷或重疊
+### 2. 響應式字體
 
-#### 角色圖片大小控制
-- **重要發現**：`.ac-grid-item` 的 `font-size` 僅控制 emoji 物件（🥕🪨），**不影響**角色圖片
-- **正確調整方式**：
-  - 檔案：`GridMap.tsx`
-  - 位置：第 79-80 行的 `style` 屬性
-  - 使用 `clamp(20px, 100%, 80px)` 控制角色圖片大小
-  - 可調整最大值（目前 80px）來放大或縮小角色
-
-### 3. 遊戲模式切換按鈕優化
-
-#### Picture Match 遊戲
-- **新增「切換模式」按鈕**：
-  - 取代原本的難度下拉選單旁新增按鈕
-  - 點擊後返回模式選擇頁面（英文/注音/恐龍）
-  - 保留難度下拉選單，方便遊戲中調整難度
-  
-#### Animal Commands 遊戲
-- **模式選擇改為按鈕**：
-  - 將原本的模式下拉選單改為「切換模式」按鈕
-  - 點擊後返回角色與模式選擇頁面
-  - 簡化介面，提升使用體驗
-
-### 4. 注音符號調號可見度增強
-
-#### 調號視覺優化
-- **大小增加**：
-  - 從 0.45em 增加到 **1.3em**（相對於注音符號）
-  - 讓調號更清楚易讀
-  
-- **粗細加強**：
-  - 字重設為 **900**（最粗）
-  - 調號線條更明顯
-  
-- **顏色對比**：
-  - 改為**紅色**（`#d32f2f`）
-  - 與黑色注音形成強烈對比
-  - 更容易辨識調號類型（˙ˊˇˋ）
-  
-- **間距調整**：
-  - 一般調號：右側間距從 -0.6em 增加到 **-0.8em**
-  - 輕聲調號：上方間距從 -0.8em 增加到 **-1em**
-  - 避免調號與注音重疊
-
-### 5. Ready Go 圖片大小修正
-
-#### 啟動畫面優化
-- **問題**：手機版 Ready Go 圖片過大，佔滿整個螢幕
-- **解決方案**：
-  - 新增 `.pm-start-image` CSS 樣式
-  - 桌面/平板：`max-width: 400px`
-  - 手機直向：`max-width: 280px`
-  - 確保圖片大小適中，不會過於突兀
+#### 自適應設計
+- 短詞使用大字體，提升可讀性
+- 長詞使用小字體並分行，避免溢出
+- 所有調整自動進行，確保一致性
 
 ---
 
 ## 📝 文件更新
 
-### 1. FormatAdjustmentGuide.md 擴充
+### FormatAdjustmentGuide.md 更新
 
-#### 新增章節
-- **注音符號調號設定**（第 3 章）：
-  - `.bpm-tone` 和 `.bpm-tone-dot` 樣式說明
-  - 調號大小、粗細、顏色調整方式
-  - 提供具體的調整建議與範例
+#### 新增章節：翻牌動畫設定
+- **1.2 節**：`components/ImageCard.tsx` 翻牌動畫參數
+  - 翻牌速度調整
+  - 背面背景色設定
+  - 字體大小自動調整說明
   
-- **角色圖片大小調整**（動物指令章節）：
-  - 說明 `.ac-grid-item` font-size 僅影響 emoji
-  - 標註 `GridMap.tsx` 中的正確調整位置
-  - 提供放大/縮小的具體數值建議
+- **1.3 節**：`components/ZhuyinWord.tsx` 顯示設定
+  - 字與字之間的間距
+  - 對齊方式設定
   
-- **Picture Match 入口頁面佈局**：
-  - 記錄直式/橫式的不同佈局方式
-  - 說明按鈕尺寸與間距的響應式設定
-  - 新增恐龍模式按鈕顏色說明
+- **1.4 節**：注音符號樣式 (BpmWord)
+  - 國字大小設定
+  - 注音符號大小設定
+  - 聲調符號顏色、大小、位置
+  - 輕聲符號設定
 
-#### Ready Go 圖片調整說明
-- 記錄 `.pm-start-image` 樣式位置
-- 說明桌面與手機的不同尺寸設定
-- 提供調整建議
+#### 更新內容
+- 所有參數都加上中文註解
+- 明確標註 `[調整]` 可修改的參數
+- 提供具體的調整範例與建議值
 
 ---
 
 ## 🔧 技術改善
 
-### 1. 動畫系統實作
+### 1. 組件化設計
 
-#### CSS Keyframes 動畫
-- 定義 4 個方向的跳躍動畫：
-  - `jump-right`：向右跳躍 2 格
-  - `jump-left`：向左跳躍 2 格
-  - `jump-up`：向上跳躍 2 格
-  - `jump-down`：向下跳躍 2 格
-  
-- 動畫特性：
-  - 使用 `ease-in-out` 緩動函數
-  - `forwards` 保持動畫結束狀態
-  - `z-index: 10` 確保跳躍時在最上層
+#### ImageCard 組件增強
+- 新增 `getFlipFontSize()` 函數處理動態字體
+- 新增 `showFlipped` prop 控制翻轉狀態
+- 整合 3D 翻轉動畫邏輯
+- 保持向後兼容，不影響其他模式
 
-#### 狀態管理優化
-- 在 `useAnimalGame` hook 中新增 `isJumping` 狀態
-- 使用 `setTimeout` 控制動畫時序
-- 確保直接控制和預排指令模式都能正確執行跳躍動畫
+#### ZhuyinWord 組件重構
+- 新增 `renderRow()` 函數處理分行邏輯
+- 支援單行與雙行自動切換
+- 保持字與注音的正確對應
+- 使用 `flexDirection: 'column'` 實現垂直排列
 
-### 2. 響應式設計改進
+### 2. 性能優化
 
-#### 使用現代 CSS 技術
-- `aspect-ratio` 屬性保持按鈕比例
-- `clamp()` 函數實現動態字體大小
-- `max-height: 50vh` 防止元素超出視窗高度
-- Grid 佈局實現靈活的響應式排列
+#### 條件渲染
+- 只在需要時渲染第二行
+- 使用 `shouldSplitRows` 判斷是否分行
+- 避免不必要的 DOM 元素
 
-#### 媒體查詢優化
-- 針對手機橫式模式（`max-height: 500px`）新增專用樣式
-- 確保在不同裝置（iPhone、iPad）上都能正常顯示
-- 避免內容重疊或被截斷
-
----
-
-## 🐛 Bug 修復
-
-### 1. 手機橫式佈局問題
-- **問題**：動物指令遊戲在手機橫式模式下，地圖與控制區重疊或被截斷
-- **原因**：Header 過大、地圖尺寸設定不當
-- **解決**：
-  - 縮小 Header 尺寸
-  - 調整地圖最大寬度/高度
-  - 減少內距與間距
-  - 確保完整顯示
-
-### 2. 角色圖片大小無法調整
-- **問題**：修改 `.ac-grid-item` 的 `font-size` 無效
-- **原因**：角色使用 `<img>` 標籤，不受 `font-size` 影響
-- **解決**：
-  - 在 `GridMap.tsx` 中直接設定 img 的 width/height
-  - 使用 `clamp()` 實現響應式大小控制
-  - 文件中明確說明調整方式
-
-### 3. Picture Match 入口頁面在 iPad 橫向顯示問題
-- **問題**：按鈕過大，無法在一個畫面內顯示
-- **解決**：使用 `max-height: 50vh` 限制按鈕高度
-
-### 4. 注音調號難以辨識
-- **問題**：調號太小且顏色與注音相同，使用者難以分辨
-- **解決**：增大調號、加粗、改為紅色、增加間距
+#### CSS 優化
+- 使用 `backface-visibility: hidden` 提升動畫性能
+- 使用 `transform` 而非 `left/top` 實現動畫
+- 硬體加速的 3D 變換
 
 ---
 
 ## 📦 修改檔案清單
 
-### 動物指令大冒險
-- `src/features/animal-commands/hooks/useAnimalGame.ts` - 新增跳躍狀態管理
-- `src/features/animal-commands/AnimalGame.tsx` - 傳遞 isJumping 狀態
-- `src/features/animal-commands/components/GridMap.tsx` - 跳躍圖片渲染與動畫
-- `src/features/animal-commands/components/grid-map.css` - 跳躍動畫 keyframes
-- `src/features/animal-commands/animal-commands.css` - 手機橫式佈局優化
+### 核心功能檔案
+- `src/features/picture-match/components/ImageCard.tsx` - 新增翻牌動畫、動態字體大小
+- `src/features/picture-match/components/ZhuyinWord.tsx` - 新增自動分行邏輯
+- `src/features/picture-match/PictureMatchGame.tsx` - 傳遞 `showFlipped` prop
 
-### 圖像字卡配對
-- `src/features/picture-match/PictureMatchEntry.tsx` - 無變更
-- `src/features/picture-match/PictureMatchGame.tsx` - 新增切換模式按鈕
-- `src/features/picture-match/picture-match.css` - 入口頁面佈局、Ready Go 圖片大小
-- `src/pages/PictureMatchPage.tsx` - 傳遞 onSwitchMode 回調
+### 樣式檔案
+- `src/features/picture-match/picture-match.css` - 新增翻牌動畫 CSS
+- `src/core/layout/layout.css` - 注音符號樣式（已有中文註解）
 
-### 全局樣式
-- `src/core/layout/layout.css` - Header 橫式優化、注音調號樣式增強
+### 資料檔案
+- `src/features/picture-match/data/vocab.ts` - 更新恐龍詞庫、修正注音
 
 ### 文件
-- `doc/FormatAdjustmentGuide.md` - 新增多個調整說明章節
+- `doc/FormatAdjustmentGuide.md` - 新增翻牌動畫與注音符號樣式說明
 
 ---
 
 ## 🎯 調整建議
 
-### 跳躍動畫調整
-- **動畫時間**：同時修改 `useAnimalGame.ts` 的 setTimeout（1000ms）和 `grid-map.css` 的 animation 時間（1s）
-- **跳躍軌跡**：在 `grid-map.css` 的 `@keyframes` 中調整 `translate` 和 `scale` 數值
+### 翻牌動畫調整
+- **檔案**：`src/features/picture-match/components/ImageCard.tsx`
+- **翻牌速度**：修改 `transition` 中的 `transform 0.6s`（數值越大越慢）
+- **背面背景色**：修改第 109 行的 `backgroundColor: '#FFF9E6'`
+- **字體大小規則**：修改 `getFlipFontSize()` 函數中的 `3rem` 和 `1.5rem`
 
-### 角色圖片大小調整
-- 檔案：`src/features/animal-commands/components/GridMap.tsx`
-- 行號：79-80
-- 增大：將 `80px` 改為更大值（如 `100px`）
-- 縮小：將 `80px` 改為更小值（如 `60px`）
+### 注音符號調整
+- **檔案**：`src/core/layout/layout.css`（第 261-319 行）
+- **國字大小**：修改 `.bpm-main-char` 的 `font-size`（目前 `1em`）
+- **注音大小**：修改 `.bpm-column` 的 `font-size`（目前 `0.45em`）
+- **聲調顏色**：修改 `.bpm-tone` 的 `color`（目前 `#d32f2f` 紅色）
+- **聲調大小**：修改 `.bpm-tone` 的 `font-size`（目前 `1.3em`）
 
-### 注音調號調整
-- 檔案：`src/core/layout/layout.css`
-- 若調號太大：`font-size: 1.3em` → `1.1em`
-- 若調號太粗：`font-weight: 900` → `700`
-- 若想改顏色：`color: #d32f2f` → 其他顏色（如 `#0066cc` 藍色）
+### 分行邏輯調整
+- **檔案**：`src/features/picture-match/components/ZhuyinWord.tsx`
+- **分行門檻**：修改第 22 行的 `maxLength > 3`（改為 `> 4` 則 5 字以上才分行）
+- **字間距**：修改第 29 行的 `gap: '20px'`
+- **行間距**：修改第 54 行的 `gap: '12px'`
 
 ---
 
 ## 📊 統計資訊
 
-- **修改檔案數**：9 個
-- **新增 CSS 樣式**：跳躍動畫 keyframes（4 個方向）、注音調號增強、Ready Go 圖片大小
-- **新增功能**：跳躍動畫系統、切換模式按鈕
-- **優化項目**：手機橫式佈局、入口頁面響應式、注音可讀性
-- **文件更新**：FormatAdjustmentGuide.md 新增 4 個章節
+- **修改檔案數**：7 個
+- **新增功能**：3 個（翻牌動畫、動態字體、自動分行）
+- **新增程式碼行數**：約 80 行
+- **詞庫更新**：新增 3 個恐龍、移除 3 個恐龍、修正 2 個注音
+- **文件更新**：FormatAdjustmentGuide.md 新增 3 個小節
 
 ---
 
-本次更新大幅改善了「動物指令大冒險」遊戲的視覺效果與手機橫式體驗，同時提升了「圖像字卡配對」的介面易用性與注音符號的可讀性。所有調整都已在文件中詳細記錄，方便後續維護與調整。
+## 🔄 與前一版本的差異
+
+### 前一版本（11-20）
+- 動物指令大冒險 CSS 架構重構
+- 桌面版佈局優化
+- 遊戲專屬縮放鎖定
+
+### 本版本（11-21）
+- **圖片配對翻牌動畫**（全新功能）
+- **智慧字體大小調整**（自動判斷）
+- **自動分行顯示**（長詞優化）
+- **恐龍詞庫更新**（內容更新）
+- **文檔完善**（新增翻牌相關說明）
+
+---
+
+## 💡 使用說明
+
+### 翻牌動畫使用方式
+1. 選擇「英文模式」
+2. 答對題目後，正確答案卡片會自動翻轉
+3. 背面顯示中文字和注音符號
+4. 短詞（1-2字）顯示大字體單行
+5. 長詞（3字以上）顯示小字體，4字以上自動分兩行
+
+### 調整字體大小
+- 開啟 `ImageCard.tsx`
+- 找到 `getFlipFontSize()` 函數（第 26-33 行）
+- 修改 `'3rem'` 或 `'1.5rem'` 為想要的大小
+- 儲存後重新整理頁面即可看到效果
+
+---
+
+本次更新為圖片配對遊戲帶來了全新的互動體驗，翻牌動畫讓學習過程更加生動有趣。智慧字體調整與自動分行功能確保了各種長度的詞語都能清晰顯示，提升了整體的使用體驗。

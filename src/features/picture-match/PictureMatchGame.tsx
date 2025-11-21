@@ -97,6 +97,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                                                 : 'idle'
                                     }
                                     disabled={status === 'correct'}
+                                    showFlipped={mode === 'english' && status === 'correct' && item.id === currentQuestion.id}
                                 />
                             ))}
                         </div>
