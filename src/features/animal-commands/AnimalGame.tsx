@@ -69,6 +69,27 @@ export const AnimalGame: React.FC = () => {
             headerRight={
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <button
+                        onClick={nextLevel}
+                        title="換一張地圖"
+                        style={{
+                            padding: '8px',
+                            borderRadius: '50%',
+                            border: '2px solid #4dd0e1',
+                            background: 'white',
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            color: '#0097a7',
+                            width: '40px',
+                            height: '40px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        🔄
+                    </button>
+                    <button
                         onClick={() => navigate('/animal-commands')}
                         style={{
                             padding: '8px 12px',
@@ -95,6 +116,7 @@ export const AnimalGame: React.FC = () => {
                         playerDir={playerDir}
                         goal={currentLevel.goal}
                         obstacles={currentLevel.obstacles}
+                        lakes={currentLevel.lakes}
                         isWon={isWon}
                         isLost={isLost}
                         isJumping={isJumping}

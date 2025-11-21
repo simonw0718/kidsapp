@@ -8,6 +8,7 @@ interface GridMapProps {
     playerDir: Direction;
     goal: Position;
     obstacles: Position[];
+    lakes?: Position[];
     isWon: boolean;
     isLost: boolean;
     character?: 'rabbit' | 'dino';
@@ -20,6 +21,7 @@ export const GridMap: React.FC<GridMapProps> = ({
     playerDir,
     goal,
     obstacles,
+    lakes = [],
     isWon,
     isLost,
     character = 'rabbit',
@@ -62,12 +64,14 @@ export const GridMap: React.FC<GridMapProps> = ({
             {cells.map((cell) => {
                 const isGoal = cell.x === goal.x && cell.y === goal.y;
                 const isObstacle = obstacles.some(o => o.x === cell.x && o.y === cell.y);
+                const isLake = lakes.some(l => l.x === cell.x && l.y === cell.y);
                 const isPlayer = cell.x === playerPos.x && cell.y === playerPos.y;
 
                 return (
                     <div key={`${cell.x}-${cell.y}`} className="ac-grid-cell">
                         {isGoal && <div className="ac-grid-item ac-goal">{getGoalContent(character)}</div>}
                         {isObstacle && <div className="ac-grid-item ac-obstacle">🪨</div>}
+                        {isLake && <div className="ac-grid-item ac-lake">🌊</div>}
                         {isPlayer && (
                             <div
                                 className={`ac-grid-item ac-player ${isWon ? 'ac-player-win' : ''} ${isLost ? 'ac-player-lost' : ''} ${isJumping ? `ac-jump-${playerDir}` : ''}`}

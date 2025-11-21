@@ -96,6 +96,9 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             return next;
         };
 
+        const isObstacle = (x: number, y: number) => currentLevel.obstacles.some(o => o.x === x && o.y === y);
+        const isLake = (x: number, y: number) => currentLevel.lakes?.some(l => l.x === x && l.y === y) ?? false;
+
         if (cmd === 'left') {
             const dirs: Direction[] = ['up', 'left', 'down', 'right'];
             const idx = dirs.indexOf(dir);
@@ -108,16 +111,22 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             const next = getForwardPos(pos, dir, 1);
             if (next.x < 0 || next.x >= currentLevel.gridSize || next.y < 0 || next.y >= currentLevel.gridSize) {
                 outOfBounds = true;
-            } else if (currentLevel.obstacles.some(o => o.x === next.x && o.y === next.y)) {
+            } else if (isObstacle(next.x, next.y) || isLake(next.x, next.y)) {
                 hitObstacle = true;
             } else {
                 newPos = next;
             }
         } else if (cmd === 'jump') {
             const next = getForwardPos(pos, dir, 2);
+            const mid = getForwardPos(pos, dir, 1); // The tile we are jumping over
+
             if (next.x < 0 || next.x >= currentLevel.gridSize || next.y < 0 || next.y >= currentLevel.gridSize) {
                 outOfBounds = true;
-            } else if (currentLevel.obstacles.some(o => o.x === next.x && o.y === next.y)) {
+            } else if (isObstacle(next.x, next.y) || isLake(next.x, next.y)) {
+                // Cannot land on obstacle or lake
+                hitObstacle = true;
+            } else if (isLake(mid.x, mid.y)) {
+                // Cannot jump OVER a lake
                 hitObstacle = true;
             } else {
                 newPos = next;
