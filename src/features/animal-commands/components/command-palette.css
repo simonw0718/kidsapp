@@ -1,56 +1,70 @@
+/* ========================================
+   模式 3/4 指令按鈕區 (CommandPalette)
+   ======================================== */
+
+/* Layout moved to animal-commands.css */
 .ac-palette {
-    .ac-palette {
-        /* Layout moved to animal-commands.css */
-        padding: 12px;
-        background: #fff3e0;
-        border-radius: 16px;
-        border: 2px solid #ffe0b2;
-    }
+    padding: 8px;
+    /* [可調整] 指令區內距 */
+    background: #fff3e0;
+    /* [可調整] 背景顏色 - 淡橘色 */
+    border-radius: 12px;
+    /* [可調整] 圓角大小 */
+    border: 2px solid #ffe0b2;
+    /* [可調整] 黃框邊框寬度 */
+}
 
-    .ac-command-btn {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        border: none;
-        border-radius: 12px;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
+.ac-command-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* [新增] 置中圖示 */
+    padding: 8px;
+    /* [可調整] 按鈕內距 - 影響按鈕大小 */
+    border: none;
+    border-radius: 10px;
+    /* [可調整] 按鈕圓角 */
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 48px;
+    /* [可調整] 按鈕最小寬度 */
+    min-height: 48px;
+    /* [可調整] 按鈕最小高度 */
+}
 
-    .ac-command-btn:active:not(:disabled) {
-        transform: scale(0.95);
-    }
+.ac-command-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
 
-    .ac-command-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+.ac-command-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
-    .ac-cmd-icon {
-        font-size: 24px;
-    }
+.ac-cmd-icon {
+    font-size: 28px;
+    /* [可調整] 指令圖示大小 - 控制 emoji 大小 */
+}
 
-    .ac-cmd-label {
-        font-size: 16px;
-        font-weight: 600;
-        color: #5d4037;
-    }
+/* Specific colors - 左側彩色邊框 */
+.ac-btn-forward {
+    border-left: 4px solid #4caf50;
+    /* [可調整] 前進按鈕左側綠色邊框寬度 */
+}
 
-    /* Specific colors */
-    .ac-btn-forward {
-        border-left: 6px solid #4caf50;
-    }
+.ac-btn-left {
+    border-left: 4px solid #2196f3;
+    /* [可調整] 左轉按鈕左側藍色邊框寬度 */
+}
 
-    .ac-btn-left {
-        border-left: 6px solid #2196f3;
-    }
+.ac-btn-right {
+    border-left: 4px solid #2196f3;
+    /* [可調整] 右轉按鈕左側藍色邊框寬度 */
+}
 
-    .ac-btn-right {
-        border-left: 6px solid #2196f3;
-    }
-
-
+.ac-btn-jump {
+    border-left: 4px solid #ff9800;
+    /* [可調整] 跳躍按鈕左側橘色邊框寬度 */
 }

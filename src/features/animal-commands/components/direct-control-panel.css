@@ -1,19 +1,27 @@
+/* ========================================
+   模式 1/2 直接控制面板 (DirectControlPanel)
+   ======================================== */
+
 .dc-panel {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    /* [調整] 面板內部間距 */
+    /* [可調整] 面板內部間距 */
     padding: 8px;
-    /* [調整] 面板內距 */
+    /* [可調整] 面板內距 */
     background: #e8f5e9;
+    /* [可調整] 背景顏色 - 淡綠色 */
     border: 2px solid #81c784;
+    /* [可調整] 綠色邊框寬度 */
     border-radius: 16px;
+    /* [可調整] 圓角大小 */
     height: 100%;
     box-sizing: border-box;
 }
 
 .dc-title {
     font-size: 16px;
+    /* [可調整] 標題文字大小 */
     font-weight: 700;
     color: #2e7d32;
     margin-bottom: 12px;
@@ -29,18 +37,19 @@
     align-items: center;
     justify-content: center;
     gap: 4px;
-    /* [調整] 按鈕內圖文間距 */
+    /* [可調整] 按鈕內圖文間距 */
     background: white;
     border: none;
     border-radius: 12px;
+    /* [可調整] 按鈕圓角 */
     padding: 8px;
-    /* [調整] 按鈕內距 */
+    /* [可調整] 按鈕內距 - 影響按鈕大小 */
     cursor: pointer;
     transition: all 0.2s;
     box-shadow: 0 4px 0 #e0e0e0;
     position: relative;
     min-height: 60px;
-    /* [調整] 按鈕最小高度 */
+    /* [可調整] 按鈕最小高度 */
 }
 
 .dc-btn:active:not(:disabled) {
@@ -55,9 +64,11 @@
 
 .dc-btn-icon {
     font-size: 32px;
-    /* [調整] 按鈕圖示大小 - 放大 */
+    /* [可調整] 按鈕圖示大小 - 控制 emoji 大小 */
     width: 56px;
+    /* [可調整] 圖示容器寬度 */
     height: 56px;
+    /* [可調整] 圖示容器高度 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,22 +80,25 @@
 
 .dc-btn-label {
     font-size: 24px;
-    /* [調整] 按鈕文字大小 - 放大 */
+    /* [可調整] 按鈕文字大小 */
     font-weight: 800;
     color: #424242;
     width: 100%;
     text-align: center;
 }
 
-/* Specific colors */
+/* Specific colors - 左側彩色邊框 */
 .dc-btn-forward {
     border-left: 6px solid #4caf50;
+    /* [可調整] 前進按鈕左側綠色邊框寬度 */
 }
 
 .dc-btn-left {
     border-left: 6px solid #2196f3;
+    /* [可調整] 左轉按鈕左側藍色邊框寬度 */
 }
 
 .dc-btn-right {
     border-left: 6px solid #2196f3;
+    /* [可調整] 右轉按鈕左側藍色邊框寬度 */
 }

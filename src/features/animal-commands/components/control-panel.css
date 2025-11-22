@@ -1,29 +1,44 @@
+/* ========================================
+   開始執行 / 重置按鈕 (ControlPanel)
+   用於所有模式的遊戲控制
+   ======================================== */
+
 .ac-controls {
     display: flex;
-    gap: 12px;
+    gap: 6px;
+    /* [可調整] 按鈕之間的間距 */
     width: 100%;
     justify-content: center;
-    padding: 8px;
+    padding: 4px;
+    /* [可調整] 容器內距 */
 }
 
 .ac-control-btn {
-    padding: 12px 24px;
+    padding: 8px 16px;
+    /* [可調整] 按鈕內距 - 影響按鈕寬高 */
     border-radius: 999px;
+    /* [可調整] 圓角大小 - 999px 為完全圓角 */
     border: none;
-    font-size: 18px;
+    font-size: 14px;
+    /* [可調整] 按鈕文字大小 */
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    /* [可調整] 圖示與文字間距 */
     color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* [可調整] 陰影大小 */
+    flex: 1;
+    /* 所有按鈕相同大小 */
+    justify-content: center;
 }
 
 .ac-control-btn:active:not(:disabled) {
     transform: scale(0.95);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .ac-control-btn:disabled {
@@ -33,20 +48,18 @@
     box-shadow: none;
 }
 
+/* 按鈕顏色 */
 .ac-btn-start {
     background: linear-gradient(135deg, #4caf50, #2e7d32);
-    flex: 2;
-    justify-content: center;
+    /* [可調整] 開始執行按鈕背景顏色 - 綠色漸層 */
 }
 
 .ac-btn-stop {
     background: linear-gradient(135deg, #f44336, #c62828);
-    flex: 2;
-    justify-content: center;
+    /* [可調整] 停止按鈕背景顏色 - 紅色漸層 */
 }
 
 .ac-btn-reset {
     background: #757575;
-    flex: 1;
-    justify-content: center;
+    /* [可調整] 重置按鈕背景顏色 - 灰色 */
 }

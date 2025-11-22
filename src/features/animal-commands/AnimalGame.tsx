@@ -125,7 +125,7 @@ export const AnimalGame: React.FC = () => {
                     />
                 </div>
 
-                <div className="ac-right-panel">
+                <div className={`ac-right-panel ${modeConfig.isDirect ? 'ac-mode-direct' : 'ac-mode-sequence'}`}>
                     {isWon ? (
                         <div className="ac-win-menu">
                             <button className="ac-win-btn ac-win-btn-next" onClick={nextLevel}>

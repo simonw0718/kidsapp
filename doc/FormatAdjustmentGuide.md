@@ -248,23 +248,402 @@
 
 *   **`.ac-game-layout`** - 遊戲主容器
     *   **桌面版**: `gap: 20px` - 左右面板間距，`padding: 12px` - 整體內距
-    *   **手機直向**: `gap: 16px` - **[調整]** 上下面板間距（原本 4px），增加間距讓兩者不相連
+    *   **手機直向**: `gap: 8px` - **[調整]** 上下面板間距，減少間距以節省空間
     *   **手機橫向**: `gap: 6px` - 左右面板間距，`padding: 4px` - 整體內距
 
 *   **`.ac-left-panel`** - 地圖區域
-    *   **手機直向**: `max-height: 35vh` - **[重要]** 地圖最大高度（原本 38vh），再縮小一點
+    *   **手機直向**: 
+        *   `flex: 0 0 auto` - **[重要]** 不伸縮，固定大小
+        *   `max-height: 45vh` - **[重要]** 地圖最大高度，確保地圖有足夠空間
+        *   `min-height: 200px` - **[重要]** 最小高度確保地圖可見
+        *   `overflow: visible` - **[重要]** 允許地圖完整顯示
     *   **手機橫向**: `max-width: 45vw` - **[重要]** 地圖最大寬度（原本 48vw）
     *   **平板直向**: `max-height: 45vh` - 地圖最大高度（原本 50vh）
 
 *   **`.ac-right-panel`** - 控制區域
     *   **桌面版**: `width: 320px` - **[重要]** 右側面板固定寬度
+    *   **手機直向**: 
+        *   `flex: 0 1 auto` - **[重要]** 可縮小但不擴張（防止控制區佔據過多空間）
+        *   `max-height: 50vh` - **[重要]** 限制最大高度，防止控制區過大
+        *   `overflow-y: auto` - **[重要]** 允許垂直捲動
+        *   ⚠️ **注意**: 絕對不要設定 `flex: 1`，這會導致控制區佔據所有剩餘空間！
 
-#### 4.3 地圖容器調整
+*   **`.ac-command-section`** - 指令區容器
+    *   **手機直向**:
+        *   `height: auto` - **[重要]** 自動高度而非 100%
+        *   `max-height: 100%` - 限制最大高度
 
-*   **`.ac-grid-container`** - 遊戲地圖容器
-    *   **桌面版**:
-        *   `max-width: 450px` - **[調整]** 地圖最大寬度（原本 500px）
-        *   `padding: 16px` - 地圖內距
+*   **`.ac-sequence-wrapper`** - 序列包裝器
+    *   **手機直向**:
+        *   `flex: 0 1 auto` - **[重要]** 可縮小但不擴張
+        *   ⚠️ **注意**: 不要設定 `flex: 1`，會導致佈局問題！
+
+#### 4.2.1 模式 1/2 控制按鈕佈局（直接控制模式）
+
+*   **`.dc-buttons`** - 直接控制按鈕容器
+    *   **手機直向**:
+        *   `display: grid` - **[重要]** 使用 Grid 佈局
+        *   `grid-template-columns: repeat(2, 1fr)` - **[重要]** 2 欄佈局（橫向排列）
+        *   `gap: 8px` - 按鈕間距
+        *   **效果**: 前進、左轉、右轉、跳躍按鈕排列成 2x2 格子
+
+#### 4.2.2 模式 3/4 指令區佈局（指令序列模式）
+
+*   **`.ac-palette`** - 指令按鈕區
+    *   **手機直向**:
+        *   `display: flex` - **[重要]** 使用 Flex 佈局
+        *   `flex-direction: row` - **[重要]** 橫向排列
+        *   `overflow-x: auto` - **[重要]** 允許橫向捲動
+        *   `gap: 8px` - 按鈕間距
+        *   `flex-shrink: 0` - **[重要]** 防止被壓縮
+        *   **效果**: 指令按鈕橫向排列，可左右捲動
+
+*   **`.ac-sequence-container`** - 指令序列容器
+    *   **手機直向**:
+        *   `flex: 1` - **[重要]** 佔據剩餘空間
+        *   `max-height: 25vh` - **[重要]** 限制最大高度
+        *   **效果**: 序列區佔據適當空間，不會過大
+
+*   **`.ac-sequence-list`** - 指令序列列表
+    *   **手機直向**:
+        *   `display: flex` - **[重要]** 使用 Flex 佈局
+        *   `flex-direction: row` - **[重要]** 橫向排列
+        *   `overflow-x: auto` - **[重要]** 允許橫向捲動
+        *   `gap: 4px` - 序列格子間距
+        *   **效果**: 指令序列橫向排列，可左右捲動
+
+*   **`.ac-sequence-wrapper`** - 序列與控制按鈕包裝器
+    *   **手機直向**:
+        *   `flex-direction: column-reverse` - **[重要]** 指令序列在上、控制按鈕在下
+        *   ⚠️ **注意**: 不要改為 `column`，會導致順序錯誤！
+
+#### 4.2.3 模式 1/2 與模式 3/4 獨立控制
+
+**重要**: 模式 1/2 和模式 3/4 現在可以獨立調整，不會互相影響！
+
+*   **`.ac-right-panel.ac-mode-direct`** - 模式 1/2 專用（直接控制）
+    *   **手機直向**:
+        *   `max-height: 30vh` - **[可調整]** 控制區最大高度，調整此數值來控制綠色區塊大小
+        *   建議範圍：20vh ~ 40vh
+    *   **手機橫向**:
+        *   `max-width: 35vw` - **[可調整]** 控制區最大寬度，調整此數值來控制綠色區塊寬度
+        *   建議範圍：30vw ~ 40vw
+    *   **iPad 直向**:
+        *   `max-height: 40vh` - **[可調整]** 控制區最大高度
+        *   建議範圍：30vh ~ 50vh
+
+*   **`.ac-right-panel.ac-mode-sequence`** - 模式 3/4 專用（指令序列）
+    *   使用預設的 `max-height: 50vh` 限制
+    *   保持完整的指令區和序列區顯示
+
+**調整範例**：
+```css
+/* 手機直向 - 如果模式 1/2 綠色區域太大 */
+@media (orientation: portrait) and (max-width: 768px) {
+    .ac-right-panel.ac-mode-direct {
+        max-height: 25vh;  /* 減小高度，原本 30vh */
+    }
+}
+
+/* 手機橫向 - 如果模式 1/2 綠色區域太寬 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .ac-right-panel.ac-mode-direct {
+        max-width: 30vw;   /* 減小寬度，原本 35vw */
+    }
+}
+
+/* iPad 直向 - 如果模式 1/2 綠色區域太大 */
+@media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px) {
+    .ac-right-panel.ac-mode-direct {
+        max-height: 35vh;  /* 減小高度，原本 40vh */
+    }
+}
+
+/* 如果模式 3/4 指令區被壓縮，可以增加高度 */
+@media (orientation: portrait) and (max-width: 768px) {
+    .ac-right-panel.ac-mode-sequence {
+        max-height: 55vh;  /* 增加最大高度，原本 50vh */
+    }
+}
+```
+
+## 5. 動物指令大冒險按鈕尺寸調整指南
+
+### 5.1 模式 1/2 直接控制按鈕
+
+**檔案位置**: `src/features/animal-commands/components/direct-control-panel.css`
+
+#### 按鈕整體大小
+```css
+.dc-btn {
+    padding: 8px;              /* [可調整] 按鈕內距 - 影響按鈕大小 */
+    min-height: 60px;          /* [可調整] 按鈕最小高度 */
+    border-radius: 12px;       /* [可調整] 按鈕圓角 */
+}
+```
+
+#### 圖示大小
+```css
+.dc-btn-icon {
+    font-size: 32px;           /* [可調整] emoji 圖示大小 */
+    width: 56px;               /* [可調整] 圖示容器寬度 */
+    height: 56px;              /* [可調整] 圖示容器高度 */
+}
+```
+
+#### 文字大小
+```css
+.dc-btn-label {
+    font-size: 24px;           /* [可調整] 按鈕文字大小 */
+}
+```
+
+#### 綠色框（面板邊框）
+```css
+.dc-panel {
+    border: 2px solid #81c784; /* [可調整] 綠色邊框寬度 */
+    border-radius: 16px;       /* [可調整] 面板圓角 */
+    background: #e8f5e9;       /* [可調整] 背景顏色 */
+    padding: 8px;              /* [可調整] 面板內距 */
+}
+```
+
+#### 左側彩色邊框
+```css
+.dc-btn-forward {
+    border-left: 6px solid #4caf50;  /* [可調整] 前進按鈕左側綠色邊框 */
+}
+.dc-btn-left, .dc-btn-right {
+    border-left: 6px solid #2196f3;  /* [可調整] 左轉/右轉按鈕左側藍色邊框 */
+}
+```
+
+### 5.2 模式 3/4 指令按鈕
+
+**檔案位置**: `src/features/animal-commands/components/command-palette.css`
+
+#### 按鈕整體大小
+```css
+.ac-command-btn {
+    padding: 8px;              /* [可調整] 按鈕內距 - 影響按鈕大小 */
+    min-width: 48px;           /* [可調整] 按鈕最小寬度 */
+    min-height: 48px;          /* [可調整] 按鈕最小高度 */
+    border-radius: 10px;       /* [可調整] 按鈕圓角 */
+}
+```
+
+#### 圖示大小
+```css
+.ac-cmd-icon {
+    font-size: 28px;           /* [可調整] emoji 圖示大小 */
+}
+```
+
+#### 黃框（指令區邊框）
+```css
+.ac-palette {
+    border: 2px solid #ffe0b2; /* [可調整] 黃框邊框寬度 */
+    border-radius: 12px;       /* [可調整] 指令區圓角 */
+    background: #fff3e0;       /* [可調整] 背景顏色 */
+    padding: 8px;              /* [可調整] 指令區內距 */
+}
+```
+
+#### 左側彩色邊框
+```css
+.ac-btn-forward {
+    border-left: 4px solid #4caf50;  /* [可調整] 前進按鈕左側綠色邊框 */
+}
+.ac-btn-left, .ac-btn-right {
+    border-left: 4px solid #2196f3;  /* [可調整] 左轉/右轉按鈕左側藍色邊框 */
+}
+.ac-btn-jump {
+    border-left: 4px solid #ff9800;  /* [可調整] 跳躍按鈕左側橘色邊框 */
+}
+```
+
+### 5.3 開始執行 / 重置按鈕
+
+**檔案位置**: `src/features/animal-commands/components/control-panel.css`
+
+#### 按鈕整體大小
+```css
+.ac-control-btn {
+    padding: 8px 16px;         /* [可調整] 按鈕內距 - 影響按鈕寬高 */
+    font-size: 14px;           /* [可調整] 按鈕文字大小 */
+    border-radius: 999px;      /* [可調整] 圓角大小 - 999px 為完全圓角 */
+    gap: 4px;                  /* [可調整] 圖示與文字間距 */
+}
+```
+
+#### 按鈕間距
+```css
+.ac-controls {
+    gap: 6px;                  /* [可調整] 按鈕之間的間距 */
+    padding: 4px;              /* [可調整] 容器內距 */
+}
+```
+
+#### 按鈕顏色
+```css
+.ac-btn-start {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);  /* [可調整] 開始執行按鈕 - 綠色漸層 */
+}
+.ac-btn-reset {
+    background: #757575;       /* [可調整] 重置按鈕 - 灰色 */
+}
+```
+
+## 6. 裝置特定調整說明
+
+### 6.1 iPhone 直式 (Portrait)
+
+**媒體查詢**: `@media (orientation: portrait) and (max-width: 768px)`
+
+**檔案位置**: `src/features/animal-commands/animal-commands.css` (約 520-670 行)
+
+#### 地圖尺寸
+```css
+.ac-left-panel {
+    max-height: 40vh;          /* [可調整] 地圖區最大高度 */
+    min-height: 180px;         /* [可調整] 地圖區最小高度 */
+}
+
+.ac-grid-container {
+    max-width: 75vw;           /* [可調整] 地圖最大寬度 */
+    max-height: 75vw;          /* [可調整] 地圖最大高度 */
+    padding: 4px;              /* [可調整] 地圖內距 */
+}
+
+.ac-grid-cell {
+    min-width: 24px;           /* [可調整] 格子最小寬度 */
+    min-height: 24px;          /* [可調整] 格子最小高度 */
+}
+```
+
+#### 控制區高度
+```css
+.ac-right-panel {
+    max-height: 50vh;          /* [可調整] 控制區最大高度 */
+}
+
+.ac-sequence-container {
+    max-height: 25vh;          /* [可調整] 序列區最大高度 */
+}
+```
+
+### 6.2 iPhone 橫式 (Landscape)
+
+**媒體查詢**: `@media (orientation: landscape) and (max-height: 500px)`
+
+**檔案位置**: `src/features/animal-commands/animal-commands.css` (約 672-760 行)
+
+#### 地圖尺寸
+```css
+.ac-grid-container {
+    height: 75vh;              /* [可調整] 地圖高度 */
+    width: 75vh;               /* [可調整] 地圖寬度 - 保持正方形 */
+    padding: 4px;              /* [可調整] 地圖內距 */
+}
+```
+
+#### 面板寬度
+```css
+.ac-left-panel {
+    max-width: 45vw;           /* [可調整] 地圖區最大寬度 */
+}
+
+.ac-right-panel {
+    max-width: 40vw;           /* [可調整] 控制區最大寬度 - 防止被裁切 */
+}
+```
+
+⚠️ **重要**: 如果橫向模式右側被裁切，請減小 `.ac-right-panel` 的 `max-width` 值（例如從 40vw 改為 38vw）
+
+### 6.3 iPad 直式 (Portrait)
+
+**媒體查詢**: `@media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px)`
+
+**檔案位置**: `src/features/animal-commands/animal-commands.css` (約 809-900 行)
+
+#### 地圖尺寸
+```css
+.ac-left-panel {
+    max-height: 45vh;          /* [可調整] 地圖區最大高度 */
+}
+
+.ac-grid-container {
+    max-width: 60vw;           /* [可調整] 地圖最大寬度 */
+    max-height: 60vw;          /* [可調整] 地圖最大高度 */
+    padding: 8px;              /* [可調整] 地圖內距 */
+}
+
+.ac-grid-cell {
+    min-width: 40px;           /* [可調整] 格子最小寬度 */
+    min-height: 40px;          /* [可調整] 格子最小高度 */
+}
+
+.ac-grid-item {
+    font-size: 32px;           /* [可調整] 地圖物件大小 */
+}
+```
+
+#### 控制區高度
+```css
+.ac-right-panel {
+    max-height: 50vh;          /* [可調整] 控制區最大高度 */
+}
+
+.ac-sequence-container {
+    max-height: 25vh;          /* [可調整] 序列區最大高度 */
+}
+```
+
+### 6.4 iPad 橫式 (Landscape)
+
+**媒體查詢**: 使用桌面版佈局
+
+**檔案位置**: `src/features/animal-commands/animal-commands.css` (約 672-760 行，與 iPhone 橫式相同)
+
+#### 地圖尺寸
+```css
+.ac-grid-container {
+    height: 75vh;              /* [可調整] 地圖高度 */
+    width: 75vh;               /* [可調整] 地圖寬度 */
+}
+```
+
+#### 面板寬度
+```css
+.ac-right-panel {
+    max-width: 40vw;           /* [可調整] 控制區最大寬度 */
+}
+```
+
+## 7. 常見調整場景
+
+### 場景 1: 按鈕太大，想縮小
+1. 減少 `padding` 值（例如從 8px 改為 6px）
+2. 減少 `min-width` 和 `min-height` 值
+3. 減少 `font-size` 值
+
+### 場景 2: 圖示太小，看不清楚
+1. 增加 `.dc-btn-icon` 或 `.ac-cmd-icon` 的 `font-size` 值
+2. 增加圖示容器的 `width` 和 `height` 值
+
+### 場景 3: 地圖被壓縮，控制區太大
+1. 增加 `.ac-left-panel` 的 `max-height` 值
+2. 減少 `.ac-right-panel` 的 `max-height` 值
+3. 減少 `.ac-sequence-container` 的 `max-height` 值
+
+### 場景 4: iPad 橫向右側被裁切
+1. 減少 `.ac-right-panel` 的 `max-width` 值（例如從 40vw 改為 38vw 或 35vw）
+2. 減少 `.ac-left-panel` 的 `max-width` 值
+
+### 場景 5: 想要更大的邊框
+1. 增加 `border` 或 `border-left` 的寬度值
+2. 例如從 `2px` 改為 `3px` 或 `4px`
+
         *   `gap: 6px` - 格子間距
     *   **手機直向**:
         *   `max-width: 75vw` - **[調整]** 地圖最大寬度（原本 80vw）
