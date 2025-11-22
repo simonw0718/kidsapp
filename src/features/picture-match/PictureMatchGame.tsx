@@ -35,7 +35,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
         unlockAudio();
         setGameStarted(true);
         // Manually trigger the first audio play since useGameLogic might have tried and failed or not tried yet
-        if (currentQuestion?.audio && mode === 'english') {
+        if (currentQuestion?.audio && (mode === 'english' || mode === 'dinosaur')) {
             play(currentQuestion.audio, currentQuestion.word);
         }
     };
@@ -99,7 +99,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                                                     : 'idle'
                                         }
                                         disabled={status === 'correct'}
-                                        showFlipped={mode === 'english' && status === 'correct' && item.id === currentQuestion.id}
+                                        showFlipped={(mode === 'english' || mode === 'dinosaur') && status === 'correct' && item.id === currentQuestion.id}
                                     />
                                 ))}
                             </div>
