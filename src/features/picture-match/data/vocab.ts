@@ -1710,16 +1710,6 @@ export const VOCAB_LIST: VocabItem[] = [
     difficulty: 3,
   },
   {
-    id: 'microraptor',
-    word: 'Microraptor',
-    chinese: '小盜龍',
-    zhuyin: 'ㄒㄧㄠˇ ㄉㄠˋ ㄌㄨㄥˊ',
-    image: '/images/picture-match/dinosaurs/microraptor.png',
-    audio: '/audio/picture-match/microraptor.mp3',
-    category: 'dinosaur',
-    difficulty: 3,
-  },
-  {
     id: 'mosasaurus',
     word: 'Mosasaurus',
     chinese: '滄龍',
