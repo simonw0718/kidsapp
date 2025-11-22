@@ -45,7 +45,7 @@ export const GAME_MODES: ModeConfig[] = [
         name: '直接控制 (進階)',
         description: '使用按鈕控制，加入跳躍功能',
         gridSize: 5,
-        allowedCommands: ['forward', 'left', 'right', 'jump'],
+        allowedCommands: ['forward', 'jump', 'left', 'right'],
         isDirect: true,
         clearOnExecute: false,
         resetOnFail: false
@@ -55,7 +55,7 @@ export const GAME_MODES: ModeConfig[] = [
         name: '預排指令 (連續)',
         description: '預先排列指令，執行後可繼續輸入',
         gridSize: 5,
-        allowedCommands: ['forward', 'left', 'right', 'jump'],
+        allowedCommands: ['forward', 'jump', 'left', 'right'],
         isDirect: false,
         clearOnExecute: true,
         resetOnFail: false
@@ -65,7 +65,7 @@ export const GAME_MODES: ModeConfig[] = [
         name: '預排指令 (一次完成)',
         description: '預先排列指令，失敗會重置到起點',
         gridSize: 5,
-        allowedCommands: ['forward', 'left', 'right', 'jump'],
+        allowedCommands: ['forward', 'jump', 'left', 'right'],
         isDirect: false,
         clearOnExecute: false,
         resetOnFail: true

@@ -24,6 +24,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         }
     };
 
+    // [新增] 取得按鈕文字
+    const getLabel = (cmd: string) => {
+        switch (cmd) {
+            case 'forward': return '前進';
+            case 'left': return '左轉';
+            case 'right': return '右轉';
+            case 'jump': return '跳躍';
+            default: return cmd;
+        }
+    };
+
     return (
         <div className="ac-palette">
             {allowedCommands.map(cmd => (
@@ -34,6 +45,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                     disabled={disabled}
                 >
                     <span className="ac-cmd-icon">{getIcon(cmd)}</span>
+                    <span className="ac-cmd-label">{getLabel(cmd)}</span>
                 </button>
             ))}
         </div>

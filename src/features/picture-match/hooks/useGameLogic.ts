@@ -34,6 +34,30 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     const pickQuestion = useCallback(() => {
         const filteredList = getFilteredVocab();
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
+
+        // Safety check: ensure we have vocab items
+        if (!sourceList || sourceList.length === 0) {
+            console.error('No vocabulary items available');
+            // Return a fallback question to prevent crash
+            return {
+                target: {
+                    id: 'fallback',
+                    word: 'Error',
+                    image: '',
+                    difficulty: 1,
+                    category: 'animal'
+                } as VocabItem,
+                options: []
+            };
+        }
+
+        // Ensure we have enough items for the game
+        if (sourceList.length < 4) {
+            console.warn('Not enough vocabulary items, using all available');
+            const target = sourceList[0];
+            return { target, options: sourceList };
+        }
+
         const target = weightManager.selectByWeight(sourceList, (item) => item.id);
         const otherItems = sourceList.filter(item => item.id !== target.id);
         const shuffledOthers = [...otherItems].sort(() => 0.5 - Math.random());
@@ -53,15 +77,30 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         };
     });
 
+    // Add processing lock to prevent rapid clicks
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Add mounted ref to prevent state updates after unmount
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
     const generateQuestion = useCallback(() => {
         const { target, options } = pickQuestion();
-        setGameState(prev => ({
-            ...prev,
-            currentQuestion: target,
-            options,
-            status: 'idle',
-            selectedId: null,
-        }));
+        if (isMounted.current) {
+            setGameState(prev => ({
+                ...prev,
+                currentQuestion: target,
+                options,
+                status: 'idle',
+                selectedId: null,
+            }));
+            setIsProcessing(false);
+        }
     }, [pickQuestion]);
 
     // Initial question - regenerate when difficulty changes
@@ -84,7 +123,10 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     }, [gameState.currentQuestion, mode, play]);
 
     const handleOptionClick = (item: VocabItem) => {
-        if (gameState.status === 'correct') return;
+        // Prevent rapid clicks and clicks during processing
+        if (gameState.status === 'correct' || isProcessing) return;
+
+        setIsProcessing(true);
 
         const isCorrect = item.id === gameState.currentQuestion?.id;
 
@@ -94,28 +136,49 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         }
 
         if (isCorrect) {
-            // Play correct sound
+            // Play correct sound with error handling
             const correctAudio = new Audio('/audio/correct_sound.mp3');
-            correctAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
-            correctAudio.play().catch(err => console.warn('Failed to play correct sound:', err));
+            correctAudio.volume = 0.2;
+            correctAudio.play()
+                .catch(err => console.warn('Failed to play correct sound:', err))
+                .finally(() => {
+                    // Cleanup audio object
+                    correctAudio.src = '';
+                });
 
-            setGameState(prev => ({
-                ...prev,
-                status: 'correct',
-                selectedId: item.id,
-                score: prev.score + 1,
-            }));
+            if (isMounted.current) {
+                setGameState(prev => ({
+                    ...prev,
+                    status: 'correct',
+                    selectedId: item.id,
+                    score: prev.score + 1,
+                }));
+                setIsProcessing(false);
+            }
         } else {
-            // Play failure sound
+            // Play failure sound with error handling
             const failureAudio = new Audio('/audio/failure_sound.mp3');
-            failureAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
-            failureAudio.play().catch(err => console.warn('Failed to play failure sound:', err));
+            failureAudio.volume = 0.2;
+            failureAudio.play()
+                .catch(err => console.warn('Failed to play failure sound:', err))
+                .finally(() => {
+                    // Cleanup audio object
+                    failureAudio.src = '';
+                });
 
-            setGameState(prev => ({
-                ...prev,
-                status: 'incorrect',
-                selectedId: item.id,
-            }));
+            if (isMounted.current) {
+                setGameState(prev => ({
+                    ...prev,
+                    status: 'incorrect',
+                    selectedId: item.id,
+                }));
+                // Reset processing state after a delay to show feedback
+                setTimeout(() => {
+                    if (isMounted.current) {
+                        setIsProcessing(false);
+                    }
+                }, 500);
+            }
         }
     };
 

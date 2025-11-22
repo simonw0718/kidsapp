@@ -367,9 +367,112 @@
 }
 ```
 
-## 5. 動物指令大冒險按鈕尺寸調整指南
+## 6. iPhone 直式 Mode 3/4 佈局調整指南
 
-### 5.1 模式 1/2 直接控制按鈕
+本節專門針對 iPhone 直式下的 Mode 3/4 (指令序列模式) 進行調整。
+
+### 6.1 佈局順序與寬度
+所有區塊寬度預設為 `90vw` (視窗寬度的 90%)，最大寬度限制為 `350px`。
+
+*   **調整位置**: `animal-commands.css`
+    *   `.ac-palette` (動作區)
+    *   `.ac-sequence-container` (序列區)
+    *   `.ac-controls` (執行/重置區)
+
+### 6.2 動作區 (Command Palette)
+位於地圖正下方，黃色背景。
+
+*   **按鈕大小**: 自動填滿格子，保持正方形。
+*   **調整位置**: `command-palette.css`
+    *   `.ac-palette`: `gap` (按鈕間距)
+    *   `.ac-command-btn`: `padding` (內距), `border-radius` (圓角)
+    *   `.ac-cmd-icon`: `font-size` (圖示大小)
+    *   `.ac-cmd-label`: `font-size` (文字大小)
+
+### 6.3 指令序列 (Sequence)
+位於動作區下方。
+
+*   **高度**: 自動高度，最小 `120px`。
+*   **調整位置**: `animal-commands.css`
+    *   `.ac-sequence-container`: `min-height` (最小高度)
+    *   `.ac-sequence-list`: `gap` (格子間距)
+
+### 6.4 執行/重置 (Control Panel)
+位於最下方，按鈕較大。
+
+*   **調整位置**: `control-panel.css`
+    *   `.ac-controls`: `gap` (按鈕間距), `padding-bottom` (底部留白/安全區域)
+    *   `.ac-control-btn`: `height` (按鈕高度), `font-size` (文字大小)
+    *   `.ac-control-icon`: `font-size` (圖示大小)
+
+### 6.5 角色與地圖物件大小
+*   **調整位置**: `animal-commands.css` (位於 `/* [手機直向] Mobile Portrait */` 區塊內)
+    *   `.ac-grid-item`: `font-size` (控制紅蘿蔔、石頭、終點等 Emoji 大小)
+    *   `.ac-player-img`: `width`, `height` (控制兔子/恐龍角色圖片大小)
+    *   `.ac-grid-cell`: `min-width`, `min-height` (格子最小尺寸)
+
+## 7. iPad 直式 Mode 3/4 佈局調整指南
+
+本節專門針對 iPad 直式下的 Mode 3/4 調整。結構與 iPhone 相同，但參數獨立。
+
+### 7.1 佈局順序與寬度
+所有區塊寬度預設為 `80vw` (視窗寬度的 80%)，最大寬度限制為 `600px`。
+
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-grid-container`: `width`, `max-width` (地圖寬度)
+    *   `.ac-palette`: `width`, `max-width` (動作區寬度)
+    *   `.ac-sequence-container`: `width`, `max-width` (序列區寬度)
+    *   `.ac-controls`: `width`, `max-width` (控制區寬度)
+
+### 7.2 動作區 (Command Palette)
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-palette`: `gap` (按鈕間距)
+*   **調整位置**: `command-palette.css`
+    *   `.ac-cmd-icon`: `font-size` (圖示大小)
+    *   `.ac-cmd-label`: `font-size` (文字大小)
+
+### 7.3 指令序列 (Sequence)
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-sequence-container`: `min-height` (最小高度)
+    *   `.ac-sequence-list`: `gap` (格子間距)
+*   **調整位置**: `command-sequence.css`
+    *   `.ac-seq-icon`: `font-size` (序列圖示大小)
+    *   `.ac-slot-number`: `font-size` (虛線框數字大小)
+    *   `.ac-sequence-label`: `font-size` (標題文字大小)
+
+### 7.4 執行/重置 (Control Panel)
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-controls`: `gap` (按鈕間距), `padding-bottom` (底部留白)
+    *   `.ac-control-btn`: `height` (按鈕高度), `font-size` (文字大小)
+
+### 7.5 角色與地圖物件大小
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-grid-item`: `font-size` (Emoji 大小)
+    *   `.ac-control-btn`: `height` (按鈕高度), `font-size` (文字大小)
+
+### 7.5 角色與地圖物件大小
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板直向] Tablet Portrait */` 區塊內)
+    *   `.ac-grid-item`: `font-size` (Emoji 大小)
+    *   `.ac-player-img`: `width`, `height` (角色圖片大小)
+
+## 8. iPad 橫式 Mode 1/2 佈局調整指南
+
+本節專門針對 iPad 橫式下的 Mode 1/2 調整 (左右佈局，右側為大按鈕)。
+
+### 8.1 地圖與整體佈局
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板與桌面橫向] Tablet & Desktop Landscape */` 區塊內)
+    *   `.ac-grid-container`: `height` (地圖高度，預設 85vh)
+    *   `.ac-game-layout`: `gap` (左右面板間距)
+
+### 8.2 控制面板 (右側)
+*   **調整位置**: `animal-commands.css` (位於 `/* [平板與桌面橫向] Tablet & Desktop Landscape */` 區塊內)
+    *   `.ac-right-panel.ac-mode-direct`: `width` (控制區寬度), `padding` (內距)
+    *   `.dc-buttons`: `gap` (按鈕間距)
+    *   `.dc-buttons .ac-control-btn`: `height` (按鈕高度), `font-size` (文字大小)
+
+## 9. 動物指令大冒險按鈕尺寸調整指南
+
+### 7.1 模式 1/2 直接控制按鈕
 
 **檔案位置**: `src/features/animal-commands/components/direct-control-panel.css`
 
@@ -418,7 +521,13 @@
 }
 ```
 
-### 5.2 模式 3/4 指令按鈕
+### 6.3 模式 3/4 指令按鈕區
+*   **調整位置**: `animal-commands.css` (位於 `/* [手機直向] Mobile Portrait */` 區塊內，約第 611-640 行)
+    *   `.ac-palette`: `width`, `max-width` (按鈕區寬度)
+    *   `.ac-command-btn`: `min-width`, `height` (按鈕大小)
+    *   **說明**: 按鈕採用橫向捲動佈局，可調整按鈕大小但需保持正方形 (aspect-ratio: 1)
+
+### 6.4 模式 3/4 指令序列區按鈕
 
 **檔案位置**: `src/features/animal-commands/components/command-palette.css`
 

@@ -28,8 +28,8 @@
 }
 
 .ac-player-img {
-    width: clamp(20px, 14vmin, 140px);
-    height: clamp(20px, 14vmin, 140px);
+    width: clamp(40px, 14vmin, 140px);
+    height: clamp(40px, 14vmin, 140px);
     object-fit: contain;
 }
 

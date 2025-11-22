@@ -4,6 +4,7 @@ import { BackToHomeButton } from '../../components/common/BackToHomeButton';
 import { useGameLogic, type GameDifficulty } from './hooks/useGameLogic';
 import { ImageCard } from './components/ImageCard';
 import { StimulusDisplay } from './components/StimulusDisplay';
+import { PictureMatchErrorBoundary } from './components/PictureMatchErrorBoundary';
 import './picture-match.css';
 
 interface PictureMatchGameProps {
@@ -42,79 +43,81 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
     if (!currentQuestion) return <div>Loading...</div>;
 
     return (
-        <PageContainer
-            title={mode === 'english' ? '字卡 - 英文' : mode === 'dinosaur' ? '字卡 - 恐龍' : '字卡 - 注音'}
-            headerRight={
-                <div className="pm-header-controls">
-                    <button onClick={onSwitchMode} className="pm-mode-switch-btn">
-                        切換模式
-                    </button>
-                    {/* Difficulty dropdown */}
-                    <select
-                        value={difficulty}
-                        onChange={(e) => setDifficulty(e.target.value as GameDifficulty)}
-                        className="pm-difficulty-select"
-                    >
-                        {difficultyOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
-                    </select>
-                    <BackToHomeButton />
-                </div>
-            }
-        >
-            <div className="pm-game-container">
-                {!gameStarted ? (
-                    <div className="pm-start-overlay" onClick={handleStartGame}>
-                        <img
-                            src="/images/picture-match/ready-go.png"
-                            alt="Ready GO!"
-                            className="pm-start-image"
-                        />
-                    </div>
-                ) : (
-                    <>
-                        <StimulusDisplay
-                            item={currentQuestion}
-                            mode={mode}
-                            onReplay={replayAudio}
-                            isPlaying={isPlaying}
-                        />
-
-                        <div className="pm-card-grid">
-                            {options.map(item => (
-                                <ImageCard
-                                    key={item.id}
-                                    item={item}
-                                    onClick={handleOptionClick}
-                                    state={
-                                        status === 'correct' && item.id === currentQuestion.id
-                                            ? 'correct'
-                                            : status === 'incorrect' && item.id === selectedId
-                                                ? 'incorrect'
-                                                : 'idle'
-                                    }
-                                    disabled={status === 'correct'}
-                                    showFlipped={mode === 'english' && status === 'correct' && item.id === currentQuestion.id}
-                                />
+        <PictureMatchErrorBoundary>
+            <PageContainer
+                title={mode === 'english' ? '字卡 - 英文' : mode === 'dinosaur' ? '字卡 - 恐龍' : '字卡 - 注音'}
+                headerRight={
+                    <div className="pm-header-controls">
+                        <button onClick={onSwitchMode} className="pm-mode-switch-btn">
+                            切換模式
+                        </button>
+                        {/* Difficulty dropdown */}
+                        <select
+                            value={difficulty}
+                            onChange={(e) => setDifficulty(e.target.value as GameDifficulty)}
+                            className="pm-difficulty-select"
+                        >
+                            {difficultyOptions.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
                             ))}
+                        </select>
+                        <BackToHomeButton />
+                    </div>
+                }
+            >
+                <div className="pm-game-container">
+                    {!gameStarted ? (
+                        <div className="pm-start-overlay" onClick={handleStartGame}>
+                            <img
+                                src="/images/picture-match/ready-go.png"
+                                alt="Ready GO!"
+                                className="pm-start-image"
+                            />
                         </div>
+                    ) : (
+                        <>
+                            <StimulusDisplay
+                                item={currentQuestion}
+                                mode={mode}
+                                onReplay={replayAudio}
+                                isPlaying={isPlaying}
+                            />
 
-                        <div className="pm-next-btn-container">
-                            <button
-                                onClick={nextQuestion}
-                                className={`pm-next-btn ${status === 'correct' ? 'pm-next-btn--visible' : ''}`}
-                                disabled={status !== 'correct'}
-                            >
-                                下一題 ➜
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </PageContainer>
+                            <div className="pm-card-grid">
+                                {options.map(item => (
+                                    <ImageCard
+                                        key={item.id}
+                                        item={item}
+                                        onClick={handleOptionClick}
+                                        state={
+                                            status === 'correct' && item.id === currentQuestion.id
+                                                ? 'correct'
+                                                : status === 'incorrect' && item.id === selectedId
+                                                    ? 'incorrect'
+                                                    : 'idle'
+                                        }
+                                        disabled={status === 'correct'}
+                                        showFlipped={mode === 'english' && status === 'correct' && item.id === currentQuestion.id}
+                                    />
+                                ))}
+                            </div>
+
+                            <div className="pm-next-btn-container">
+                                <button
+                                    onClick={nextQuestion}
+                                    className={`pm-next-btn ${status === 'correct' ? 'pm-next-btn--visible' : ''}`}
+                                    disabled={status !== 'correct'}
+                                >
+                                    下一題 ➜
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </PageContainer>
+        </PictureMatchErrorBoundary>
     );
 };
 

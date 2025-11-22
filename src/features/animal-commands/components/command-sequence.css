@@ -15,44 +15,69 @@
 }
 
 .ac-sequence-list {
-    .ac-sequence-list {
-        /* Layout moved to animal-commands.css */
-        padding-bottom: 4px;
-        min-height: 60px;
+    /* Layout moved to animal-commands.css */
+    padding-bottom: 4px;
+    min-height: 60px;
+}
+
+.ac-seq-slot {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.ac-slot-empty {
+    background: #eeeeee;
+    border: 2px dashed #bdbdbd;
+}
+
+.ac-slot-active {
+    border-color: #ff9800;
+    background: #fff3e0;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+.ac-seq-icon {
+    font-size: 32px;
+    /* [調整] 序列圖示大小 - 放大 */
+}
+
+.ac-slot-number {
+    font-size: 20px;
+    /* [調整] 序列數字大小 - 放大 */
+    color: #9e9e9e;
+    font-weight: 600;
+}
+
+/* [平板直向] Tablet Portrait Adjustment */
+@media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px) {
+    .ac-sequence-label {
+        font-size: 18px;
+        /* [調整] iPad 直向標籤更大 */
     }
 
     .ac-seq-slot {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        background: #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-    }
-
-    .ac-slot-empty {
-        background: #eeeeee;
-        border: 2px dashed #bdbdbd;
-    }
-
-    .ac-slot-active {
-        border-color: #ff9800;
-        background: #fff3e0;
-        transform: scale(1.1);
-        box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+        width: 60px;
+        height: 60px;
+        /* [調整] iPad 直向格子更大 */
     }
 
     .ac-seq-icon {
-        font-size: 24px;
+        font-size: 40px;
+        /* [調整] iPad 直向圖示更大 */
     }
 
     .ac-slot-number {
-        font-size: 14px;
-        /* Layout is controlled by parent (animal-commands.css) */
+        font-size: 24px;
+        /* [調整] iPad 直向數字更大 */
     }
 }

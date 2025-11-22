@@ -359,7 +359,7 @@
     display: grid;
     gap: 4px;
     /* [調整] 格子間距 */
-    padding: px;
+    padding: 4px;
     /* [調整] 地圖內距 */
     background: white;
     border-radius: 12px;
@@ -367,8 +367,9 @@
     border: 3px solid #4dd0e1;
     /* [調整] 地圖邊框粗細與顏色 */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: fit-content;
-    max-width: 90%;
+    width: 90vw;
+    /* [重要] 強制寬度與控制區一致 */
+    max-width: 350px;
     /* [調整] 地圖最大寬度 */
     aspect-ratio: 1;
     /* 保持正方形 */
@@ -393,7 +394,7 @@
 
 /* [地圖物件] 兔子、紅蘿蔔、石頭 */
 .ac-grid-item {
-    font-size: 28px;
+    font-size: 24px;
     /* [調整] 物件大小 */
     transition: transform 0.3s;
 }
@@ -406,6 +407,8 @@
 /* [勝利動畫] */
 .ac-player-win {
     animation: bounce 0.6s ease-in-out infinite;
+    z-index: 9999 !important;
+    /* [重要] 確保勝利時在最上層 */
 }
 
 /* [失敗動畫] */
@@ -521,165 +524,133 @@
 @media (orientation: portrait) and (max-width: 768px) {
     .ac-game-layout {
         flex-direction: column;
-        /* 改為上下排列 */
+        /* [重要] 改為上下排列 */
         gap: 8px;
-        /* [調整] 上下間距 - 減少間距以節省空間 */
         padding: 8px;
-        /* [調整] 整體內距 */
         height: 100%;
         overflow: hidden;
-        /* [重要] 防止內容溢出 */
     }
 
-    /* [上方面板] 地圖區 - 固定高度確保可見 */
     .ac-left-panel {
         flex: 0 0 auto;
-        /* [重要] 不伸縮，固定大小 */
         height: auto;
-        /* [調整] 自動高度 */
-        max-height: 40vh;
-        /* [調整] 地圖最大高度 - 減小以節省空間 */
-        min-height: 180px;
-        /* [調整] 最小高度 - 原本 200px */
+        width: 100%;
+        /* [重要] 寬度填滿 */
         display: flex;
-        align-items: center;
         justify-content: center;
         overflow: visible;
-        /* [重要] 允許地圖完整顯示 */
+        /* [重要] 允許地圖物件超出邊界 (例如勝利動畫) */
+        z-index: 10;
+        /* [重要] 確保在右側面板之上 */
     }
 
-    /* [下方面板] 控制區 - 限制高度避免佔據過多空間 */
     .ac-right-panel {
-        flex: 0 1 auto;
-        /* [重要] 可縮小但不擴張 */
+        flex: 1;
+        /* [重要] 填滿剩餘空間 */
         width: 100%;
-        max-height: 50vh;
-        /* [重要] 限制最大高度，防止控制區過大 */
-        min-height: 0;
+        /* [重要] 寬度填滿，不再限制 280px */
+        max-width: none;
+        /* [重要] 移除最大寬度限制 */
         overflow-y: auto;
-        /* [重要] 允許垂直捲動 */
         overflow-x: hidden;
     }
 
-    /* [模式 1/2 直接控制] 減少綠色空白區域 */
-    .ac-right-panel.ac-mode-direct {
-        max-height: 30vh;
-        /* [可調整] 控制區最大高度 - 調整此數值來控制綠色區塊大小 */
-        height: auto;
-        /* 自動高度，但不超過 max-height */
-        flex: 0 0 auto;
-        /* 不伸縮，根據內容大小 */
-    }
-
-    /* [模式 3/4 指令序列] 使用預設的 max-height: 50vh 限制 */
-
-    /* [指令區] 改為縱向排列 */
-    .ac-command-section {
-        flex-direction: column;
-        gap: 4px;
-        /* [調整] 指令區間距 */
-        height: auto;
-        /* [重要] 自動高度而非 100% */
-        max-height: 100%;
-    }
-
-    /* [序列包裝器] 指令序列在上，控制按鈕在下 */
-    .ac-sequence-wrapper {
-        flex-direction: column-reverse;
-        /* [重要] column-reverse 讓序列在上、控制按鈕在下 */
-        flex: 0 1 auto;
-        /* [重要] 可縮小但不擴張 */
-        min-height: 0;
-        gap: 4px;
-        /* [調整] 序列與控制間距 */
-    }
-
-    /* [模式 1/2 直接控制按鈕] 2x2 Grid 橫向排列 */
-    .dc-buttons {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        /* [重要] 2 欄佈局 - 橫向排列 */
-        gap: 8px;
-        /* [調整] 按鈕間距 */
-    }
-
-    /* [模式 3/4 指令按鈕區] 橫向捲動 */
-    .ac-palette {
-        display: flex;
-        flex-direction: row;
-        /* [重要] 橫向排列 */
-        gap: 8px;
-        /* [調整] 按鈕間距 */
-        overflow-x: auto;
-        /* [重要] 允許橫向捲動 */
-        overflow-y: hidden;
-        padding: 4px;
-        /* [調整] 內距 */
-        flex-shrink: 0;
-        /* [重要] 防止被壓縮 */
-    }
-
-    /* [模式 3/4 指令序列區] 橫向捲動，限制高度 */
-    .ac-sequence-container {
-        flex: 1;
-        /* [重要] 佔據剩餘空間 */
-        min-height: 0;
-        max-height: 25vh;
-        /* [調整] 限制序列區最大高度 - 減小以節省空間 */
-        overflow: hidden;
-    }
-
-    .ac-sequence-list {
-        display: flex;
-        flex-direction: row;
-        /* [重要] 橫向排列 */
-        gap: 4px;
-        /* [調整] 序列格子間距 */
-        overflow-x: auto;
-        /* [重要] 允許橫向捲動 */
-        overflow-y: hidden;
-        padding: 4px;
-        /* [調整] 內距 */
-    }
-
-    /* [地圖容器] */
-    .ac-grid-container {
-        max-width: 75vw;
-        /* [調整] 地圖最大寬度 - 減小以節省空間 */
-        max-height: 75vw;
-        /* [調整] 地圖最大高度 - 減小以節省空間 */
-        width: fit-content;
-        height: fit-content;
-        padding: 4px;
-        /* [調整] 地圖內距 - 減少以節省空間 */
-        gap: 2px;
-        /* [調整] 格子間距 */
-    }
-
-    /* [地圖格子] */
-    .ac-grid-cell {
-        min-width: 24px;
-        /* [調整] 格子最小寬度 - 減小以節省空間 */
-        min-height: 24px;
-        /* [調整] 格子最小高度 - 減小以節省空間 */
-    }
-
-    /* [地圖物件] */
     .ac-grid-item {
-        font-size: clamp(18px, 4vw, 26px);
-        /* [調整] 物件大小範圍 */
+        font-size: 40px !important;
+        /* [調整] 手機直向 - 地圖物件 (紅蘿蔔、石頭) 大小 */
     }
 
-    /* [教學提示] */
-    .ac-tutorial-bubble {
-        font-size: 12px;
-        /* [調整] 提示文字大小 */
-        padding: 4px 8px;
-        /* [調整] 提示內距 */
-        margin-top: 4px;
-        /* [調整] 提示上方間距 */
+    .ac-player-img {
+        width: 120px !important;
+        /* [調整] 手機直向 - 玩家角色 (兔子) 寬度 */
+        height: 120px !important;
+        /* [調整] 手機直向 - 玩家角色 (兔子) 高度 */
     }
 }
+
+
+
+/* [模式 3/4 指令序列區] */
+.ac-sequence-container {
+    width: 90vw;
+    /* [可調整] 與地圖寬度一致 */
+    max-width: 350px;
+    /* [可調整] 最大寬度限制 */
+    margin: 0 auto;
+    /* [重要] 水平置中 */
+    flex: 0 0 auto;
+    /* [重要] 不伸縮 */
+    height: auto;
+    min-height: 80px;
+    /* [可調整] 最小高度 - 增加以顯示虛線方格 */
+}
+
+.ac-sequence-list {
+    display: flex;
+    flex-direction: row;
+    /* [重要] 橫向排列 */
+    gap: 4px;
+    /* [調整] 序列格子間距 */
+    overflow-x: auto;
+    /* [重要] 允許橫向捲動 */
+    overflow-y: hidden;
+    padding: 4px;
+    /* [調整] 內距 */
+    justify-content: flex-start;
+}
+
+/* [模式 1/2 直接控制按鈕] 2x2 Grid 橫向排列 */
+.dc-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* [重要] 2 欄佈局 - 橫向排列 */
+    gap: 8px;
+    /* [調整] 按鈕間距 */
+}
+
+/* [模式 3/4 指令按鈕區] 橫向捲動 */
+.ac-palette {
+    width: 85vw !important;
+    max-width: 350px !important;
+    margin: 0 auto !important;
+    display: grid !important;
+    /* [重要] 使用 Grid 佈局平分寬度 */
+    grid-template-columns: repeat(4, 1fr) !important;
+    /* [重要] 4 欄均分 */
+    gap: 4px !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+}
+
+.ac-command-btn {
+    width: 100% !important;
+    /* [重要] 填滿格子 */
+    height: auto !important;
+    /* [重要] 高度自動 */
+    aspect-ratio: 1 !important;
+    /* [重要] 保持正方形 */
+}
+
+
+
+
+
+
+
+
+
+
+
+/* [教學提示] */
+.ac-tutorial-bubble {
+    font-size: 12px;
+    /* [調整] 提示文字大小 */
+    padding: 4px 8px;
+    /* [調整] 提示內距 */
+    margin-top: 4px;
+    /* [調整] 提示上方間距 */
+}
+
 
 /* [手機橫向] Mobile Landscape */
 @media (orientation: landscape) and (max-height: 500px) {
@@ -830,102 +801,132 @@
 @media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px) {
     .ac-game-layout {
         flex-direction: column;
-        gap: 12px;
+        /* [重要] 改為上下排列 (與 iPhone 一致) */
+        gap: 16px;
         /* [調整] 上下間距 */
-        padding: 8px;
+        padding: 16px;
         /* [調整] 整體內距 */
+        height: 100%;
+        overflow: hidden;
     }
 
     .ac-left-panel {
         flex: 0 0 auto;
-        max-height: 45vh;
-        /* [調整] 地圖最大高度 */
+        height: auto;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        overflow: visible;
+        /* [重要] 允許地圖物件超出邊界 */
+        z-index: 10;
     }
 
     .ac-right-panel {
-        flex: 0 1 auto;
-        /* [調整] 可縮小但不擴張 - 防止佔據過多空間 */
+        flex: 1;
         width: 100%;
-        max-height: 50vh;
-        /* [新增] 限制最大高度 */
+        max-width: none;
         overflow-y: auto;
-        /* [新增] 允許捲動 */
+        overflow-x: hidden;
     }
 
     /* [模式 1/2 直接控制] iPad 直向減少空白 */
     .ac-right-panel.ac-mode-direct {
         max-height: 40vh;
-        /* [可調整] 控制區最大高度 - 調整此數值來控制綠色區塊大小 */
         height: auto;
-        /* 自動高度，但不超過 max-height */
         flex: 0 0 auto;
-        /* 不伸縮 */
     }
 
+    /* [地圖容器] */
     .ac-grid-container {
-        max-width: 60vw;
-        /* [調整] 地圖最大寬度 - 減小以節省空間 */
-        max-height: 60vw;
-        /* [新增] 限制最大高度 */
+        width: 80vw;
+        /* [調整] iPad 地圖寬度 */
+        max-width: 600px;
+        /* [調整] iPad 地圖最大寬度 */
+        height: auto;
         padding: 8px;
-        /* [調整] 地圖內距 - 減小 */
+        aspect-ratio: 1;
     }
 
     .ac-grid-cell {
         min-width: 40px;
-        /* [調整] 格子最小寬度 - 減小 */
         min-height: 40px;
-        /* [調整] 格子最小高度 - 減小 */
     }
 
     .ac-grid-item {
         font-size: 32px;
-        /* [調整] 物件大小 - 減小 */
+        /* [調整] iPad 直向 - 地圖物件大小 */
     }
 
-    /* [模式 3/4 指令按鈕區] 橫向捲動 */
+    .ac-player-img {
+        width: 60px !important;
+        /* [調整] iPad 直向 - 玩家角色寬度 */
+        height: 60px !important;
+        /* [調整] iPad 直向 - 玩家角色高度 */
+    }
+
+    /* [模式 3/4 指令按鈕區] */
     .ac-palette {
-        display: flex;
-        flex-direction: row;
-        /* [重要] 橫向排列 */
-        gap: 8px;
+        width: 80vw;
+        /* [調整] iPad 指令區寬度 */
+        max-width: 600px;
+        margin: 0 auto;
+        display: grid;
+        /* [重要] 改為 Grid 佈局 */
+        grid-template-columns: repeat(4, 1fr);
+        /* [重要] 4 欄均分 */
+        gap: 12px;
         /* [調整] 按鈕間距 */
-        overflow-x: auto;
-        /* [重要] 允許橫向捲動 */
-        overflow-y: hidden;
         padding: 4px;
-        /* [調整] 內距 */
-        flex-shrink: 0;
-        /* [重要] 防止被壓縮 */
+        overflow: visible;
+        /* 不需要捲動 */
     }
 
-    /* [模式 3/4 指令序列區] 橫向捲動，限制高度 */
+    /* [模式 3/4 指令序列區] */
     .ac-sequence-container {
-        flex: 1;
-        /* [重要] 佔據剩餘空間 */
-        min-height: 0;
-        max-height: 25vh;
-        /* [調整] 限制序列區最大高度 - 減小以節省空間 */
-        overflow: hidden;
+        width: 80vw;
+        /* [調整] iPad 序列區寬度 */
+        max-width: 600px;
+        margin: 0 auto;
+        flex: 0 0 auto;
+        height: auto;
+        min-height: 150px;
+        /* [調整] iPad 序列區最小高度 */
     }
 
     .ac-sequence-list {
         display: flex;
         flex-direction: row;
         /* [重要] 橫向排列 */
-        gap: 4px;
-        /* [調整] 序列格子間距 */
+        gap: 8px;
         overflow-x: auto;
-        /* [重要] 允許橫向捲動 */
         overflow-y: hidden;
-        padding: 4px;
-        /* [調整] 內距 */
+        padding: 8px;
+        justify-content: flex-start;
     }
 
+    /* [控制面板] */
+    .ac-controls {
+        width: 80vw;
+        /* [調整] iPad 控制區寬度 */
+        max-width: 600px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        /* [調整] iPad 按鈕間距 */
+        padding-bottom: 30px;
+    }
 
+    .ac-control-btn {
+        height: 80px;
+        /* [調整] iPad 按鈕高度 */
+        font-size: 24px;
+        /* [調整] iPad 按鈕文字大小 */
+    }
 
     .dc-buttons {
         grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
     }
 }
 
@@ -935,9 +936,9 @@
 @media (min-width: 768px) and (orientation: landscape) {
     .ac-game-layout {
         flex-direction: row;
-        gap: 8px;
-        /* [調整] 左右間距 - 縮小讓兩者更貼近 */
-        padding: 16px;
+        gap: 32px;
+        /* [調整] 左右間距 - 增加間距 */
+        padding: 24px;
         height: 100%;
         align-items: center;
         justify-content: center;
@@ -963,46 +964,143 @@
         overflow-y: auto;
     }
 
+    /* [模式 1/2 直接控制] iPad 橫向特別調整 */
+    .ac-right-panel.ac-mode-direct {
+        width: 400px;
+        /* [調整] 控制區寬度加寬 */
+        flex: 0 0 400px;
+        background: #f5f5f5;
+        /* [新增] 灰色背景框 */
+        border-radius: 24px;
+        /* [新增] 圓角 */
+        padding: 24px;
+        /* [新增] 內距 */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        /* [新增] 陰影 */
+        height: auto;
+        /* 自動高度 */
+        max-height: 85vh;
+        /* 限制最大高度 */
+    }
+
     .ac-grid-container {
-        height: 85vh;
-        width: auto;
-        /* Let aspect ratio control width */
-        aspect-ratio: 1 / 1;
-        max-width: 100%;
-        max-height: none;
+        width: min(70vh, 60vw) !important;
+        /* [調整] 寬度取較小值，確保不超出螢幕 */
+        height: min(70vh, 60vw) !important;
+        /* [調整] 高度與寬度相同，保持正方形 */
+        max-width: none !important;
+        max-height: none !important;
+        aspect-ratio: 1 / 1 !important;
+        /* [重要] 強制 1:1 比例 */
+        gap: 2px !important;
+        /* [調整] 格子間距 - 減小 */
+        padding: 8px !important;
+        /* [調整] 地圖內距 */
+    }
+
+    .ac-player-img {
+        width: 150px !important;
+        /* [調整] iPad 橫式 - 玩家角色 (兔子) 寬度 */
+        height: 150px !important;
+        /* [調整] iPad 橫式 - 玩家角色 (兔子) 高度 */
     }
 
     /* Optimized Tool Layout for Tablet Landscape */
+    /* [模式 3/4 指令按鈕區] 2x2 Grid */
     .ac-palette {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        /* [重要] 2x2 Grid 佈局 */
+        gap: 16px !important;
+        /* [調整] 按鈕間距 */
+        width: 100% !important;
+        margin-bottom: 16px !important;
+        /* [調整] 與下方序列區間距 */
+        background: transparent !important;
+        /* [重要] 移除背景色 */
+        border: none !important;
+        /* [重要] 移除邊框 */
+        padding: 0 !important;
+        /* [重要] 移除內距 */
     }
 
+    .ac-command-btn {
+        height: 150px !important;
+        /* [調整] 指令按鈕高度 - 減小以節省空間 */
+        aspect-ratio: auto !important;
+        /* [重要] 取消正方形限制 */
+    }
+
+    /* [模式 3/4 指令序列區] 中間灰色框 */
     .ac-sequence-container {
-        height: auto;
-        display: flex;
-        flex-direction: column;
+        height: auto !important;
+        min-height: 150px !important;
+        /* [調整] 最小高度 */
+        background: #f5f5f5 !important;
+        /* [新增] 灰色背景 */
+        border-radius: 16px !important;
+        /* [新增] 圓角 */
+        padding: 16px !important;
+        /* [新增] 內距 */
+        margin-bottom: 16px !important;
+        /* [調整] 與下方按鈕間距 */
+        display: flex !important;
+        flex-direction: column !important;
+        border: 2px solid #e0e0e0 !important;
+        /* [保留] 邊框 */
     }
 
     .ac-sequence-list {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 6px;
-        min-height: 0;
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important;
+        /* [重要] 5欄佈局 */
+        gap: 8px !important;
+        min-height: 0 !important;
     }
 
     .ac-seq-slot {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 !important;
     }
 
+    /* [模式 3/4 控制按鈕] 下方兩個按鈕 */
+    .ac-controls {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        /* [重要] 兩個按鈕並排 */
+        gap: 16px !important;
+        /* [調整] 按鈕間距 */
+        width: 100% !important;
+    }
+
+    .ac-control-btn {
+        height: 60px !important;
+        /* [調整] 按鈕高度 */
+        font-size: 20px !important;
+        /* [調整] 文字大小 */
+    }
+
+    /* [模式 1/2 直接控制按鈕] iPad 橫向大按鈕 */
     .dc-buttons {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        /* 2x2 Grid */
+        gap: 20px;
+        /* [調整] 大間距 */
+        width: 100%;
+    }
+
+    .dc-buttons .ac-control-btn {
+        height: 120px;
+        /* [調整] 超大按鈕高度 */
+        font-size: 32px;
+        /* [調整] 超大文字 */
+        border-radius: 24px;
+        /* [調整] 大圓角 */
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .ac-command-section {

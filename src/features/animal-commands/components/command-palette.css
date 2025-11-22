@@ -12,26 +12,39 @@
     /* [可調整] 圓角大小 */
     border: 2px solid #ffe0b2;
     /* [可調整] 黃框邊框寬度 */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* [重要] 4 欄均分寬度 */
+    gap: 8px;
+    /* [可調整] 按鈕間距 */
+    width: 100%;
+    /* [重要] 填滿寬度 */
+    box-sizing: border-box;
 }
 
 .ac-command-btn {
     display: flex;
+    flex-direction: column;
+    /* [重要] 垂直排列圖示與文字 */
     align-items: center;
     justify-content: center;
-    /* [新增] 置中圖示 */
-    padding: 8px;
-    /* [可調整] 按鈕內距 - 影響按鈕大小 */
-    border: none;
-    border-radius: 10px;
-    /* [可調整] 按鈕圓角 */
+    gap: 4px;
+    /* [可調整] 圖文間距 */
     background: white;
+    /* [統一] 白底 */
+    border: none;
+    border-radius: 12px;
+    /* [統一] 圓角 */
+    padding: 8px;
+    /* [可調整] 按鈕內距 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* [統一] 陰影 */
     cursor: pointer;
     transition: all 0.2s;
-    min-width: 48px;
-    /* [可調整] 按鈕最小寬度 */
-    min-height: 48px;
-    /* [可調整] 按鈕最小高度 */
+    aspect-ratio: 1;
+    /* [統一] 正方形 */
+    width: 100%;
+    /* [重要] 填滿格子 */
 }
 
 .ac-command-btn:active:not(:disabled) {
@@ -44,8 +57,29 @@
 }
 
 .ac-cmd-icon {
-    font-size: 28px;
-    /* [可調整] 指令圖示大小 - 控制 emoji 大小 */
+    font-size: 40px;
+    /* [調整] 指令圖示大小 - 放大 */
+}
+
+.ac-cmd-label {
+    font-size: 16px;
+    /* [調整] 文字標籤大小 - 放大 */
+    font-weight: 600;
+    color: #5d4037;
+    /* [可調整] 文字顏色 */
+}
+
+/* [平板直向] Tablet Portrait Adjustment */
+@media (orientation: portrait) and (min-width: 769px) and (max-width: 1024px) {
+    .ac-cmd-icon {
+        font-size: 48px;
+        /* [調整] iPad 直向圖示更大 */
+    }
+
+    .ac-cmd-label {
+        font-size: 18px;
+        /* [調整] iPad 直向文字更大 */
+    }
 }
 
 /* Specific colors - 左側彩色邊框 */
