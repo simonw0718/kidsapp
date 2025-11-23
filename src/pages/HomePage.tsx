@@ -70,6 +70,26 @@ export const HomePage: React.FC = () => {
             選一個想玩的遊戲開始吧！
           </p>
         </div>
+
+        <Link
+          to="/settings"
+          style={{
+            textDecoration: 'none',
+            fontSize: '24px',
+            padding: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          aria-label="設定"
+        >
+          ⚙️
+        </Link>
       </header>
 
       <section

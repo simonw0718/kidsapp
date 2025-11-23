@@ -1,0 +1,52 @@
+# Release Note — 離線模式與效能優化 (2025-11-23)
+
+## 版本概覽
+此版本主要實作了完整的**離線模式**，讓使用者可以預先下載所有遊戲資源。同時修復了圖片配對遊戲中的點擊卡死問題，並優化了動物指令大冒險在不同裝置上的顯示間距。
+
+---
+
+## 🚀 新功能 (New Features)
+
+### 1. 離線模式 (Offline Mode)
+- **設定頁面**：
+  - 新增右上角設定入口 (⚙️)。
+  - 提供「下載所有離線內容」功能，支援斷點續傳與進度顯示。
+  - 提供「清除暫存」功能。
+  - 下載前預估檔案大小並提示使用者。
+- **Service Worker 優化**：
+  - 解除圖片快取限制，支援所有遊戲資產離線存取。
+  - 升級 Cache 版本至 `v6`。
+
+### 2. 圖片配對遊戲優化 (Picture Match Improvements)
+- **核心邏輯重構**：
+  - 修復點擊卡片後無反應或卡死的問題。
+  - 移除音效播放對 UI 更新的阻塞 (Fire-and-forget)。
+  - 優化狀態鎖定機制，縮短錯誤回饋時間至 300ms。
+  - 使用 `useCallback` 穩定函式參照，避免不必要的重新渲染。
+
+### 3. 動物指令大冒險調整 (Animal Commands Adjustments)
+- **響應式間距**：
+  - 優化 iPhone/iPad 直向與橫向模式下的角色選擇區間距。
+  - 調整控制面板按鈕大小與排列，避免誤觸。
+
+---
+
+## 🐛 錯誤修復 (Bug Fixes)
+- **Picture Match**: 修復了答錯後無法繼續遊戲的問題 (徹底解決 `isMounted` 導致的狀態更新攔截)。
+- **UI**: 修正了首頁設定連結的位置與樣式。
+
+---
+
+## 🔧 技術細節
+- **React Hooks**: 深度優化 `useGameLogic`，移除潛在的 `isMounted` 競態條件。
+- **PWA**: 增強 Service Worker 的資源攔截策略。
+
+---
+
+## 📦 修改檔案清單
+- `src/pages/SettingsPage.tsx`
+- `src/pages/HomePage.tsx`
+- `public/sw.js`
+- `src/features/picture-match/hooks/useGameLogic.ts`
+- `src/features/animal-commands/animal-commands.css`
+- `src/routes/AppRouter.tsx`

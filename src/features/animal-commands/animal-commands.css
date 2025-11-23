@@ -5,16 +5,22 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* [調整] 改為 flex-start 避免過多上方空白 */
     height: 100%;
     width: 100%;
-    gap: 24px;
+    gap: 16px;
+    /* [調整] 減少間距從 24px 到 16px */
     padding: 16px;
+    padding-top: 8px;
+    /* [調整] 減少上方 padding */
     box-sizing: border-box;
 }
 
 .ac-entry-header {
     text-align: center;
+    display: none;
+    /* [調整] 隱藏空的 header */
 }
 
 .ac-entry-visual {
@@ -41,20 +47,24 @@
 
 /* Character Selection */
 .ac-character-selection {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+    /* [調整] 減少底部間距 */
     text-align: center;
 }
 
 .ac-section-title {
-    font-size: 18px;
+    font-size: clamp(18px, 4vw, 24px);
+    /* [調整] 響應式字體大小 */
     color: #444;
     margin-bottom: 12px;
+    margin-top: 0;
 }
 
 .ac-character-options {
     display: flex;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
+    /* [調整] 稍微減少間距 */
 }
 
 .ac-character-card {
@@ -62,13 +72,15 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    padding: 12px;
+    padding: 16px;
+    /* [調整] 增加 padding */
     background: white;
     border: 3px solid #eee;
     border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s;
-    width: 120px;
+    width: 140px;
+    /* [調整] 增加寬度 */
 }
 
 .ac-character-card.selected {
@@ -79,13 +91,15 @@
 }
 
 .ac-character-img {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    /* [調整] 增加圖片大小 */
+    height: 80px;
     object-fit: contain;
 }
 
 .ac-character-name {
-    font-size: 16px;
+    font-size: clamp(14px, 3vw, 18px);
+    /* [調整] 響應式字體 */
     font-weight: bold;
     color: #555;
 }
@@ -231,6 +245,41 @@
         /* [調整] 文字大小 - 原本 18px */
     }
 
+    /* [角色選擇] 調整角色卡片大小 */
+    .ac-character-selection {
+        margin-bottom: 12px;
+        /* [調整] 減少底部間距 */
+    }
+
+    .ac-section-title {
+        font-size: 16px;
+        /* [調整] 減少標題大小 */
+        margin-bottom: 10px;
+    }
+
+    .ac-character-options {
+        gap: 12px;
+        /* [調整] 減少角色卡片間距 */
+    }
+
+    .ac-character-card {
+        width: 110px;
+        /* [調整] 減少卡片寬度 */
+        padding: 12px;
+        /* [調整] 減少內距 */
+    }
+
+    .ac-character-img {
+        width: 60px;
+        /* [調整] 減少圖片大小 */
+        height: 60px;
+    }
+
+    .ac-character-name {
+        font-size: 14px;
+        /* [調整] 減少名稱文字大小 */
+    }
+
     /* [模式網格] 改為單欄並減少寬度 */
     .ac-mode-grid {
         grid-template-columns: 1fr;
@@ -279,6 +328,81 @@
         /* [調整] 文字大小 - 原本 12px */
         margin-top: 2px;
         /* [調整] 上方間距 - 原本 4px */
+    }
+}
+
+/* [iPad 直式調整] iPad Portrait Adjustments */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .ac-entry-container {
+        gap: 20px;
+        padding: 20px;
+        padding-top: 12px;
+    }
+
+    .ac-section-title {
+        font-size: 22px;
+    }
+
+    .ac-character-card {
+        width: 160px;
+        /* [調整] iPad 直式增大卡片 */
+        padding: 20px;
+    }
+
+    .ac-character-img {
+        width: 100px;
+        /* [調整] iPad 直式增大圖片 */
+        height: 100px;
+    }
+
+    .ac-character-name {
+        font-size: 18px;
+    }
+
+    .ac-mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* iPad 直式兩欄 */
+        gap: 16px;
+    }
+}
+
+/* [iPad 橫式調整] iPad Landscape Adjustments */
+@media (min-width: 768px) and (orientation: landscape) {
+    .ac-entry-container {
+        gap: 24px;
+        padding: 24px;
+        padding-top: 16px;
+    }
+
+    .ac-section-title {
+        font-size: 24px;
+    }
+
+    .ac-character-options {
+        gap: 32px;
+        /* [調整] iPad 橫式增加間距 */
+    }
+
+    .ac-character-card {
+        width: 180px;
+        /* [調整] iPad 橫式最大卡片 */
+        padding: 24px;
+    }
+
+    .ac-character-img {
+        width: 120px;
+        /* [調整] iPad 橫式最大圖片 */
+        height: 120px;
+    }
+
+    .ac-character-name {
+        font-size: 20px;
+    }
+
+    .ac-mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* iPad 橫式兩欄 */
+        gap: 20px;
     }
 }
 
@@ -858,9 +982,9 @@
     }
 
     .ac-player-img {
-        width: 60px !important;
+        width: 150px !important;
         /* [調整] iPad 直向 - 玩家角色寬度 */
-        height: 60px !important;
+        height: 150px !important;
         /* [調整] iPad 直向 - 玩家角色高度 */
     }
 

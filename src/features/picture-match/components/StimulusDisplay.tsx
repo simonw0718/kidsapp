@@ -11,6 +11,13 @@ interface StimulusDisplayProps {
 
 export const StimulusDisplay: React.FC<StimulusDisplayProps> = ({ item, mode, onReplay, isPlaying }) => {
     const isEnglishOrDino = mode === 'english' || mode === 'dinosaur';
+    const getFontSize = (text: string) => {
+        const len = text.length;
+        if (len > 15) return '1.5rem'; // Very long words (e.g. Pachycephalosaurus)
+        if (len > 10) return '2rem';   // Long words
+        return '2.5rem';               // Normal words
+    };
+
     return (
         <div className="pm-stimulus-container">
             <div
@@ -18,7 +25,7 @@ export const StimulusDisplay: React.FC<StimulusDisplayProps> = ({ item, mode, on
                 className={`pm-stimulus-card ${isPlaying ? 'pm-stimulus-card--playing' : ''} ${isEnglishOrDino ? 'pm-stimulus-card--clickable' : ''}`}
                 style={{
                     /* [題目字體大小控制] */
-                    fontSize: isEnglishOrDino ? '2.5rem' : '2.5rem', // 英文/恐龍模式: 4rem, 注音模式: 由 ZhuyinWord 組件控制
+                    fontSize: isEnglishOrDino ? getFontSize(item.word) : '2.5rem', // 英文/恐龍模式: 動態調整, 注音模式: 固定或由組件控制
                 }}
             >
                 {isEnglishOrDino ? (

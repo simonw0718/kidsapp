@@ -93,24 +93,58 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     // Add mounted ref to prevent state updates after unmount
     const isMounted = useRef(true);
 
+    // Preload sound effects for better stability in PWA mode
+    const correctSoundRef = useRef<HTMLAudioElement | null>(null);
+    const failureSoundRef = useRef<HTMLAudioElement | null>(null);
+
     useEffect(() => {
+        // Preload sound effects
+        correctSoundRef.current = new Audio('/audio/correct_sound.mp3');
+        failureSoundRef.current = new Audio('/audio/failure_sound.mp3');
+        correctSoundRef.current.volume = 0.2;
+        failureSoundRef.current.volume = 0.2;
+
+        // Preload audio files to ensure they're ready
+        correctSoundRef.current.load();
+        failureSoundRef.current.load();
+
         return () => {
             isMounted.current = false;
+            // Cleanup audio objects
+            if (correctSoundRef.current) {
+                correctSoundRef.current.pause();
+                correctSoundRef.current = null;
+            }
+            if (failureSoundRef.current) {
+                failureSoundRef.current.pause();
+                failureSoundRef.current = null;
+            }
         };
     }, []);
 
+    // Safety reset for isProcessing to prevent stuck state
+    useEffect(() => {
+        if (isProcessing) {
+            const timer = setTimeout(() => {
+                if (isMounted.current && isProcessing) {
+                    console.warn('Force resetting isProcessing state');
+                    setIsProcessing(false);
+                }
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [isProcessing]);
+
     const generateQuestion = useCallback(() => {
         const { target, options } = pickQuestion();
-        if (isMounted.current) {
-            setGameState(prev => ({
-                ...prev,
-                currentQuestion: target,
-                options,
-                status: 'idle',
-                selectedId: null,
-            }));
-            setIsProcessing(false);
-        }
+        setGameState(prev => ({
+            ...prev,
+            currentQuestion: target,
+            options,
+            status: 'idle',
+            selectedId: null,
+        }));
+        setIsProcessing(false);
     }, [pickQuestion]);
 
     // Initial question - regenerate when difficulty changes
@@ -132,31 +166,32 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         }
     }, [gameState.currentQuestion, mode, play]);
 
-    const handleOptionClick = (item: VocabItem) => {
+    const handleOptionClick = useCallback(async (item: VocabItem) => {
         // Prevent rapid clicks and clicks during processing
-        if (gameState.status === 'correct' || isProcessing) return;
-
-        setIsProcessing(true);
-
-        const isCorrect = item.id === gameState.currentQuestion?.id;
-
-        // Update weight for adaptive learning
-        if (gameState.currentQuestion) {
-            weightManager.updateWeight(gameState.currentQuestion.id, isCorrect);
+        if (gameState.status === 'correct' || isProcessing) {
+            console.log('Click ignored: status=', gameState.status, 'isProcessing=', isProcessing);
+            return;
         }
 
-        if (isCorrect) {
-            // Play correct sound with error handling
-            const correctAudio = new Audio('/audio/correct_sound.mp3');
-            correctAudio.volume = 0.2;
-            correctAudio.play()
-                .catch(err => console.warn('Failed to play correct sound:', err))
-                .finally(() => {
-                    // Cleanup audio object
-                    correctAudio.src = '';
-                });
+        setIsProcessing(true);
+        console.log('Option clicked:', item.word);
 
-            if (isMounted.current) {
+        try {
+            const isCorrect = item.id === gameState.currentQuestion?.id;
+
+            // Update weight for adaptive learning
+            if (gameState.currentQuestion) {
+                weightManager.updateWeight(gameState.currentQuestion.id, isCorrect);
+            }
+
+            if (isCorrect) {
+                // Play correct sound (fire and forget)
+                if (correctSoundRef.current) {
+                    correctSoundRef.current.currentTime = 0;
+                    correctSoundRef.current.play()
+                        .catch(err => console.warn('Failed to play correct sound:', err));
+                }
+
                 setGameState(prev => ({
                     ...prev,
                     status: 'correct',
@@ -164,46 +199,43 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
                     score: prev.score + 1,
                 }));
                 setIsProcessing(false);
-            }
-        } else {
-            // Play failure sound with error handling
-            const failureAudio = new Audio('/audio/failure_sound.mp3');
-            failureAudio.volume = 0.2;
-            failureAudio.play()
-                .catch(err => console.warn('Failed to play failure sound:', err))
-                .finally(() => {
-                    // Cleanup audio object
-                    failureAudio.src = '';
-                });
+            } else {
+                // Play failure sound (fire and forget)
+                if (failureSoundRef.current) {
+                    failureSoundRef.current.currentTime = 0;
+                    failureSoundRef.current.play()
+                        .catch(err => console.warn('Failed to play failure sound:', err));
+                }
 
-            if (isMounted.current) {
                 setGameState(prev => ({
                     ...prev,
                     status: 'incorrect',
                     selectedId: item.id,
                 }));
+
                 // Reset processing state after a delay to show feedback
                 setTimeout(() => {
-                    if (isMounted.current) {
-                        setIsProcessing(false);
-                    }
-                }, 500);
+                    setIsProcessing(false);
+                }, 300); // Reduced delay to 300ms
             }
+        } catch (error) {
+            console.error('Error in handleOptionClick:', error);
+            setIsProcessing(false);
         }
-    };
+    }, [gameState.status, gameState.currentQuestion, isProcessing]);
 
-    const nextQuestion = () => {
+    const nextQuestion = useCallback(() => {
         generateQuestion();
-    };
+    }, [generateQuestion]);
 
-    const replayAudio = () => {
+    const replayAudio = useCallback(() => {
         // Unlock audio on first user interaction (iOS requirement)
         unlockAudio();
 
         if (gameState.currentQuestion?.audio) {
             play(gameState.currentQuestion.audio, gameState.currentQuestion.word);
         }
-    };
+    }, [gameState.currentQuestion, unlockAudio, play]);
 
     return {
         ...gameState,

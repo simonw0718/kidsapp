@@ -15,25 +15,27 @@ export const AbacusEntryPage: React.FC = () => {
       scrollable={true}
     >
       <div className="abacus-entry-container">
-        <div className="abacus-entry-visual">
-          {/* Custom entry image */}
-          <img
-            src="/icons/abacus_entry.png"
-            alt="算珠加減樂"
-            className="abacus-entry-image"
-          />
-        </div>
+        <h2 className="abacus-entry-title">請選擇遊戲模式</h2>
 
-        <div className="abacus-entry-content">
-          <h2 className="abacus-entry-subtitle">準備好開始數數了嗎？</h2>
+        <div className="abacus-mode-selection">
+          <button
+            type="button"
+            className="abacus-mode-btn abacus-mode-btn--abacus"
+            onClick={() => navigate("/games/abacus/play?mode=abacus")}
+          >
+            <span className="abacus-mode-icon">🧮</span>
+            <span className="abacus-mode-label">算盤模式</span>
+            <span className="abacus-mode-sublabel">使用算盤計算</span>
+          </button>
 
           <button
             type="button"
-            className="abacus-start-button-large"
-            onClick={() => navigate("/games/abacus/play")}
+            className="abacus-mode-btn abacus-mode-btn--math"
+            onClick={() => navigate("/games/abacus/play?mode=math")}
           >
-            <span className="start-icon">▶</span>
-            開始遊戲
+            <span className="abacus-mode-icon">🔢</span>
+            <span className="abacus-mode-label">純數學模式</span>
+            <span className="abacus-mode-sublabel">心算練習</span>
           </button>
         </div>
       </div>

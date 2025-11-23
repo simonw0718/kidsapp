@@ -402,6 +402,46 @@
     }
 }
 
+/* iPad Portrait - 3 buttons in one row */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+    .pm-entry-container {
+        gap: 24px;
+        padding: 20px;
+    }
+
+    .pm-entry-title {
+        font-size: 1.8rem;
+    }
+
+    .pm-entry-options {
+        grid-template-columns: repeat(3, 1fr) !important;
+        /* [重要] 3 欄佈局 - 三個按鈕排成一列 */
+        gap: 20px !important;
+        max-width: 90vw;
+        width: 100%;
+    }
+
+    .pm-entry-btn {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        max-width: none;
+        padding: 16px;
+    }
+
+    .pm-entry-icon {
+        font-size: 3.5rem;
+    }
+
+    .pm-entry-label {
+        font-size: 1.4rem;
+    }
+
+    .pm-entry-sublabel {
+        font-size: 1rem;
+    }
+}
+
 /* Responsive Entry Page - Landscape */
 @media (orientation: landscape) {
     .pm-entry-container {

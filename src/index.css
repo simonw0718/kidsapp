@@ -1,4 +1,3 @@
-
 :root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -14,4 +13,16 @@ body {
   margin: 0;
   color: #000;
   background-color: #ffffff;
+  /* 防止 PWA 模式下的縮放 */
+  touch-action: pan-x pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 允許文字選擇（如果需要） */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: manipulation;
 }

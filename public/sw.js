@@ -1,5 +1,5 @@
 // /public/sw.js
-const CACHE_NAME = 'kidsapp-v5'; // 記得改版號，確保新 SW 生效
+const CACHE_NAME = 'kidsapp-v6'; // 記得改版號，確保新 SW 生效
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [
@@ -52,11 +52,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ⚠ 圖片一律交給瀏覽器（不走 cache-first，不離線 fallback）
-  //   避免：PNG 拿到錯誤的 HTML / 舊版快取 → 圖片不出現或不更新
-  if (request.destination === 'image') {
-    return;
-  }
+  // [修改] 移除圖片排除邏輯，允許圖片使用快取以支援離線模式
+
 
   // 其他靜態資源：一般 cache-first
   event.respondWith(
