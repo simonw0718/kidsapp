@@ -35,6 +35,11 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         const filteredList = getFilteredVocab();
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
 
+        // Debug logging
+        console.log('[DEBUG] Difficulty:', difficulty);
+        console.log('[DEBUG] Filtered list size:', filteredList.length);
+        console.log('[DEBUG] Source list size:', sourceList.length);
+
         // Safety check: ensure we have vocab items
         if (!sourceList || sourceList.length === 0) {
             console.error('No vocabulary items available');
@@ -63,6 +68,11 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         const shuffledOthers = [...otherItems].sort(() => 0.5 - Math.random());
         const distractors = shuffledOthers.slice(0, 3);
         const options = [target, ...distractors].sort(() => 0.5 - Math.random());
+
+        // Debug logging for selected items
+        console.log('[DEBUG] Target:', target.word, 'Difficulty:', target.difficulty);
+        console.log('[DEBUG] Options difficulties:', options.map(o => `${o.word}(${o.difficulty})`).join(', '));
+
         return { target, options };
     }, [getFilteredVocab]);
 
