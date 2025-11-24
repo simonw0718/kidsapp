@@ -5,7 +5,7 @@ import { VOCAB_LIST } from '../features/picture-match/data/vocab';
 import { avatarPairs } from '../features/abacus/utils/avatarAssets';
 import './settings.css';
 
-const CACHE_NAME = 'kidsapp-v9'; // Must match sw.js
+const CACHE_NAME = 'kidsapp-v10'; // Must match sw.js
 
 // Hardcoded assets for Animal Game
 const ANIMAL_GAME_ASSETS = [
@@ -93,6 +93,17 @@ export const SettingsPage: React.FC = () => {
         return (size / 1024 / 1024).toFixed(1); // MB
     };
 
+    // Helper to clean response (remove redirected flag)
+    const cleanResponse = async (response: Response) => {
+        const blob = await response.blob();
+        const clean = new Response(blob, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+        });
+        return clean;
+    };
+
     const handleDownload = async () => {
         if (!window.isSecureContext) {
             alert('離線功能需要 HTTPS 或 localhost 環境 (Secure Context)。\n如果您正在使用區域網路 IP (如 192.168.x.x) 測試，請改用 localhost 或設定 HTTPS。');
@@ -128,11 +139,12 @@ export const SettingsPage: React.FC = () => {
                 const batch = urls.slice(i, i + batchSize);
                 await Promise.all(batch.map(async (url) => {
                     try {
-                        // Check if already cached to avoid re-downloading?
-                        // Actually, for "Download All", we might want to ensure they are fresh or just present.
-                        // cache.add() fetches and puts.
-                        // To be safe and robust, we just fetch.
-                        await cache.add(url);
+                        // Manual Fetch -> Clean -> Put (to avoid redirected response error)
+                        const response = await fetch(url);
+                        if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+
+                        const clean = await cleanResponse(response);
+                        await cache.put(url, clean);
                     } catch (e) {
                         console.warn(`Failed to cache ${url}`, e);
                         // Don't fail the whole process, just log
