@@ -162,6 +162,20 @@ export const SettingsPage: React.FC = () => {
         }
     };
 
+    const handleForceUpdate = async () => {
+        if (!confirm('這將強制重新整理並更新應用程式。確定要繼續嗎？')) return;
+
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+                await registration.unregister();
+            }
+            window.location.reload();
+        } else {
+            window.location.reload();
+        }
+    };
+
     return (
         <PageContainer
             title="設定"
@@ -241,9 +255,16 @@ export const SettingsPage: React.FC = () => {
                 <div className="settings-section">
                     <h3 className="settings-title">關於</h3>
                     <p className="settings-info">
-                        KidsApp v1.0.0<br />
+                        KidsApp v1.0.1<br />
                         Cache Version: {CACHE_NAME}
                     </p>
+                    <button
+                        className="settings-btn"
+                        onClick={handleForceUpdate}
+                        style={{ marginTop: '12px', background: '#607d8b' }}
+                    >
+                        🔄 強制更新 App
+                    </button>
                 </div>
             </div>
         </PageContainer>
