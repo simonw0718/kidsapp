@@ -1,5 +1,5 @@
 // /public/sw.js
-const CACHE_NAME = 'kidsapp-v6'; // 記得改版號，確保新 SW 生效
+const CACHE_NAME = 'kidsapp-v7'; // 記得改版號，確保新 SW 生效
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [
@@ -47,8 +47,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ⚠ 導航請求一律交給瀏覽器，不用 SW 介入
+  // 導航請求：Network First -> Cache Fallback (支援離線開啟 App)
   if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match(OFFLINE_URL);
+      })
+    );
     return;
   }
 
