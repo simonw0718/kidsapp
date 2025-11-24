@@ -5,7 +5,7 @@ import { VOCAB_LIST } from '../features/picture-match/data/vocab';
 import { avatarPairs } from '../features/abacus/utils/avatarAssets';
 import './settings.css';
 
-const CACHE_NAME = 'kidsapp-v6'; // Must match sw.js
+const CACHE_NAME = 'kidsapp-v8'; // Must match sw.js
 
 // Hardcoded assets for Animal Game
 const ANIMAL_GAME_ASSETS = [
