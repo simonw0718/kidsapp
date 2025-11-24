@@ -94,8 +94,13 @@ export const SettingsPage: React.FC = () => {
     };
 
     const handleDownload = async () => {
+        if (!window.isSecureContext) {
+            alert('離線功能需要 HTTPS 或 localhost 環境 (Secure Context)。\n如果您正在使用區域網路 IP (如 192.168.x.x) 測試，請改用 localhost 或設定 HTTPS。');
+            return;
+        }
+
         if (!('caches' in window)) {
-            alert('您的瀏覽器不支援離線功能');
+            alert('您的瀏覽器不支援離線功能 (Cache API not available)');
             return;
         }
 
