@@ -1,5 +1,5 @@
 // /public/sw.js
-const CACHE_NAME = 'kidsapp-v8'; // 記得改版號，確保新 SW 生效 (Sync with SettingsPage.tsx)
+const CACHE_NAME = 'kidsapp-v9'; // 記得改版號，確保新 SW 生效 (Sync with SettingsPage.tsx)
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [
@@ -8,6 +8,17 @@ const ASSETS = [
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
 ];
+
+// Helper to clean response (remove redirected flag)
+const cleanResponse = (response) => {
+  const body = response.body;
+  const clean = new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+  return clean;
+};
 
 // 安裝階段：預先快取核心資源
 self.addEventListener('install', (event) => {
@@ -54,12 +65,7 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           // Safari 修正：如果 response 是 redirected，建立一個新的 Response 副本
           if (response.redirected) {
-            const cleanResponse = new Response(response.body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers: response.headers,
-            });
-            return cleanResponse;
+            return cleanResponse(response);
           }
           return response;
         })
@@ -87,6 +93,9 @@ self.addEventListener('fetch', (event) => {
             response.type === 'opaque' ||
             response.redirected
           ) {
+            if (response.redirected) {
+              return cleanResponse(response);
+            }
             return response;
           }
 
