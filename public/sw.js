@@ -1,5 +1,5 @@
 // /public/sw.js
-const CACHE_NAME = 'kidsapp-v10'; // 記得改版號，確保新 SW 生效 (Sync with SettingsPage.tsx)
+const CACHE_NAME = 'kidsapp-v11'; // 記得改版號，確保新 SW 生效 (Sync with SettingsPage.tsx)
 const OFFLINE_URL = '/index.html';
 
 const ASSETS = [

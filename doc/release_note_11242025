@@ -1,0 +1,43 @@
+# Release Note — iOS PWA 離線模式終極修正 (2025-11-24)
+
+## 版本概覽
+此版本 (v10) 徹底解決了 iOS PWA 環境下的離線下載問題，特別是針對「Service Worker 回傳重新導向回應 (Redirected Response)」的嚴格限制。同時修復了版本不一致導致的更新迴圈問題。
+
+---
+
+## 🚀 重大修正 (Critical Fixes)
+
+### 1. iOS PWA 離線下載修復 (Robust Offline Support)
+- **問題**：在 iOS WebKit 環境下，若 Service Worker 回傳 `redirected: true` 的回應（例如來自 CDN 或靜態託管的轉址），請求會被瀏覽器直接攔截並報錯 `response served by service worker has redirections`。
+- **解決方案**：實作「零容忍轉址 (Zero Tolerance for Redirects)」策略。
+  - **Ingress Sanitization (寫入時淨化)**：在 `sw.js` 與 `SettingsPage.tsx` 中，下載檔案時不再直接使用 `cache.add`，而是手動執行 `fetch`，將回應內容複製到一個新的、乾淨的 `Response` 物件中（移除 `redirected` 標記），再寫入快取。
+  - **Egress Sanitization (讀取時淨化)**：在 Service Worker 回傳快取內容前，再次檢查並淨化任何可能漏網的轉址回應，確保絕對相容性。
+- **影響**：所有 iOS 裝置現在皆可正常下載並離線使用，不受託管服務轉址影響。
+
+### 2. 更新迴圈與版本錯置 (Update Loop & Version Mismatch)
+- **問題**：`SettingsPage.tsx` 中的 Cache 版本 (v6) 與 `sw.js` (v8) 不一致，導致 App 認為快取永遠過期或不存在，且因舊版程式碼殘留導致更新卡死。
+- **解決方案**：
+  - 同步雙邊版本號至 `v10`。
+  - 修正更新邏輯，確保新版 Service Worker 能正確接管並清除舊快取。
+
+### 3. 安全環境檢查 (Secure Context Check)
+- **問題**：在非 HTTPS 或非 localhost 環境（如區網 IP）下測試時，瀏覽器會封鎖 Cache API，導致功能失效且錯誤訊息不明確。
+- **解決方案**：新增 `window.isSecureContext` 檢查，若環境不安全則跳出明確提示，引導開發者使用 localhost 或 HTTPS。
+
+### 4. 補全缺失離線資源 (Missing Offline Assets)
+- **問題**：部分音效（答對/答錯）與圖片（Ready Go）未被列入預先下載清單，導致離線時無法播放或顯示。
+- **解決方案**：
+  - 修正音效路徑：`/audio/picture-match/` -> `/audio/`。
+  - 新增 `ready-go.png` 至下載清單。
+  - 升級 Cache 版本至 `v11`。
+
+---
+
+## 📦 修改檔案清單
+- `public/sw.js` (升級至 v10，重寫快取邏輯)
+- `src/pages/SettingsPage.tsx` (升級至 v10，重寫下載邏輯)
+
+---
+
+## 📝 備註
+若遇到更新後仍無法下載的情況，請使用設定頁面的「強制更新 App」按鈕，或手動清除瀏覽器快取以確保載入 v10 版本的 Service Worker。

@@ -68,7 +68,7 @@ export interface VocabItem {
   zhuyin: string;
   image: string;
   audio: string;
-  category: 'food' | 'animal' | 'object' | 'nature' | 'color' | 'number' | 'dinosaur' | 'music' | 'building';
+  category: 'food' | 'animal' | 'object' | 'nature' | 'color' | 'number' | 'dinosaur' | 'music' | 'building' | 'job';
   difficulty: DifficultyLevel;
   emoji?: string;
 }
@@ -2020,4 +2020,76 @@ export const VOCAB_LIST: VocabItem[] = [
     difficulty: 3,
   },
 
+  // ==========================================
+  // Level 2 Expansion (3-6yo)
+  // ==========================================
+  { id: 'eye', word: 'Eye', chinese: '眼睛', zhuyin: 'ㄧㄢˇ ㄐㄧㄥ', image: '👁️', audio: '/audio/picture-match/eye.mp3', category: 'object', difficulty: 2 }, // category adjusted to object as body is not in type
+  { id: 'ear', word: 'Ear', chinese: '耳朵', zhuyin: 'ㄦˇ ㄉㄨㄛ˙', image: '👂', audio: '/audio/picture-match/ear.mp3', category: 'object', difficulty: 2 },
+  { id: 'nose', word: 'Nose', chinese: '鼻子', zhuyin: 'ㄅㄧˊ ㄗ˙', image: '👃', audio: '/audio/picture-match/nose.mp3', category: 'object', difficulty: 2 },
+  { id: 'mouth', word: 'Mouth', chinese: '嘴巴', zhuyin: 'ㄗㄨㄟˇ ㄅㄚ', image: '👄', audio: '/audio/picture-match/mouth.mp3', category: 'object', difficulty: 2 },
+  { id: 'hand', word: 'Hand', chinese: '手', zhuyin: 'ㄕㄡˇ', image: '✋', audio: '/audio/picture-match/hand.mp3', category: 'object', difficulty: 2 },
+  { id: 'foot', word: 'Foot', chinese: '腳', zhuyin: 'ㄐㄧㄠˇ', image: '🦶', audio: '/audio/picture-match/foot.mp3', category: 'object', difficulty: 2 },
+  { id: 'hat', word: 'Hat', chinese: '帽子', zhuyin: 'ㄇㄠˋ ㄗ˙', image: '🧢', audio: '/audio/picture-match/hat.mp3', category: 'object', difficulty: 2 },
+  { id: 'shoe', word: 'Shoe', chinese: '鞋子', zhuyin: 'ㄒㄧㄝˊ ㄗ˙', image: '👞', audio: '/audio/picture-match/shoe.mp3', category: 'object', difficulty: 2 },
+  { id: 'sock', word: 'Sock', chinese: '襪子', zhuyin: 'ㄨㄚˋ ㄗ˙', image: '🧦', audio: '/audio/picture-match/sock.mp3', category: 'object', difficulty: 2 },
+  { id: 'shirt', word: 'Shirt', chinese: '襯衫', zhuyin: 'ㄔㄣˋ ㄕㄢ', image: '👕', audio: '/audio/picture-match/shirt.mp3', category: 'object', difficulty: 2 },
+  { id: 'pants', word: 'Pants', chinese: '褲子', zhuyin: 'ㄎㄨˋ ㄗ˙', image: '👖', audio: '/audio/picture-match/pants.mp3', category: 'object', difficulty: 2 },
+  { id: 'dress', word: 'Dress', chinese: '洋裝', zhuyin: 'ㄧㄤˊ ㄓㄨㄤ', image: '👗', audio: '/audio/picture-match/dress.mp3', category: 'object', difficulty: 2 },
+  { id: 'lamp', word: 'Lamp', chinese: '檯燈', zhuyin: 'ㄊㄞˊ ㄉㄥ', image: '💡', audio: '/audio/picture-match/lamp.mp3', category: 'object', difficulty: 2 },
+  { id: 'clock', word: 'Clock', chinese: '時鐘', zhuyin: 'ㄕˊ ㄓㄨㄥ', image: '⏰', audio: '/audio/picture-match/clock.mp3', category: 'object', difficulty: 2 },
+  { id: 'phone', word: 'Phone', chinese: '電話', zhuyin: 'ㄉㄧㄢˋ ㄏㄨㄚˋ', image: '☎️', audio: '/audio/picture-match/phone.mp3', category: 'object', difficulty: 2 },
+  { id: 'tv', word: 'TV', chinese: '電視', zhuyin: 'ㄉㄧㄢˋ ㄕˋ', image: '📺', audio: '/audio/picture-match/tv.mp3', category: 'object', difficulty: 2 },
+  { id: 'sofa', word: 'Sofa', chinese: '沙發', zhuyin: 'ㄕㄚ ㄈㄚ', image: '🛋️', audio: '/audio/picture-match/sofa.mp3', category: 'object', difficulty: 2 },
+  { id: 'key', word: 'Key', chinese: '鑰匙', zhuyin: 'ㄧㄠˋ ㄕ˙', image: '🔑', audio: '/audio/picture-match/key.mp3', category: 'object', difficulty: 2 },
+  { id: 'pen', word: 'Pen', chinese: '原子筆', zhuyin: 'ㄩㄢˊ ㄗˇ ㄅㄧˇ', image: '🖊️', audio: '/audio/picture-match/pen.mp3', category: 'object', difficulty: 2 },
+  { id: 'paper', word: 'Paper', chinese: '紙', zhuyin: 'ㄓˇ', image: '📄', audio: '/audio/picture-match/paper.mp3', category: 'object', difficulty: 2 },
+  { id: 'bag', word: 'Bag', chinese: '包包', zhuyin: 'ㄅㄠ ㄅㄠ', image: '🎒', audio: '/audio/picture-match/bag.mp3', category: 'object', difficulty: 2 },
+  { id: 'train', word: 'Train', chinese: '火車', zhuyin: 'ㄏㄨㄛˇ ㄔㄜ', image: '🚂', audio: '/audio/picture-match/train.mp3', category: 'object', difficulty: 2 },
+  { id: 'boat', word: 'Boat', chinese: '船', zhuyin: 'ㄔㄨㄢˊ', image: '🛥️', audio: '/audio/picture-match/boat.mp3', category: 'object', difficulty: 2 },
+  { id: 'truck', word: 'Truck', chinese: '卡車', zhuyin: 'ㄎㄚˇ ㄔㄜ', image: '🚚', audio: '/audio/picture-match/truck.mp3', category: 'object', difficulty: 2 },
+  { id: 'taxi', word: 'Taxi', chinese: '計程車', zhuyin: 'ㄐㄧˋ ㄔㄥˊ ㄔㄜ', image: '🚕', audio: '/audio/picture-match/taxi.mp3', category: 'object', difficulty: 2 },
+  { id: 'grass', word: 'Grass', chinese: '草', zhuyin: 'ㄘㄠˇ', image: '🌿', audio: '/audio/picture-match/grass.mp3', category: 'nature', difficulty: 2 },
+  { id: 'leaf', word: 'Leaf', chinese: '葉子', zhuyin: 'ㄧㄝˋ ㄗ˙', image: '🍃', audio: '/audio/picture-match/leaf.mp3', category: 'nature', difficulty: 2 },
+  { id: 'rock', word: 'Rock', chinese: '石頭', zhuyin: 'ㄕˊ ㄊㄡ˙', image: '🪨', audio: '/audio/picture-match/rock.mp3', category: 'nature', difficulty: 2 },
+  { id: 'doll', word: 'Doll', chinese: '洋娃娃', zhuyin: 'ㄧㄤˊ ㄨㄚ ㄨㄚ', image: '🎎', audio: '/audio/picture-match/doll.mp3', category: 'object', difficulty: 2 },
+  { id: 'robot', word: 'Robot', chinese: '機器人', zhuyin: 'ㄐㄧ ㄑㄧˋ ㄖㄣˊ', image: '🤖', audio: '/audio/picture-match/robot.mp3', category: 'object', difficulty: 2 },
+
+  // ==========================================
+  // Level 3 Expansion (3-6yo)
+  // ==========================================
+  { id: 'doctor', word: 'Doctor', chinese: '醫生', zhuyin: 'ㄧ ㄕㄥ', image: '👨‍⚕️', audio: '/audio/picture-match/doctor.mp3', category: 'object', difficulty: 3 }, // category adjusted
+  { id: 'nurse', word: 'Nurse', chinese: '護士', zhuyin: 'ㄏㄨˋ ㄕˋ', image: '👩‍⚕️', audio: '/audio/picture-match/nurse.mp3', category: 'object', difficulty: 3 },
+  { id: 'police', word: 'Police', chinese: '警察', zhuyin: 'ㄐㄧㄥˇ ㄔㄚˊ', image: '👮', audio: '/audio/picture-match/police.mp3', category: 'object', difficulty: 3 },
+  { id: 'teacher', word: 'Teacher', chinese: '老師', zhuyin: 'ㄌㄠˇ ㄕ', image: '👩‍🏫', audio: '/audio/picture-match/teacher.mp3', category: 'object', difficulty: 3 },
+  { id: 'chef', word: 'Chef', chinese: '廚師', zhuyin: 'ㄔㄨˊ ㄕ', image: '👨‍🍳', audio: '/audio/picture-match/chef.mp3', category: 'object', difficulty: 3 },
+  { id: 'farmer', word: 'Farmer', chinese: '農夫', zhuyin: 'ㄋㄨㄥˊ ㄈㄨ', image: '👨‍🌾', audio: '/audio/picture-match/farmer.mp3', category: 'object', difficulty: 3 },
+  { id: 'school', word: 'School', chinese: '學校', zhuyin: 'ㄒㄩㄝˊ ㄒㄧㄠˋ', image: '🏫', audio: '/audio/picture-match/school.mp3', category: 'object', difficulty: 3 }, // category adjusted
+  { id: 'park', word: 'Park', chinese: '公園', zhuyin: 'ㄍㄨㄥ ㄩㄢˊ', image: '🏞️', audio: '/audio/picture-match/park.mp3', category: 'nature', difficulty: 3 },
+  { id: 'zoo', word: 'Zoo', chinese: '動物園', zhuyin: 'ㄉㄨㄥˋ ㄨˋ ㄩㄢˊ', image: '🦁', audio: '/audio/picture-match/zoo.mp3', category: 'nature', difficulty: 3 },
+  { id: 'beach', word: 'Beach', chinese: '海灘', zhuyin: 'ㄏㄞˇ ㄊㄢ', image: '🏖️', audio: '/audio/picture-match/beach.mp3', category: 'nature', difficulty: 3 },
+  { id: 'hospital', word: 'Hospital', chinese: '醫院', zhuyin: 'ㄧ ㄩㄢˋ', image: '🏥', audio: '/audio/picture-match/hospital.mp3', category: 'object', difficulty: 3 },
+  { id: 'piano', word: 'Piano', chinese: '鋼琴', zhuyin: 'ㄍㄤ ㄑㄧㄣˊ', image: '🎹', audio: '/audio/picture-match/piano.mp3', category: 'music', difficulty: 3 },
+  { id: 'camera', word: 'Camera', chinese: '相機', zhuyin: 'ㄒㄧㄤˋ ㄐㄧ', image: '📷', audio: '/audio/picture-match/camera.mp3', category: 'object', difficulty: 3 },
+  { id: 'drum', word: 'Drum', chinese: '鼓', zhuyin: 'ㄍㄨˇ', image: '🥁', audio: '/audio/picture-match/drum.mp3', category: 'music', difficulty: 3 },
+  { id: 'violin', word: 'Violin', chinese: '小提琴', zhuyin: 'ㄒㄧㄠˇ ㄊㄧˊ ㄑㄧㄣˊ', image: '🎻', audio: '/audio/picture-match/violin.mp3', category: 'music', difficulty: 3 },
+  { id: 'bell', word: 'Bell', chinese: '鈴鐺', zhuyin: 'ㄌㄧㄥˊ ㄉㄤ', image: '🔔', audio: '/audio/picture-match/bell.mp3', category: 'object', difficulty: 3 },
+  { id: 'hammer', word: 'Hammer', chinese: '鐵鎚', zhuyin: 'ㄊㄧㄝˇ ㄔㄨㄟˊ', image: '🔨', audio: '/audio/picture-match/hammer.mp3', category: 'object', difficulty: 3 },
+  { id: 'scissors', word: 'Scissors', chinese: '剪刀', zhuyin: 'ㄐㄧㄢˇ ㄉㄠ', image: '✂️', audio: '/audio/picture-match/scissors.mp3', category: 'object', difficulty: 3 },
+  { id: 'helicopter', word: 'Helicopter', chinese: '直升機', zhuyin: 'ㄓˊ ㄕㄥ ㄐㄧ', image: '🚁', audio: '/audio/picture-match/helicopter.mp3', category: 'object', difficulty: 3 },
+  { id: 'ambulance', word: 'Ambulance', chinese: '救護車', zhuyin: 'ㄐㄧㄡˋ ㄏㄨˋ ㄔㄜ', image: '🚑', audio: '/audio/picture-match/ambulance.mp3', category: 'object', difficulty: 3 },
+  { id: 'firetruck', word: 'Firetruck', chinese: '消防車', zhuyin: 'ㄒㄧㄠ ㄈㄤˊ ㄔㄜ', image: '🚒', audio: '/audio/picture-match/firetruck.mp3', category: 'object', difficulty: 3 },
+  { id: 'motorcycle', word: 'Motorcycle', chinese: '摩托車', zhuyin: 'ㄇㄛˊ ㄊㄨㄛ ㄔㄜ', image: '🏍️', audio: '/audio/picture-match/motorcycle.mp3', category: 'object', difficulty: 3 },
+  { id: 'rocket', word: 'Rocket', chinese: '火箭', zhuyin: 'ㄏㄨㄛˇ ㄐㄧㄢˋ', image: '🚀', audio: '/audio/picture-match/rocket.mp3', category: 'object', difficulty: 3 },
+  { id: 'planet', word: 'Planet', chinese: '行星', zhuyin: 'ㄒㄧㄥˊ ㄒㄧㄥ', image: '🪐', audio: '/audio/picture-match/planet.mp3', category: 'nature', difficulty: 3 },
+  { id: 'earth', word: 'Earth', chinese: '地球', zhuyin: 'ㄉㄧˋ ㄑㄧㄡˊ', image: '🌍', audio: '/audio/picture-match/earth.mp3', category: 'nature', difficulty: 3 },
+  { id: 'king', word: 'King', chinese: '國王', zhuyin: 'ㄍㄨㄛˊ ㄨㄤˊ', image: '🤴', audio: '/audio/picture-match/king.mp3', category: 'job', difficulty: 3 },
+  { id: 'wind', word: 'Wind', chinese: '風', zhuyin: 'ㄈㄥ', image: '🌬️', audio: '/audio/picture-match/wind.mp3', category: 'nature', difficulty: 3 },
+  { id: 'river', word: 'River', chinese: '河流', zhuyin: 'ㄏㄜˊ ㄌㄧㄡˊ', image: '🌊', audio: '/audio/picture-match/river.mp3', category: 'nature', difficulty: 3 },
+  { id: 'forest', word: 'Forest', chinese: '森林', zhuyin: 'ㄙㄣ ㄌㄧㄣˊ', image: '🌲', audio: '/audio/picture-match/forest.mp3', category: 'nature', difficulty: 3 },
+  { id: 'bridge', word: 'Bridge', chinese: '橋', zhuyin: 'ㄑㄧㄠˊ', image: '🌉', audio: '/audio/picture-match/bridge.mp3', category: 'object', difficulty: 3 },
+
+  { id: 'deinonychus', word: 'Deinonychus', chinese: '恐爪龍', zhuyin: 'ㄎㄨㄥˇ ㄓㄨㄚˇ ㄌㄨㄥˊ', image: '/images/picture-match/dinosaurs/deinonychus.png', audio: '/audio/picture-match/deinonychus.mp3', category: 'dinosaur', difficulty: 3 },
+  { id: 'troodon', word: 'Troodon', chinese: '傷齒龍', zhuyin: 'ㄕㄤ ㄔˇ ㄌㄨㄥˊ', image: '/images/picture-match/dinosaurs/troodon.png', audio: '/audio/picture-match/troodon.mp3', category: 'dinosaur', difficulty: 3 },
+  { id: 'edmontosaurus', word: 'Edmontosaurus', chinese: '埃德蒙頓龍', zhuyin: 'ㄞ ㄉㄜˊ ㄇㄥˊ ㄉㄨㄣˋ ㄌㄨㄥˊ', image: '/images/picture-match/dinosaurs/edmontosaurus.png', audio: '/audio/picture-match/edmontosaurus.mp3', category: 'dinosaur', difficulty: 3 },
+  { id: 'maiasaura', word: 'Maiasaura', chinese: '慈母龍', zhuyin: 'ㄘˊ ㄇㄨˇ ㄌㄨㄥˊ', image: '/images/picture-match/dinosaurs/maiasaura.png', audio: '/audio/picture-match/maiasaura.mp3', category: 'dinosaur', difficulty: 3 },
 ];

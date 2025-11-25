@@ -5,7 +5,7 @@ import { VOCAB_LIST } from '../features/picture-match/data/vocab';
 import { avatarPairs } from '../features/abacus/utils/avatarAssets';
 import './settings.css';
 
-const CACHE_NAME = 'kidsapp-v10'; // Must match sw.js
+const CACHE_NAME = 'kidsapp-v11'; // Must match sw.js
 
 // Hardcoded assets for Animal Game
 const ANIMAL_GAME_ASSETS = [
@@ -24,9 +24,11 @@ const ANIMAL_GAME_ASSETS = [
 ];
 
 // Common sounds
+// Common sounds & UI assets
 const COMMON_ASSETS = [
-    '/audio/picture-match/correct_sound.mp3',
-    '/audio/picture-match/failure_sound.mp3',
+    '/audio/correct_sound.mp3',
+    '/audio/failure_sound.mp3',
+    '/images/picture-match/ready-go.png',
 ];
 
 export const SettingsPage: React.FC = () => {
