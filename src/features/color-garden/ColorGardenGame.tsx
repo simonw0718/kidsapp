@@ -10,6 +10,11 @@ interface ColorGardenGameProps {
     onSwitchMode: () => void;
 }
 
+// Configurable brush size range
+const BRUSH_SIZE_MIN = 2;
+const BRUSH_SIZE_MAX = 80;
+const BRUSH_SIZE_DEFAULT = 10;
+
 const PALETTE_COLORS = [
     '#FF4444', // Red
     '#FF8C00', // Orange
@@ -34,7 +39,7 @@ const AVAILABLE_IMAGES = COLORING_IMAGES.map((img: { filename: string; url: stri
 export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }) => {
     // Coloring State
     const [selectedColor, setSelectedColor] = useState('#FF4444');
-    const [brushSize, setBrushSize] = useState(10);
+    const [brushSize, setBrushSize] = useState(BRUSH_SIZE_DEFAULT);
     const [toolMode, setToolMode] = useState<'brush' | 'eraser'>('brush');
     const [showPalette, setShowPalette] = useState(false);
     const [activeSlider, setActiveSlider] = useState<'brush' | 'eraser' | null>(null);
@@ -63,6 +68,9 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     };
 
     const handleToolClick = (mode: 'brush' | 'eraser') => {
+        // Always hide palette when selecting brush/eraser
+        setShowPalette(false);
+
         if (toolMode === mode) {
             // Toggle slider if already active tool
             setActiveSlider(activeSlider === mode ? null : mode);
@@ -70,7 +78,6 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
             // Switch tool and close other popovers
             setToolMode(mode);
             setActiveSlider(null);
-            setShowPalette(false);
         }
     };
 
@@ -91,9 +98,9 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
         setActiveSlider(null);
     };
 
-    const handleSaveImage = () => {
+    const handleSaveImage = async () => {
         // Show confirmation dialog
-        if (!window.confirm('確定要儲存圖片嗎？')) {
+        if (!window.confirm('Do you want to save image?')) {
             return;
         }
 
@@ -111,53 +118,53 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-        // Draw the background image if exists
-        if (imageSrc) {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                // Calculate image position (centered with object-fit: contain)
-                const scale = Math.min(
-                    tempCanvas.width / img.naturalWidth,
-                    tempCanvas.height / img.naturalHeight
-                );
-                const width = img.naturalWidth * scale;
-                const height = img.naturalHeight * scale;
-                const x = (tempCanvas.width - width) / 2;
-                const y = (tempCanvas.height - height) / 2;
+        // Draw the canvas content first
+        ctx.drawImage(canvas, 0, 0);
 
-                ctx.drawImage(img, x, y, width, height);
+        // Convert to blob
+        tempCanvas.toBlob(async (blob) => {
+            if (!blob) return;
 
-                // Draw the canvas content on top
-                ctx.drawImage(canvas, 0, 0);
+            const filename = `coloring-${Date.now()}.png`;
 
-                // Download the image
-                tempCanvas.toBlob((blob) => {
-                    if (blob) {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `coloring-${Date.now()}.png`;
-                        a.click();
-                        URL.revokeObjectURL(url);
+            // Check if Web Share API is available (iOS/Android)
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const file = new File([blob], filename, { type: 'image/png' });
+
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'My Coloring',
+                            text: 'Check out my coloring!'
+                        });
+                        return; // Success, exit function
                     }
-                }, 'image/png');
-            };
-            img.src = imageSrc;
-        } else {
-            // No background image, just save the drawing
-            ctx.drawImage(canvas, 0, 0);
-            tempCanvas.toBlob((blob) => {
-                if (blob) {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `coloring-${Date.now()}.png`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.log('Share failed, falling back to download:', error);
+                    // Fall through to download method
                 }
-            }, 'image/png');
-        }
+            }
+
+            // Fallback: Direct download (works on desktop and some browsers)
+            try {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Clean up
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Unable to save image. Please try again or take a screenshot.');
+            }
+        }, 'image/png');
     };
 
     // Get selected image with fallback
@@ -252,8 +259,8 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                             <div className="cg-slider-popover">
                                 <input
                                     type="range"
-                                    min="5"
-                                    max="50"
+                                    min={BRUSH_SIZE_MIN}
+                                    max={BRUSH_SIZE_MAX}
                                     value={brushSize}
                                     onChange={(e) => setBrushSize(Number(e.target.value))}
                                     className="cg-vertical-range"
@@ -304,8 +311,8 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                             <div className="cg-slider-popover">
                                 <input
                                     type="range"
-                                    min="5"
-                                    max="50"
+                                    min={BRUSH_SIZE_MIN}
+                                    max={BRUSH_SIZE_MAX}
                                     value={brushSize}
                                     onChange={(e) => setBrushSize(Number(e.target.value))}
                                     className="cg-vertical-range"

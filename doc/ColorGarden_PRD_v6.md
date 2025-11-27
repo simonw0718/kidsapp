@@ -15,8 +15,7 @@ Color Garden 是一個給幼兒使用的「著色本 + 顏色學習」模組。
 ---
 
 # 1. Supported Devices（裝置支援）
-- **iPad（橫向為主體驗，核心設計）**
-- iPad（直向）
+- **iPad（為主體驗，核心設計，直橫都需要優化）**
 - iPhone（直向）
 
 UI 在 iPad 橫向時提供最佳繪畫空間。
