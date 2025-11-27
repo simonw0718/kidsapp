@@ -200,8 +200,40 @@ export const HomePage: React.FC = () => {
           />
         </Link>
 
-        {/* Placeholder for 4th game */}
-        <div style={{ width: "100%", maxWidth: "360px", aspectRatio: "1/1" }}></div>
+        <Link
+          to="/color-garden"
+          style={{
+            display: "block",
+            textDecoration: "none",
+            borderRadius: "20px",
+            overflow: "hidden",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            maxWidth: "360px",
+            margin: "0 auto",
+            width: "100%",
+            aspectRatio: "1/1",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 12px 32px rgba(0, 0, 0, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.15)";
+          }}
+        >
+          <img
+            src="/icons/draw_entry.png"
+            alt="Color Garden"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+        </Link>
       </section>
 
       {shouldShowBanner && (

@@ -5,6 +5,7 @@ import { AbacusPage } from "../pages/AbacusPage";
 import { PictureMatchPage } from "../pages/PictureMatchPage";
 import { AbacusPlayPage } from "../features/abacus"; // ← 從 feature 直接拉玩法頁
 import { AnimalEntry, AnimalGame } from "../features/animal-commands";
+import ColorGardenEntry from "../features/color-garden/ColorGardenEntry";
 import { SettingsPage } from "../pages/SettingsPage";
 
 export const AppRouter: React.FC = () => {
@@ -26,6 +27,9 @@ export const AppRouter: React.FC = () => {
       {/* 動物指令大冒險 */}
       <Route path="/animal-commands" element={<AnimalEntry />} />
       <Route path="/animal-commands/play" element={<AnimalGame />} />
+
+      {/* Color Garden */}
+      <Route path="/color-garden" element={<ColorGardenEntry />} />
 
       {/* 設定頁面 */}
       <Route path="/settings" element={<SettingsPage />} />
