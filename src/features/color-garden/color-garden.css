@@ -623,3 +623,126 @@
     transform: translateY(2px);
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
 }
+
+/* === Save Slots Modal === */
+.cg-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 20px;
+}
+
+.cg-save-slot {
+    background-color: white;
+    border: 4px solid #E0E0E0;
+    border-radius: 20px;
+    aspect-ratio: 4/3;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cg-save-slot:hover {
+    border-color: #2196F3;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.cg-save-slot.empty {
+    background-color: #F5F5F5;
+    border-style: dashed;
+}
+
+.cg-slot-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.cg-slot-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.cg-slot-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.cg-save-slot:hover .cg-slot-actions {
+    opacity: 1;
+}
+
+.cg-slot-empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.cg-slot-empty-text {
+    color: #999;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.cg-slot-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cg-slot-btn:hover {
+    transform: scale(1.05);
+}
+
+.cg-slot-btn:active {
+    transform: scale(0.95);
+}
+
+.cg-slot-btn.save {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.cg-slot-btn.load {
+    background-color: #2196F3;
+    color: white;
+}
+
+.cg-slot-btn.delete {
+    background-color: #f44336;
+    color: white;
+}
+
+.cg-slot-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

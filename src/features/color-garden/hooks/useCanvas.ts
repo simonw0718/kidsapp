@@ -113,6 +113,95 @@ export const useCanvas = ({ color, brushSize, mode }: UseCanvasProps) => {
         setHistory(prev => [...prev, newData]);
     }, []);
 
+    // Resize canvas while preserving content
+    const resizeCanvas = useCallback((width: number, height: number) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Check if dimensions actually changed to avoid unnecessary work
+        const newWidth = Math.floor(width * window.devicePixelRatio);
+        const newHeight = Math.floor(height * window.devicePixelRatio);
+
+        if (canvas.width === newWidth && canvas.height === newHeight) return;
+
+        // Save current content
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        if (!tempCtx) return;
+        tempCtx.drawImage(canvas, 0, 0);
+
+        // Update dimensions
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        if (context) {
+            context.scale(window.devicePixelRatio, window.devicePixelRatio);
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+
+            // Restore content (scaled to fit new dimensions)
+            context.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, width, height);
+
+            // Restore context settings
+            const { color, brushSize, mode } = propsRef.current;
+            context.strokeStyle = color;
+            context.lineWidth = brushSize;
+
+            if (mode === 'eraser') {
+                context.globalCompositeOperation = 'destination-out';
+            } else {
+                context.globalCompositeOperation = 'source-over';
+            }
+
+            contextRef.current = context;
+        }
+    }, []);
+
+    // Get current image data for saving
+    const getImageData = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas || !contextRef.current) return null;
+        return contextRef.current.getImageData(0, 0, canvas.width, canvas.height);
+    }, []);
+
+    // Restore image data for loading
+    const restoreImageData = useCallback((imageData: ImageData) => {
+        const canvas = canvasRef.current;
+        if (!canvas || !contextRef.current) return;
+
+        // Resize canvas if needed to match saved data
+        if (canvas.width !== imageData.width || canvas.height !== imageData.height) {
+            canvas.width = imageData.width;
+            canvas.height = imageData.height;
+            // Re-apply context settings after resize
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            if (context) {
+                context.scale(window.devicePixelRatio, window.devicePixelRatio); // Wait, ImageData is raw pixels, scale might not matter for putImageData but matters for future drawing
+                // Actually, putImageData ignores transformation matrix.
+                // But we need to ensure context is valid for future drawing.
+                context.lineCap = 'round';
+                context.lineJoin = 'round';
+                const { color, brushSize, mode } = propsRef.current;
+                context.strokeStyle = color;
+                context.lineWidth = brushSize;
+                if (mode === 'eraser') {
+                    context.globalCompositeOperation = 'destination-out';
+                } else {
+                    context.globalCompositeOperation = 'source-over';
+                }
+                contextRef.current = context;
+            }
+        }
+
+        contextRef.current.putImageData(imageData, 0, 0);
+
+        // Reset history
+        setHistory([imageData]);
+    }, []);
+
     return {
         canvasRef,
         startDrawing,
@@ -121,6 +210,9 @@ export const useCanvas = ({ color, brushSize, mode }: UseCanvasProps) => {
         clearCanvas,
         undo,
         canUndo: history.length > 1,
-        initializeCanvas
+        initializeCanvas,
+        resizeCanvas,
+        getImageData,
+        restoreImageData
     };
 };
