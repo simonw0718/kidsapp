@@ -1,0 +1,117 @@
+/* Custom Modal Styles */
+.cm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cm-modal {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    animation: cm-modal-appear 0.3s ease-out;
+}
+
+.cm-modal-message {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 40px;
+    line-height: 1.5;
+    white-space: pre-line;
+    /* Handle newlines */
+}
+
+.cm-modal-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.cm-modal-btn {
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 20px 60px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-width: 160px;
+}
+
+.cm-modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.cm-modal-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cm-modal-confirm {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+}
+
+.cm-modal-confirm:hover {
+    background: linear-gradient(135deg, #66BB6A, #4CAF50);
+}
+
+.cm-modal-cancel {
+    background: linear-gradient(135deg, #f44336, #e57373);
+    color: white;
+}
+
+.cm-modal-cancel:hover {
+    background: linear-gradient(135deg, #e57373, #f44336);
+}
+
+@keyframes cm-modal-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .cm-modal {
+        padding: 30px 20px;
+    }
+
+    .cm-modal-message {
+        font-size: 1.4rem;
+        margin-bottom: 30px;
+    }
+
+    .cm-modal-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .cm-modal-btn {
+        font-size: 1.6rem;
+        padding: 18px 40px;
+        width: 100%;
+    }
+}

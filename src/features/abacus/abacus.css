@@ -567,6 +567,33 @@
   }
 }
 
+/* === Responsive: iPad Landscape (Abacus) === */
+@media (min-width: 768px) and (min-height: 501px) and (orientation: landscape) {
+  .abacus-question-panel {
+    flex: 3.5;
+    /* Reduce height to give more space to options */
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .abacus-options-panel {
+    flex: 6.5;
+    /* Increase height */
+    padding: 12px;
+  }
+
+  .abacus-question-text {
+    /* Slightly smaller max size to save space */
+    font-size: clamp(36px, 7vh, 72px);
+  }
+
+  .abacus-question-illustration {
+    max-height: 50%;
+    /* Reduce image height limit */
+  }
+}
+
+
 /* === Responsive: Small Mobile Portrait (iPhone Vertical) === */
 @media (max-width: 480px) and (orientation: portrait) {
   .abacus-play-layout {
@@ -768,341 +795,342 @@
     font-size: 100px;
   }
 }
+
 /* === Mode Selection (Entry Page) === */
 .abacus-entry-title {
-    font-size: clamp(24px, 5vw, 36px);
-    color: #333;
-    margin-bottom: 24px;
-    text-align: center;
+  font-size: clamp(24px, 5vw, 36px);
+  color: #333;
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 .abacus-mode-selection {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    width: 100%;
-    max-width: 600px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 600px;
 }
 
 .abacus-mode-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 24px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 200px;
 }
 
 .abacus-mode-btn:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .abacus-mode-btn:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .abacus-mode-btn--abacus {
-    background: linear-gradient(135deg, #66bb6a, #43a047);
-    box-shadow: 0 8px 20px rgba(67, 160, 71, 0.3);
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  box-shadow: 0 8px 20px rgba(67, 160, 71, 0.3);
 }
 
 .abacus-mode-btn--math {
-    background: linear-gradient(135deg, #42a5f5, #1e88e5);
-    box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3);
+  background: linear-gradient(135deg, #42a5f5, #1e88e5);
+  box-shadow: 0 8px 20px rgba(30, 136, 229, 0.3);
 }
 
 .abacus-mode-icon {
-    font-size: clamp(48px, 10vw, 80px);
-    margin-bottom: 16px;
+  font-size: clamp(48px, 10vw, 80px);
+  margin-bottom: 16px;
 }
 
 .abacus-mode-label {
-    font-size: clamp(20px, 4vw, 28px);
-    font-weight: bold;
-    color: white;
-    margin-bottom: 8px;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: bold;
+  color: white;
+  margin-bottom: 8px;
 }
 
 .abacus-mode-sublabel {
-    font-size: clamp(14px, 3vw, 18px);
-    color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(14px, 3vw, 18px);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Mode Switch Button (in game header) */
 .abacus-mode-switch-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 2px solid #666;
-    background-color: transparent;
-    color: #666;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-    white-space: nowrap;
-    transition: all 0.2s;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid #666;
+  background-color: transparent;
+  color: #666;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s;
 }
 
 .abacus-mode-switch-btn:hover {
-    background-color: #f5f5f5;
-    border-color: #333;
-    color: #333;
+  background-color: #f5f5f5;
+  border-color: #333;
+  color: #333;
 }
 
 /* === Pure Math Mode Layout === */
 .pure-math-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    padding: 24px;
-    box-sizing: border-box;
-    gap: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  gap: 32px;
 }
 
 .pure-math-question-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  flex: 0 0 auto;
 }
 
 .pure-math-avatar {
-    max-width: 200px;
-    max-height: 200px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
+  max-width: 200px;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .pure-math-expression {
-    font-size: clamp(48px, 10vw, 96px);
-    font-weight: 800;
-    color: #000;
-    text-align: center;
-    line-height: 1.2;
+  font-size: clamp(48px, 10vw, 96px);
+  font-weight: 800;
+  color: #000;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .pure-math-options-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    max-width: 600px;
-    flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  flex: 0 0 auto;
 }
 
 .pure-math-answer-label {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0.5em;
-    font-size: clamp(24px, 5vw, 36px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.5em;
+  font-size: clamp(24px, 5vw, 36px);
 }
 
 .pure-math-options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
 }
 
 .pure-math-option-btn {
-    padding: 24px;
-    border-radius: 16px;
-    border: 2px solid #ccc;
-    font-size: clamp(32px, 6vw, 56px);
-    font-weight: 700;
-    background: #fff;
-    color: #000;
-    cursor: pointer;
-    transition: all 0.2s;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  padding: 24px;
+  border-radius: 16px;
+  border: 2px solid #ccc;
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 700;
+  background: #fff;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pure-math-option-btn:hover {
-    background: #f5f5f5;
-    transform: scale(1.02);
+  background: #f5f5f5;
+  transform: scale(1.02);
 }
 
 .pure-math-option-btn:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .pure-math-option-btn--correct {
-    background: #c8e6c9;
-    border-color: #66bb6a;
+  background: #c8e6c9;
+  border-color: #66bb6a;
 }
 
 .pure-math-option-btn--incorrect {
-    background: #ffcdd2;
-    border-color: #ef5350;
+  background: #ffcdd2;
+  border-color: #ef5350;
 }
 
 .pure-math-option-btn--disabled,
 .pure-math-option-btn:disabled {
-    background: #f5f5f5;
-    color: #999;
-    border-color: #ddd;
-    cursor: default;
-    pointer-events: none;
-    opacity: 0.7;
+  background: #f5f5f5;
+  color: #999;
+  border-color: #ddd;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .pure-math-next-button-slot {
-    min-height: 60px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  min-height: 60px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pure-math-next-button {
-    width: 100%;
-    max-width: 400px;
-    padding: 16px 32px;
-    border-radius: 999px;
-    border: none;
-    font-size: clamp(18px, 4vw, 24px);
-    background: #42a5f5;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(66, 165, 245, 0.3);
-    transition: transform 0.1s;
+  width: 100%;
+  max-width: 400px;
+  padding: 16px 32px;
+  border-radius: 999px;
+  border: none;
+  font-size: clamp(18px, 4vw, 24px);
+  background: #42a5f5;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(66, 165, 245, 0.3);
+  transition: transform 0.1s;
 }
 
 .pure-math-next-button:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .pure-math-next-button-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-    line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  line-height: 1;
 }
 
 .pure-math-next-button-inner .bpm-main-char {
-    font-size: 1.3em;
+  font-size: 1.3em;
 }
 
 .pure-math-next-arrow {
-    font-size: 1.2em;
-    margin-left: 4px;
+  font-size: 1.2em;
+  margin-left: 4px;
 }
 
 /* === Responsive: iPhone Portrait (Pure Math) === */
 @media (max-width: 480px) and (orientation: portrait) {
-    .pure-math-container {
-        padding: 16px;
-        gap: 24px;
-    }
+  .pure-math-container {
+    padding: 16px;
+    gap: 24px;
+  }
 
-    .pure-math-avatar {
-        max-width: 120px;
-        max-height: 120px;
-    }
+  .pure-math-avatar {
+    max-width: 120px;
+    max-height: 120px;
+  }
 
-    .pure-math-expression {
-        font-size: clamp(36px, 12vw, 64px);
-    }
+  .pure-math-expression {
+    font-size: clamp(36px, 12vw, 64px);
+  }
 
-    .pure-math-options-grid {
-        gap: 12px;
-    }
+  .pure-math-options-grid {
+    gap: 12px;
+  }
 
-    .pure-math-option-btn {
-        padding: 16px;
-        font-size: clamp(28px, 8vw, 48px);
-        min-height: 60px;
-    }
+  .pure-math-option-btn {
+    padding: 16px;
+    font-size: clamp(28px, 8vw, 48px);
+    min-height: 60px;
+  }
 
-    .abacus-mode-selection {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
+  .abacus-mode-selection {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 
-    .abacus-mode-btn {
-        min-height: 160px;
-        padding: 24px 16px;
-    }
+  .abacus-mode-btn {
+    min-height: 160px;
+    padding: 24px 16px;
+  }
 }
 
 /* === Responsive: iPad Portrait (Pure Math) === */
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-    .pure-math-container {
-        padding: 32px;
-        gap: 40px;
-    }
+  .pure-math-container {
+    padding: 32px;
+    gap: 40px;
+  }
 
-    .pure-math-avatar {
-        max-width: 250px;
-        max-height: 250px;
-    }
+  .pure-math-avatar {
+    max-width: 250px;
+    max-height: 250px;
+  }
 
-    .pure-math-expression {
-        font-size: clamp(64px, 10vw, 120px);
-    }
+  .pure-math-expression {
+    font-size: clamp(64px, 10vw, 120px);
+  }
 
-    .pure-math-options-grid {
-        gap: 20px;
-        max-width: 700px;
-    }
+  .pure-math-options-grid {
+    gap: 20px;
+    max-width: 700px;
+  }
 
-    .pure-math-option-btn {
-        padding: 32px;
-        font-size: clamp(48px, 7vw, 72px);
-        min-height: 100px;
-    }
+  .pure-math-option-btn {
+    padding: 32px;
+    font-size: clamp(48px, 7vw, 72px);
+    min-height: 100px;
+  }
 }
 
 /* === Responsive: iPad Landscape (Pure Math) === */
 @media (min-width: 768px) and (orientation: landscape) {
-    .pure-math-container {
-        flex-direction: row;
-        justify-content: space-around;
-        padding: 24px 48px;
-        gap: 48px;
-    }
+  .pure-math-container {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 24px 48px;
+    gap: 48px;
+  }
 
-    .pure-math-question-section {
-        flex: 1;
-        justify-content: center;
-    }
+  .pure-math-question-section {
+    flex: 1;
+    justify-content: center;
+  }
 
-    .pure-math-avatar {
-        max-width: 280px;
-        max-height: 280px;
-    }
+  .pure-math-avatar {
+    max-width: 280px;
+    max-height: 280px;
+  }
 
-    .pure-math-expression {
-        font-size: clamp(56px, 8vw, 100px);
-    }
+  .pure-math-expression {
+    font-size: clamp(56px, 8vw, 100px);
+  }
 
-    .pure-math-options-section {
-        flex: 1;
-        justify-content: center;
-        max-width: 500px;
-    }
+  .pure-math-options-section {
+    flex: 1;
+    justify-content: center;
+    max-width: 500px;
+  }
 
-    .pure-math-options-grid {
-        gap: 20px;
-    }
+  .pure-math-options-grid {
+    gap: 20px;
+  }
 
-    .pure-math-option-btn {
-        padding: 28px;
-        font-size: clamp(40px, 6vw, 64px);
-        min-height: 90px;
-    }
+  .pure-math-option-btn {
+    padding: 28px;
+    font-size: clamp(40px, 6vw, 64px);
+    min-height: 90px;
+  }
 }

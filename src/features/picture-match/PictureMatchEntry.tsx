@@ -2,6 +2,7 @@ import React from 'react';
 import { PageContainer } from '../../components/common/PageContainer';
 import { BackToHomeButton } from '../../components/common/BackToHomeButton';
 import { weightManager } from '../../core/learning/weightManager';
+import { useModal } from '../../components/common/CustomModal';
 import './picture-match.css';
 
 interface PictureMatchEntryProps {
@@ -9,11 +10,13 @@ interface PictureMatchEntryProps {
 }
 
 export const PictureMatchEntry: React.FC<PictureMatchEntryProps> = ({ onSelectMode }) => {
+    const { showConfirm, showAlert, CustomModalComponent } = useModal();
+
     const handleResetProgress = () => {
-        if (window.confirm('確定要重置學習進度嗎？這將清除所有題目的練習記錄。')) {
+        showConfirm('確定要重置學習進度嗎？這將清除所有題目的練習記錄。', () => {
             weightManager.resetWeights();
-            alert('學習進度已重置！');
-        }
+            showAlert('學習進度已重置！');
+        });
     };
 
     return (
@@ -64,6 +67,7 @@ export const PictureMatchEntry: React.FC<PictureMatchEntryProps> = ({ onSelectMo
                     🔄 重置學習進度
                 </button>
             </div>
-        </PageContainer>
+            {CustomModalComponent}
+        </PageContainer >
     );
 };

@@ -5,6 +5,7 @@ import { ColoringCanvas, type ColoringCanvasHandle } from './components/Coloring
 import { ImageSelector } from './components/ImageSelector';
 import { COLORING_IMAGES } from './config/images';
 import { SaveSlotsModal } from './components/SaveSlotsModal';
+import { useModal } from '../../components/common/CustomModal';
 import type { SaveSlot } from './utils/storage';
 import './color-garden.css';
 
@@ -66,12 +67,14 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     // Save Preview State
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+    const { showConfirm, CustomModalComponent } = useModal();
+
     const canvasRef = useRef<ColoringCanvasHandle>(null);
 
     const handleClear = () => {
-        if (window.confirm('Clear drawing?')) {
+        showConfirm('Clear all drawing?', () => {
             canvasRef.current?.clear();
-        }
+        });
     };
 
     const handleUndo = () => {
@@ -117,10 +120,12 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     };
 
     const handleSaveImage = async () => {
-        // Show confirmation dialog
-        if (!window.confirm('Do you want to save image?')) {
-            return;
-        }
+        showConfirm('Save your artwork?', () => {
+            performSaveImage();
+        });
+    };
+
+    const performSaveImage = async () => {
 
         const canvas = canvasRef.current?.canvasRef.current;
         if (!canvas) return;
@@ -498,6 +503,7 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                 />
             )}
 
+
             {/* Save Preview Modal */}
             {previewImage && (
                 <div className="cg-modal-overlay" style={{ zIndex: 2000 }}>
@@ -562,6 +568,10 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                     </div>
                 </div>
             )}
+
+            {/* Confirmation Modal */}
+            {CustomModalComponent}
         </PageContainer>
     );
 };
+

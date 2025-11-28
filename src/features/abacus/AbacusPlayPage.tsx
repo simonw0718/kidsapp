@@ -13,6 +13,7 @@ import { AbacusBoard } from "./components/AbacusBoard";
 import { PureMathLayout } from "./components/PureMathLayout";
 import { avatarPairs } from "./utils/avatarAssets";
 import { BpmWord } from "../../components/common/BpmWord";
+import { useModal } from "../../components/common/CustomModal";
 
 type DifficultyLevel = 1 | 2 | 3;
 
@@ -28,6 +29,7 @@ export const AbacusPlayPage: React.FC = () => {
   const mode = searchParams.get('mode') || 'abacus'; // 'abacus' or 'math'
 
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
+  const { showAlert, CustomModalComponent } = useModal();
 
   // operator 陣列用 useMemo 固定參考，不會每次 render 都重新 new 陣列
   const plusOnly: Operator[] = useMemo(() => ["+"], []);
@@ -113,7 +115,7 @@ export const AbacusPlayPage: React.FC = () => {
 
     // (handled by useEffect)
 
-    window.alert(difficultyDescriptions[level]);
+    showAlert(difficultyDescriptions[level]);
   };
 
   // 根據 avatarIndex & 狀態選圖
@@ -281,6 +283,7 @@ export const AbacusPlayPage: React.FC = () => {
           </div>
         </div>
       )}
+      {CustomModalComponent}
     </PageContainer>
   );
 };

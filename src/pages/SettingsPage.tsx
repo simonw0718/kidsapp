@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer } from '../components/common/PageContainer';
 import { BackToHomeButton } from '../components/common/BackToHomeButton';
+import { useModal } from '../components/common/CustomModal';
 import { VOCAB_LIST } from '../features/picture-match/data/vocab';
 import { avatarPairs } from '../features/abacus/utils/avatarAssets';
 import './settings.css';
@@ -37,6 +38,7 @@ export const SettingsPage: React.FC = () => {
     const [total, setTotal] = useState(0);
     const [cachedCount, setCachedCount] = useState<number>(0);
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const { showConfirm, showAlert, CustomModalComponent } = useModal();
 
     // Check cache status on mount
     useEffect(() => {
@@ -108,91 +110,87 @@ export const SettingsPage: React.FC = () => {
 
     const handleDownload = async () => {
         if (!window.isSecureContext) {
-            alert('離線功能需要 HTTPS 或 localhost 環境 (Secure Context)。\n如果您正在使用區域網路 IP (如 192.168.x.x) 測試，請改用 localhost 或設定 HTTPS。');
+            showAlert('離線功能需要 HTTPS 或 localhost 環境 (Secure Context)。\n如果您正在使用區域網路 IP (如 192.168.x.x) 測試，請改用 localhost 或設定 HTTPS。');
             return;
         }
 
         if (!('caches' in window)) {
-            alert('您的瀏覽器不支援離線功能 (Cache API not available)');
+            showAlert('您的瀏覽器不支援離線功能 (Cache API not available)');
             return;
         }
 
         const urls = collectAllAssets();
         const estimatedSize = calculateEstimatedSize(urls);
 
-        if (!confirm(`預計將下載約 ${estimatedSize} MB 的資料。確定要繼續嗎？`)) {
-            return;
-        }
+        showConfirm(`預計將下載約 ${estimatedSize} MB 的資料。確定要繼續嗎？`, async () => {
+            setStatus('downloading');
+            setProgress(0);
+            setErrorMsg('');
 
-        setStatus('downloading');
-        setProgress(0);
-        setErrorMsg('');
+            try {
+                setTotal(urls.length);
 
-        try {
-            setTotal(urls.length);
+                const cache = await caches.open(CACHE_NAME);
 
-            const cache = await caches.open(CACHE_NAME);
+                // Download one by one to track progress
+                let completed = 0;
+                const batchSize = 5; // Parallel requests
 
-            // Download one by one to track progress
-            let completed = 0;
-            const batchSize = 5; // Parallel requests
+                for (let i = 0; i < urls.length; i += batchSize) {
+                    const batch = urls.slice(i, i + batchSize);
+                    await Promise.all(batch.map(async (url) => {
+                        try {
+                            // Manual Fetch -> Clean -> Put (to avoid redirected response error)
+                            const response = await fetch(url);
+                            if (!response.ok) throw new Error(`Failed to fetch ${url}`);
 
-            for (let i = 0; i < urls.length; i += batchSize) {
-                const batch = urls.slice(i, i + batchSize);
-                await Promise.all(batch.map(async (url) => {
-                    try {
-                        // Manual Fetch -> Clean -> Put (to avoid redirected response error)
-                        const response = await fetch(url);
-                        if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+                            const clean = await cleanResponse(response);
+                            await cache.put(url, clean);
+                        } catch (e) {
+                            console.warn(`Failed to cache ${url}`, e);
+                            // Don't fail the whole process, just log
+                        } finally {
+                            completed++;
+                            setProgress(completed);
+                        }
+                    }));
+                }
 
-                        const clean = await cleanResponse(response);
-                        await cache.put(url, clean);
-                    } catch (e) {
-                        console.warn(`Failed to cache ${url}`, e);
-                        // Don't fail the whole process, just log
-                    } finally {
-                        completed++;
-                        setProgress(completed);
-                    }
-                }));
+                setStatus('done');
+                checkCacheStatus();
+            } catch (e) {
+                console.error(e);
+                setStatus('error');
+                setErrorMsg('下載過程中發生錯誤，請重試');
             }
-
-            setStatus('done');
-            checkCacheStatus();
-        } catch (e) {
-            console.error(e);
-            setStatus('error');
-            setErrorMsg('下載過程中發生錯誤，請重試');
-        }
+        });
     };
 
-    const handleClearCache = async () => {
-        if (!confirm('確定要清除所有離線暫存嗎？下次使用將需要重新下載。')) return;
-
-        try {
-            await caches.delete(CACHE_NAME);
-            setCachedCount(0);
-            alert('暫存已清除');
-            // Re-open empty cache to ensure the object exists if needed
-            // await caches.open(CACHE_NAME); 
-        } catch (e) {
-            console.error(e);
-            alert('清除失敗');
-        }
+    const handleClearCache = () => {
+        showConfirm('確定要清除所有離線暫存嗎？下次使用將需要重新下載。', async () => {
+            try {
+                await caches.delete(CACHE_NAME);
+                setCachedCount(0);
+                showAlert('暫存已清除');
+            } catch (e) {
+                console.error(e);
+                showAlert('清除失敗');
+            }
+        });
     };
 
-    const handleForceUpdate = async () => {
-        if (!confirm('這將強制重新整理並更新應用程式。確定要繼續嗎？')) return;
-
-        if ('serviceWorker' in navigator) {
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            for (const registration of registrations) {
-                await registration.unregister();
+    const handleForceUpdate = () => {
+        showConfirm('這將強制重新整理並更新應用程式。確定要繼續嗎？', async () => {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+                window.location.reload();
+            } else {
+                window.location.reload();
             }
-            window.location.reload();
-        } else {
-            window.location.reload();
-        }
+        });
     };
 
     return (
@@ -286,6 +284,7 @@ export const SettingsPage: React.FC = () => {
                     </button>
                 </div>
             </div>
+            {CustomModalComponent}
         </PageContainer>
     );
 };

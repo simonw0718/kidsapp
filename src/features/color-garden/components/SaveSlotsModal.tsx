@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getAllSlots, deleteSlot, type SaveSlot } from '../utils/storage';
+import { useModal } from '../../../components/common/CustomModal';
 
 interface SaveSlotsModalProps {
     onClose: () => void;
@@ -10,6 +11,7 @@ interface SaveSlotsModalProps {
 export const SaveSlotsModal: React.FC<SaveSlotsModalProps> = ({ onClose, onSave, onLoad }) => {
     const [slots, setSlots] = useState<SaveSlot[]>([]);
     const [loading, setLoading] = useState(false);
+    const { showConfirm, showAlert, CustomModalComponent } = useModal();
 
     const loadSlots = async () => {
         try {
@@ -27,7 +29,7 @@ export const SaveSlotsModal: React.FC<SaveSlotsModalProps> = ({ onClose, onSave,
     const handleSaveClick = async (e: React.MouseEvent, slotId: number) => {
         e.stopPropagation();
         console.log('handleSaveClick called for slot', slotId);
-        if (window.confirm('Save current work to this slot?')) {
+        showConfirm('Save current work to this slot?', async () => {
             console.log('User confirmed save');
             setLoading(true);
             try {
@@ -38,38 +40,36 @@ export const SaveSlotsModal: React.FC<SaveSlotsModalProps> = ({ onClose, onSave,
                 console.log('Slots refreshed');
             } catch (error) {
                 console.error('Failed to save slot:', error);
-                alert('Failed to save. Please try again.');
+                showAlert('Failed to save. Please try again.');
             } finally {
                 setLoading(false);
             }
-        } else {
-            console.log('User cancelled save');
-        }
+        });
     };
 
 
     const handleLoadClick = (e: React.MouseEvent, slot: SaveSlot) => {
         e.stopPropagation();
-        if (window.confirm('Load this save? Current work will be lost.')) {
+        showConfirm('Load this save? Current work will be lost.', () => {
             onLoad(slot);
             onClose();
-        }
+        });
     };
 
     const handleDeleteClick = async (e: React.MouseEvent, slotId: number) => {
         e.stopPropagation();
-        if (window.confirm('Delete this saved work?')) {
+        showConfirm('Delete this saved work?', async () => {
             setLoading(true);
             try {
                 await deleteSlot(slotId);
                 await loadSlots(); // Refresh slots after delete
             } catch (error) {
                 console.error('Failed to delete slot:', error);
-                alert('Failed to delete. Please try again.');
+                showAlert('Failed to delete. Please try again.');
             } finally {
                 setLoading(false);
             }
-        }
+        });
     };
 
     const renderSlot = (id: number) => {
@@ -143,6 +143,7 @@ export const SaveSlotsModal: React.FC<SaveSlotsModalProps> = ({ onClose, onSave,
                     {renderSlot(2)}
                 </div>
             </div>
+            {CustomModalComponent}
         </div>
     );
 };
