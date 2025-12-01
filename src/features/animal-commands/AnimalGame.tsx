@@ -119,7 +119,7 @@ export const AnimalGame: React.FC = () => {
             }
             scrollable={false}
         >
-            <div className="ac-game-container">
+            <div className={`ac-game-container ${isWon && adventureType && currentDifficulty === 'Hard' ? 'ac-hidden' : ''}`}>
                 <div className="ac-game-layout">
                     {/* Left: Grid Map */}
                     <div className="ac-map-section">
@@ -175,18 +175,34 @@ export const AnimalGame: React.FC = () => {
                 {/* Win Modal */}
                 {isWon && (
                     <div className="ac-win-modal">
-                        <div className="ac-win-content">
-                            <h2>🎉 過關了！</h2>
-                            <p>太棒了！你成功幫助{character === 'rabbit' ? '小兔子' : '小恐龍'}吃到食物了！</p>
-                            <div className="ac-win-actions">
-                                <button className="ac-btn-primary" onClick={handleNextLevel}>
-                                    {adventureType && currentDifficulty === 'Hard' ? '完成挑戰' : '下一關'}
-                                </button>
-                                <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
-                                    回首頁
-                                </button>
+                        {/* Show celebration image for completing adventure mode (Hard difficulty) */}
+                        {adventureType && currentDifficulty === 'Hard' ? (
+                            <div className="ac-celebration-content">
+                                <img
+                                    src={`/images/animals-game/celebration_${character}.jpg`}
+                                    alt="Celebration"
+                                    className="ac-celebration-img"
+                                />
+                                <div className="ac-celebration-actions">
+                                    <button className="ac-btn-primary" onClick={() => navigate('/animal-commands')}>
+                                        回首頁
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="ac-win-content">
+                                <h2>🎉 過關了！</h2>
+                                <p>太棒了！你成功幫助{character === 'rabbit' ? '小兔子' : '小恐龍'}吃到食物了！</p>
+                                <div className="ac-win-actions">
+                                    <button className="ac-btn-primary" onClick={handleNextLevel}>
+                                        {adventureType && currentDifficulty === 'Hard' ? '完成挑戰' : '下一關'}
+                                    </button>
+                                    <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
+                                        回首頁
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
