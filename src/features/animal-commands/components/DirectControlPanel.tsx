@@ -1,9 +1,10 @@
 import React from 'react';
+import type { CommandType } from '../data/levels';
 import './direct-control-panel.css';
 
 interface DirectControlPanelProps {
-    allowedCommands: string[];
-    onCommand: (cmd: string) => void;
+    allowedCommands: CommandType[];
+    onCommand: (cmd: CommandType) => void;
     disabled: boolean;
 }
 

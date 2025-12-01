@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PageContainer } from '../../components/common/PageContainer';
 import { BackToHomeButton } from '../../components/common/BackToHomeButton';
-import { useAnimalGame, type CommandType } from './hooks/useAnimalGame';
+import { useAnimalGame } from './hooks/useAnimalGame';
 import { GridMap } from './components/GridMap';
 import { DirectControlPanel } from './components/DirectControlPanel';
 import { CommandPalette } from './components/CommandPalette';
 import { CommandSequence } from './components/CommandSequence';
 import { ControlPanel } from './components/ControlPanel';
+import type { Difficulty } from './data/levelTemplates';
 import './animal-commands.css';
 
 import { useGameLock } from '../../core/hooks/useGameLock';
@@ -18,16 +19,39 @@ export const AnimalGame: React.FC = () => {
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const initialMode = Number(searchParams.get('mode') || 1) as 1 | 2 | 3 | 4;
+
+    // Parse params
+    const initialMode = Number(searchParams.get('mode') || 1) as 1 | 2 | 3;
+    const initialDifficulty = (searchParams.get('difficulty') as Difficulty) || 'Easy';
+    const adventureType = searchParams.get('adventureType') as 'daily' | 'normal' | null;
     const character = (searchParams.get('character') as 'rabbit' | 'dino') || 'rabbit';
 
+    // State for Adventure progression
+    const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(initialDifficulty);
+
+    // Generate seed for Adventure
+    const getSeed = () => {
+        if (adventureType === 'daily') {
+            const date = new Date();
+            return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${currentDifficulty}`;
+        } else if (adventureType === 'normal') {
+            return `${Math.random()}`; // Random seed for normal adventure
+        }
+        return undefined; // Free play (random)
+    };
+
+    const [seed, setSeed] = useState(getSeed());
+
+    // Update seed when difficulty changes in Adventure
+    useEffect(() => {
+        if (adventureType) {
+            setSeed(getSeed());
+        }
+    }, [currentDifficulty, adventureType]);
+
     const {
-        modeConfig,
         currentLevel,
         commands,
-        addCommand,
-        removeCommand,
-        clearCommands,
         isPlaying,
         isWon,
         isLost,
@@ -36,139 +60,150 @@ export const AnimalGame: React.FC = () => {
         playerPos,
         playerDir,
         currentCommandIndex,
-        startGame,
-        stopGame,
+        addCommand,
+        removeCommand,
+        executeDirectCommand,
         resetLevel,
         nextLevel,
-        executeDirectCommand
-    } = useAnimalGame(initialMode);
+        startGame,
+        stopGame
+    } = useAnimalGame(initialMode, currentDifficulty, seed);
 
-    // Handle Win/Loss effects
-    useEffect(() => {
-        if (isWon) {
-            const audio = new Audio('/sounds/correct_sound.mp3');
-            audio.play().catch(() => { });
+    const handleNextLevel = () => {
+        if (adventureType) {
+            // Adventure Progression
+            if (currentDifficulty === 'Easy') {
+                setCurrentDifficulty('Medium');
+            } else if (currentDifficulty === 'Medium') {
+                setCurrentDifficulty('Hard');
+            } else {
+                // Finished Hard -> Back to Menu
+                navigate('/animal-commands');
+            }
+        } else {
+            // Free Play -> Just next random level
+            nextLevel();
         }
-    }, [isWon, nextLevel]);
+    };
 
-    useEffect(() => {
-        if (isLost) {
-            const audio = new Audio('/sounds/failure_sound.mp3');
-            audio.play().catch(() => { });
+    // Calculate progress for adventure modes
+    const getProgressText = () => {
+        if (!adventureType) return '';
+
+        const levelNumber = currentDifficulty === 'Easy' ? 1 : currentDifficulty === 'Medium' ? 2 : 3;
+        const modeText = adventureType === 'daily' ? '每日挑戰' : '隨機闖關';
+        return `${modeText} - 第 ${levelNumber} 關 / 3 (${currentDifficulty})`;
+    };
+
+    const getTitle = () => {
+        if (adventureType) {
+            return `動物指令大冒險 - ${getProgressText()}`;
         }
-    }, [isLost]);
-
-    const handleReset = () => {
-        clearCommands();
-        resetLevel();
+        return `動物指令大冒險 - 自由模式 (${currentDifficulty})`;
     };
 
     return (
         <PageContainer
-            title="動物指令大冒險"
+            title={getTitle()}
             headerRight={
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {/* Mode Switcher Button */}
                     <button
-                        onClick={nextLevel}
-                        title="換一張地圖"
-                        style={{
-                            padding: '8px',
-                            borderRadius: '50%',
-                            border: '2px solid #4dd0e1',
-                            background: 'white',
-                            fontSize: '18px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            color: '#0097a7',
-                            width: '40px',
-                            height: '40px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                    >
-                        🔄
-                    </button>
-                    <button
+                        className="ac-mode-switcher-btn"
                         onClick={() => navigate('/animal-commands')}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: '2px solid #4dd0e1',
-                            background: 'white',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            color: '#0097a7'
-                        }}
                     >
                         切換模式
                     </button>
                     <BackToHomeButton />
                 </div>
             }
+            scrollable={false}
         >
-            <div className="ac-game-layout">
-                <div className="ac-left-panel">
-                    <GridMap
-                        gridSize={currentLevel.gridSize}
-                        playerPos={playerPos}
-                        playerDir={playerDir}
-                        goal={currentLevel.goal}
-                        obstacles={currentLevel.obstacles}
-                        lakes={currentLevel.lakes}
-                        isWon={isWon}
-                        isLost={isLost}
-                        isJumping={isJumping}
-                        isCollision={isCollision}
-                        character={character}
-                    />
-                </div>
-
-                <div className={`ac-right-panel ${modeConfig.isDirect ? 'ac-mode-direct' : 'ac-mode-sequence'}`}>
-                    {isWon ? (
-                        <div className="ac-win-menu">
-                            <button className="ac-win-btn ac-win-btn-next" onClick={nextLevel}>
-                                NEXT ➡️
-                            </button>
-                            <button className="ac-win-btn ac-win-btn-mode" onClick={() => navigate('/animal-commands')}>
-                                CHANGE MODE 🔄
-                            </button>
-                        </div>
-                    ) : modeConfig.isDirect ? (
-                        /* Mode 1-2: Direct Control */
-                        <DirectControlPanel
-                            allowedCommands={modeConfig.allowedCommands}
-                            onCommand={(cmd) => executeDirectCommand(cmd as CommandType)}
-                            disabled={isWon || isLost}
+            <div className="ac-game-container">
+                <div className="ac-game-layout">
+                    {/* Left: Grid Map */}
+                    <div className="ac-map-section">
+                        <GridMap
+                            gridSize={currentLevel.gridSize}
+                            playerPos={playerPos}
+                            playerDir={playerDir}
+                            goal={currentLevel.goal}
+                            obstacles={currentLevel.obstacles}
+                            lakes={currentLevel.lakes || []}
+                            character={character}
+                            isWon={isWon}
+                            isLost={isLost}
+                            isJumping={isJumping}
+                            isCollision={isCollision}
                         />
-                    ) : (
-                        /* Mode 3-4: Pre-programmed Commands */
-                        <div className="ac-command-section">
-                            <CommandPalette
-                                allowedCommands={modeConfig.allowedCommands}
-                                onAddCommand={addCommand}
-                                disabled={isPlaying || isWon}
+                    </div>
+
+                    {/* Right: Controls */}
+                    <div className="ac-control-section">
+                        {currentLevel.mode === 1 ? (
+                            <DirectControlPanel
+                                onCommand={executeDirectCommand}
+                                allowedCommands={currentLevel.allowedCommands}
+                                disabled={isPlaying}
                             />
-                            <div className="ac-sequence-wrapper">
+                        ) : (
+                            <>
+                                <CommandPalette
+                                    allowedCommands={currentLevel.allowedCommands}
+                                    onAddCommand={addCommand}
+                                    disabled={isPlaying || isWon}
+                                />
                                 <CommandSequence
                                     commands={commands}
-                                    maxCommands={currentLevel.maxCommands || 10}
+                                    maxCommands={currentLevel.maxCommands || 0}
                                     currentIndex={currentCommandIndex}
                                     onRemoveCommand={removeCommand}
-                                    disabled={isPlaying || isWon}
+                                    disabled={isPlaying}
                                 />
                                 <ControlPanel
                                     isPlaying={isPlaying}
                                     onStart={startGame}
                                     onStop={stopGame}
-                                    onReset={handleReset}
+                                    onReset={resetLevel}
                                     disabled={commands.length === 0 || isWon}
                                 />
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {/* Win Modal */}
+                {isWon && (
+                    <div className="ac-win-modal">
+                        <div className="ac-win-content">
+                            <h2>🎉 過關了！</h2>
+                            <p>太棒了！你成功幫助{character === 'rabbit' ? '小兔子' : '小恐龍'}吃到食物了！</p>
+                            <div className="ac-win-actions">
+                                <button className="ac-btn-primary" onClick={handleNextLevel}>
+                                    {adventureType && currentDifficulty === 'Hard' ? '完成挑戰' : '下一關'}
+                                </button>
+                                <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
+                                    回首頁
+                                </button>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {/* Lost Modal */}
+                {isLost && (
+                    <div className="ac-win-modal">
+                        <div className="ac-win-content">
+                            <h2>😢 失敗了</h2>
+                            <p>哎呀！撞到了！再試一次吧！</p>
+                            <div className="ac-win-actions">
+                                <button className="ac-btn-primary" onClick={resetLevel}>
+                                    重試
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </PageContainer>
     );

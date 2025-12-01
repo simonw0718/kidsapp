@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { type GameMode, type Direction, type Position, getModeConfig, getRandomLevel } from '../data/levels';
+import { generateLevel, getModeConfig, type GameMode, type Position, type Direction, type CommandType } from '../data/levels';
+import type { Difficulty } from '../data/levelTemplates';
 import { commandRegistry } from '../commands/CommandRegistry';
 import { forwardCommand } from '../commands/forward';
 import { turnLeftCommand } from '../commands/turnLeft';
@@ -19,21 +20,52 @@ const turnAudio = new Audio('/audio/walk_turn.mp3');
 const winAudio = new Audio('/audio/animal_game_win.mp3');
 const hitAudio = new Audio('/audio/hit_sound.mp3');
 
-// Helper function to play audio for specified duration
-const playAudioForDuration = (audio: HTMLAudioElement, duration: number) => {
-    audio.currentTime = 0;
-    audio.play().catch(e => console.warn('Audio play failed:', e));
-    setTimeout(() => {
-        audio.pause();
-        audio.currentTime = 0;
-    }, duration);
+// Track active audio instances for cleanup
+const activeAudioInstances: HTMLAudioElement[] = [];
+
+// Helper function to play audio with duration limit
+const playAudio = (audio: HTMLAudioElement, maxDuration: number = 1000) => {
+    const sound = audio.cloneNode() as HTMLAudioElement;
+    sound.volume = 1.0;
+
+    // Track this instance
+    activeAudioInstances.push(sound);
+
+    // Play the sound
+    sound.play().catch(e => console.warn('Audio play failed:', e));
+
+    // Stop after max duration and cleanup
+    const timeoutId = setTimeout(() => {
+        sound.pause();
+        sound.currentTime = 0;
+        const index = activeAudioInstances.indexOf(sound);
+        if (index > -1) {
+            activeAudioInstances.splice(index, 1);
+        }
+    }, maxDuration);
+
+    // Also cleanup when sound ends naturally
+    sound.addEventListener('ended', () => {
+        clearTimeout(timeoutId);
+        const index = activeAudioInstances.indexOf(sound);
+        if (index > -1) {
+            activeAudioInstances.splice(index, 1);
+        }
+    });
 };
 
-export type CommandType = 'forward' | 'left' | 'right' | 'jump';
+// Helper to stop all active audio
+const stopAllAudio = () => {
+    activeAudioInstances.forEach(sound => {
+        sound.pause();
+        sound.currentTime = 0;
+    });
+    activeAudioInstances.length = 0;
+};
 
-export const useAnimalGame = (initialMode: GameMode = 1) => {
+export const useAnimalGame = (initialMode: GameMode = 1, difficulty: Difficulty = 'Easy', seed?: string) => {
     const [gameMode, setGameMode] = useState<GameMode>(initialMode);
-    const [currentLevel, setCurrentLevel] = useState(() => getRandomLevel(gameMode));
+    const [currentLevel, setCurrentLevel] = useState(() => generateLevel(gameMode, difficulty, seed));
     const [commands, setCommands] = useState<CommandType[]>([]);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isWon, setIsWon] = useState(false);
@@ -52,9 +84,9 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const initialPosRef = useRef<Position & { dir: Direction }>(currentLevel.start);
 
-    // Initialize level when mode changes
+    // Initialize level when mode or difficulty changes
     useEffect(() => {
-        const newLevel = getRandomLevel(gameMode);
+        const newLevel = generateLevel(gameMode, difficulty, seed);
         setCurrentLevel(newLevel);
         setPlayerPos({ x: newLevel.start.x, y: newLevel.start.y });
         setPlayerDir(newLevel.start.dir);
@@ -65,10 +97,11 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setIsJumping(false);
         setIsCollision(false);
         setCurrentCommandIndex(-1);
-    }, [gameMode]);
+    }, [gameMode, difficulty, seed]);
 
     const resetLevel = useCallback(() => {
         if (timerRef.current) clearTimeout(timerRef.current);
+        stopAllAudio();
         setIsPlaying(false);
         setIsWon(false);
         setIsLost(false);
@@ -81,7 +114,13 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
     }, []);
 
     const nextLevel = () => {
-        const newLevel = getRandomLevel(gameMode);
+        stopAllAudio();
+        // For Adventure, the seed should change or be handled by parent
+        // For Free Play, we generate a new random level (no seed)
+        // Note: If seed is provided (Adventure), nextLevel logic needs to be handled by parent changing the seed/difficulty
+        // But for simple "Play Again" in Free Play, we want a new random level.
+
+        const newLevel = generateLevel(gameMode, difficulty, undefined); // Always random for next level in Free Play context
         setCurrentLevel(newLevel);
         setPlayerPos({ x: newLevel.start.x, y: newLevel.start.y });
         setPlayerDir(newLevel.start.dir);
@@ -162,7 +201,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         // Animation & Audio Logic (UI Layer)
         if (cmdId === 'jump') {
             setIsJumping(true);
-            playAudioForDuration(walkAudio, 1000);
+            playAudio(walkAudio);
             setTimeout(() => {
                 setPlayerPos(nextPos);
                 setPlayerDir(nextDir);
@@ -170,12 +209,12 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
                 checkWin(nextPos);
             }, 1000);
         } else if (cmdId === 'forward') {
-            playAudioForDuration(walkAudio, 1000);
+            playAudio(walkAudio);
             setPlayerPos(nextPos);
             setPlayerDir(nextDir);
             checkWin(nextPos);
         } else if (cmdId === 'left' || cmdId === 'right') {
-            playAudioForDuration(turnAudio, 1000);
+            playAudio(turnAudio);
             setPlayerPos(nextPos);
             setPlayerDir(nextDir);
             checkWin(nextPos);
@@ -185,8 +224,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
     const checkWin = (pos: Position) => {
         if (pos.x === currentLevel.goal.x && pos.y === currentLevel.goal.y) {
             setIsWon(true);
-            winAudio.currentTime = 0;
-            winAudio.play().catch(e => console.warn('Win audio play failed:', e));
+            playAudio(winAudio);
         }
     };
 
@@ -204,8 +242,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             const { playerPos: finalPos } = stateRef.current;
             if (finalPos.x === currentLevel.goal.x && finalPos.y === currentLevel.goal.y) {
                 setIsWon(true);
-                winAudio.currentTime = 0;
-                winAudio.play().catch(e => console.warn('Win audio play failed:', e));
+                playAudio(winAudio);
             } else {
                 setIsLost(true);
                 // Mode 4: Reset on failure
@@ -233,8 +270,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             if (result.hitObstacle || result.outOfBounds) {
                 setIsCollision(true);
                 // Play hit sound
-                hitAudio.currentTime = 0;
-                hitAudio.play().catch(e => console.warn('Hit audio play failed:', e));
+                playAudio(hitAudio);
                 setTimeout(() => setIsCollision(false), 500);
             }
 
@@ -257,8 +293,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         // Animation & Audio Logic
         if (cmdId === 'jump') {
             setIsJumping(true);
-            playAudioForDuration(walkAudio, 2000); // Slower in programmed mode? Or keep consistent?
-            // Keeping consistent with previous logic which used 2000ms for programmed jump
+            playAudio(walkAudio);
             timerRef.current = setTimeout(() => {
                 setPlayerPos(nextPos);
                 setPlayerDir(nextDir);
@@ -266,12 +301,12 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
                 timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
             }, 1000);
         } else if (cmdId === 'forward') {
-            playAudioForDuration(walkAudio, 2000);
+            playAudio(walkAudio);
             setPlayerPos(nextPos);
             setPlayerDir(nextDir);
             timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
         } else if (cmdId === 'left' || cmdId === 'right') {
-            playAudioForDuration(turnAudio, 1000);
+            playAudio(turnAudio);
             setPlayerPos(nextPos);
             setPlayerDir(nextDir);
             timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
@@ -296,6 +331,7 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
 
     const stopGame = () => {
         if (timerRef.current) clearTimeout(timerRef.current);
+        stopAllAudio();
         setIsPlaying(false);
         setIsJumping(false);
         setIsCollision(false);

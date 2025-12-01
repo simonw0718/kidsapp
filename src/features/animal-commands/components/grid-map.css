@@ -52,12 +52,17 @@
     font-size: clamp(24px, 5vw, 48px);
     position: absolute;
     transition: transform 0.3s ease;
+    background: transparent !important;
 }
 
 .ac-player-img {
     width: clamp(40px, 14vmin, 140px);
     height: clamp(40px, 14vmin, 140px);
     object-fit: contain;
+    background: transparent !important;
+    /* Ensure image itself has no background */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 /* Tablet Landscape Adjustment */
@@ -71,6 +76,7 @@
 .ac-player {
     z-index: 10;
     transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
+    background: transparent !important;
 }
 
 .ac-player-win {

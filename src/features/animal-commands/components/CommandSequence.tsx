@@ -1,5 +1,5 @@
 import React from 'react';
-import type { CommandType } from '../hooks/useAnimalGame';
+import type { CommandType } from '../data/levels';
 import './command-sequence.css';
 
 interface CommandSequenceProps {
