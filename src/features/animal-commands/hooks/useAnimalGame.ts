@@ -1,14 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { type GameMode, type Direction, type Position, getModeConfig, getRandomLevel } from '../data/levels';
+import { commandRegistry } from '../commands/CommandRegistry';
+import { forwardCommand } from '../commands/forward';
+import { turnLeftCommand } from '../commands/turnLeft';
+import { turnRightCommand } from '../commands/turnRight';
+import { jumpCommand } from '../commands/jump';
+import type { GameContext } from '../commands/types';
+
+// Register commands
+commandRegistry.register(forwardCommand);
+commandRegistry.register(turnLeftCommand);
+commandRegistry.register(turnRightCommand);
+commandRegistry.register(jumpCommand);
 
 // Audio instances
 const walkAudio = new Audio('/audio/walk.mp3');
 const turnAudio = new Audio('/audio/walk_turn.mp3');
+const winAudio = new Audio('/audio/animal_game_win.mp3');
+const hitAudio = new Audio('/audio/hit_sound.mp3');
 
 // Helper function to play audio for specified duration
 const playAudioForDuration = (audio: HTMLAudioElement, duration: number) => {
     audio.currentTime = 0;
-    audio.play();
+    audio.play().catch(e => console.warn('Audio play failed:', e));
     setTimeout(() => {
         audio.pause();
         audio.currentTime = 0;
@@ -98,111 +112,81 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
         setCommands([]);
     };
 
-    const calculateNextState = (pos: Position, dir: Direction, cmd: CommandType) => {
-        let newPos = { ...pos };
-        let newDir = dir;
-        let hitObstacle = false;
-        let outOfBounds = false;
-
-        const getForwardPos = (p: Position, d: Direction, steps: number = 1) => {
-            const next = { ...p };
-            switch (d) {
-                case 'up': next.y -= steps; break;
-                case 'down': next.y += steps; break;
-                case 'left': next.x -= steps; break;
-                case 'right': next.x += steps; break;
-            }
-            return next;
-        };
-
-        const isObstacle = (x: number, y: number) => currentLevel.obstacles.some(o => o.x === x && o.y === y);
-        const isLake = (x: number, y: number) => currentLevel.lakes?.some(l => l.x === x && l.y === y) ?? false;
-
-        if (cmd === 'left') {
-            const dirs: Direction[] = ['up', 'left', 'down', 'right'];
-            const idx = dirs.indexOf(dir);
-            newDir = dirs[(idx + 1) % 4];
-        } else if (cmd === 'right') {
-            const dirs: Direction[] = ['up', 'right', 'down', 'left'];
-            const idx = dirs.indexOf(dir);
-            newDir = dirs[(idx + 1) % 4];
-        } else if (cmd === 'forward') {
-            const next = getForwardPos(pos, dir, 1);
-            if (next.x < 0 || next.x >= currentLevel.gridSize || next.y < 0 || next.y >= currentLevel.gridSize) {
-                outOfBounds = true;
-            } else if (isObstacle(next.x, next.y) || isLake(next.x, next.y)) {
-                hitObstacle = true;
-            } else {
-                newPos = next;
-            }
-        } else if (cmd === 'jump') {
-            const next = getForwardPos(pos, dir, 2);
-            const mid = getForwardPos(pos, dir, 1); // The tile we are jumping over
-
-            if (next.x < 0 || next.x >= currentLevel.gridSize || next.y < 0 || next.y >= currentLevel.gridSize) {
-                outOfBounds = true;
-            } else if (isObstacle(next.x, next.y) || isLake(next.x, next.y)) {
-                // Cannot land on obstacle or lake
-                hitObstacle = true;
-            } else if (isLake(mid.x, mid.y)) {
-                // Cannot jump OVER a lake
-                hitObstacle = true;
-            } else {
-                newPos = next;
-            }
+    // Unified Pipeline Execution
+    const executePipeline = (cmdId: string, currentPos: Position, currentDir: Direction) => {
+        const command = commandRegistry.get(cmdId);
+        if (!command) {
+            console.error(`Command ${cmdId} not found`);
+            return { ok: false };
         }
 
-        return { newPos, newDir, hitObstacle, outOfBounds };
+        const ctx: GameContext = {
+            playerPos: currentPos,
+            playerDir: currentDir,
+            level: currentLevel,
+            gridSize: currentLevel.gridSize,
+            gameMode: gameMode
+        };
+
+        // 1. Validate
+        const validation = command.validate(ctx);
+        if (!validation.ok) {
+            return validation; // Return error result
+        }
+
+        // 2. Resolve
+        const result = command.resolve(ctx);
+        return result;
     };
 
     // Direct control: execute command immediately
-    const executeDirectCommand = (cmd: CommandType) => {
+    const executeDirectCommand = (cmdId: CommandType) => {
         if (isWon || isLost || isJumping) return;
 
-        const { newPos, newDir, hitObstacle, outOfBounds } = calculateNextState(playerPos, playerDir, cmd);
+        const result = executePipeline(cmdId, playerPos, playerDir);
 
-        // In direct control mode, ignore invalid moves instead of setting isLost
-        if (hitObstacle || outOfBounds) {
-            setIsCollision(true);
-            setTimeout(() => setIsCollision(false), 500);
+        if (!result.ok) {
+            if (result.hitObstacle || result.outOfBounds) {
+                setIsCollision(true);
+                // Play hit sound
+                hitAudio.currentTime = 0;
+                hitAudio.play().catch(e => console.warn('Hit audio play failed:', e));
+                setTimeout(() => setIsCollision(false), 500);
+            }
             return;
         }
 
-        if (cmd === 'jump') {
+        const { nextPos, nextDir } = result;
+        if (!nextPos || !nextDir) return;
+
+        // Animation & Audio Logic (UI Layer)
+        if (cmdId === 'jump') {
             setIsJumping(true);
-            // Play walk sound for jump (1 seconds)
             playAudioForDuration(walkAudio, 1000);
-            // [調整] 跳躍動畫時間 1秒
             setTimeout(() => {
-                setPlayerPos(newPos);
-                setPlayerDir(newDir);
+                setPlayerPos(nextPos);
+                setPlayerDir(nextDir);
                 setIsJumping(false);
-
-                // Check win
-                if (newPos.x === currentLevel.goal.x && newPos.y === currentLevel.goal.y) {
-                    setIsWon(true);
-                }
+                checkWin(nextPos);
             }, 1000);
-        } else if (cmd === 'forward') {
-            // Play walk sound for forward (1 seconds)
+        } else if (cmdId === 'forward') {
             playAudioForDuration(walkAudio, 1000);
-            setPlayerPos(newPos);
-            setPlayerDir(newDir);
-
-            // Check win
-            if (newPos.x === currentLevel.goal.x && newPos.y === currentLevel.goal.y) {
-                setIsWon(true);
-            }
-        } else if (cmd === 'left' || cmd === 'right') {
-            // Play turn sound (1 second)
+            setPlayerPos(nextPos);
+            setPlayerDir(nextDir);
+            checkWin(nextPos);
+        } else if (cmdId === 'left' || cmdId === 'right') {
             playAudioForDuration(turnAudio, 1000);
-            setPlayerPos(newPos);
-            setPlayerDir(newDir);
+            setPlayerPos(nextPos);
+            setPlayerDir(nextDir);
+            checkWin(nextPos);
+        }
+    };
 
-            // Check win
-            if (newPos.x === currentLevel.goal.x && newPos.y === currentLevel.goal.y) {
-                setIsWon(true);
-            }
+    const checkWin = (pos: Position) => {
+        if (pos.x === currentLevel.goal.x && pos.y === currentLevel.goal.y) {
+            setIsWon(true);
+            winAudio.currentTime = 0;
+            winAudio.play().catch(e => console.warn('Win audio play failed:', e));
         }
     };
 
@@ -220,6 +204,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             const { playerPos: finalPos } = stateRef.current;
             if (finalPos.x === currentLevel.goal.x && finalPos.y === currentLevel.goal.y) {
                 setIsWon(true);
+                winAudio.currentTime = 0;
+                winAudio.play().catch(e => console.warn('Win audio play failed:', e));
             } else {
                 setIsLost(true);
                 // Mode 4: Reset on failure
@@ -233,20 +219,24 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             }
             setIsPlaying(false);
             // Mode 3: Clear commands after execution
-            // [修復] 確保執行完畢後清空指令序列
             setTimeout(() => setCommands([]), 500);
             return;
         }
 
         setCurrentCommandIndex(stepIndex);
-        const cmd = commands[stepIndex];
+        const cmdId = commands[stepIndex];
         const { playerPos: currPos, playerDir: currDir } = stateRef.current;
 
-        const { newPos, newDir, hitObstacle, outOfBounds } = calculateNextState(currPos, currDir, cmd);
+        const result = executePipeline(cmdId, currPos, currDir);
 
-        if (hitObstacle || outOfBounds) {
-            setIsCollision(true);
-            setTimeout(() => setIsCollision(false), 500);
+        if (!result.ok) {
+            if (result.hitObstacle || result.outOfBounds) {
+                setIsCollision(true);
+                // Play hit sound
+                hitAudio.currentTime = 0;
+                hitAudio.play().catch(e => console.warn('Hit audio play failed:', e));
+                setTimeout(() => setIsCollision(false), 500);
+            }
 
             setIsLost(true);
             setIsPlaying(false);
@@ -261,31 +251,32 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
             return;
         }
 
-        if (cmd === 'jump') {
+        const { nextPos, nextDir } = result;
+        if (!nextPos || !nextDir) return;
+
+        // Animation & Audio Logic
+        if (cmdId === 'jump') {
             setIsJumping(true);
-            // Play walk sound for jump (2 seconds)
-            playAudioForDuration(walkAudio, 2000);
-            // [調整] 跳躍動畫時間 1秒
+            playAudioForDuration(walkAudio, 2000); // Slower in programmed mode? Or keep consistent?
+            // Keeping consistent with previous logic which used 2000ms for programmed jump
             timerRef.current = setTimeout(() => {
-                setPlayerPos(newPos);
-                setPlayerDir(newDir);
+                setPlayerPos(nextPos);
+                setPlayerDir(nextDir);
                 setIsJumping(false);
                 timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
             }, 1000);
-        } else if (cmd === 'forward') {
-            // Play walk sound for forward (2 seconds)
+        } else if (cmdId === 'forward') {
             playAudioForDuration(walkAudio, 2000);
-            setPlayerPos(newPos);
-            setPlayerDir(newDir);
+            setPlayerPos(nextPos);
+            setPlayerDir(nextDir);
             timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
-        } else if (cmd === 'left' || cmd === 'right') {
-            // Play turn sound (1 second)
+        } else if (cmdId === 'left' || cmdId === 'right') {
             playAudioForDuration(turnAudio, 1000);
-            setPlayerPos(newPos);
-            setPlayerDir(newDir);
+            setPlayerPos(nextPos);
+            setPlayerDir(nextDir);
             timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
         }
-    }, [commands, currentLevel, modeConfig]);
+    }, [commands, currentLevel, modeConfig, gameMode]);
 
     useEffect(() => {
         executeStepRef.current = executeStep;
