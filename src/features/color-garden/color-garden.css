@@ -422,11 +422,8 @@
 
 /* Vertical Range Input */
 .cg-vertical-range {
-    writing-mode: bt-lr;
-    /* IE/Edge */
-    -webkit-appearance: slider-vertical;
-    appearance: slider-vertical;
-    /* Webkit */
+    writing-mode: vertical-lr;
+    direction: rtl;
     width: 12px;
     /* Increased from 8px */
     height: 100%;

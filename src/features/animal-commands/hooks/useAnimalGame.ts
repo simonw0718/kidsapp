@@ -1,6 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { type GameMode, type Direction, type Position, getModeConfig, getRandomLevel } from '../data/levels';
 
+// Audio instances
+const walkAudio = new Audio('/audio/walk.mp3');
+const turnAudio = new Audio('/audio/walk_turn.mp3');
+
+// Helper function to play audio for specified duration
+const playAudioForDuration = (audio: HTMLAudioElement, duration: number) => {
+    audio.currentTime = 0;
+    audio.play();
+    setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+    }, duration);
+};
+
 export type CommandType = 'forward' | 'left' | 'right' | 'jump';
 
 export const useAnimalGame = (initialMode: GameMode = 1) => {
@@ -156,6 +170,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
 
         if (cmd === 'jump') {
             setIsJumping(true);
+            // Play walk sound for jump (1 seconds)
+            playAudioForDuration(walkAudio, 1000);
             // [調整] 跳躍動畫時間 1秒
             setTimeout(() => {
                 setPlayerPos(newPos);
@@ -167,7 +183,19 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
                     setIsWon(true);
                 }
             }, 1000);
-        } else {
+        } else if (cmd === 'forward') {
+            // Play walk sound for forward (1 seconds)
+            playAudioForDuration(walkAudio, 1000);
+            setPlayerPos(newPos);
+            setPlayerDir(newDir);
+
+            // Check win
+            if (newPos.x === currentLevel.goal.x && newPos.y === currentLevel.goal.y) {
+                setIsWon(true);
+            }
+        } else if (cmd === 'left' || cmd === 'right') {
+            // Play turn sound (1 second)
+            playAudioForDuration(turnAudio, 1000);
             setPlayerPos(newPos);
             setPlayerDir(newDir);
 
@@ -235,6 +263,8 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
 
         if (cmd === 'jump') {
             setIsJumping(true);
+            // Play walk sound for jump (2 seconds)
+            playAudioForDuration(walkAudio, 2000);
             // [調整] 跳躍動畫時間 1秒
             timerRef.current = setTimeout(() => {
                 setPlayerPos(newPos);
@@ -242,7 +272,15 @@ export const useAnimalGame = (initialMode: GameMode = 1) => {
                 setIsJumping(false);
                 timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
             }, 1000);
-        } else {
+        } else if (cmd === 'forward') {
+            // Play walk sound for forward (2 seconds)
+            playAudioForDuration(walkAudio, 2000);
+            setPlayerPos(newPos);
+            setPlayerDir(newDir);
+            timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);
+        } else if (cmd === 'left' || cmd === 'right') {
+            // Play turn sound (1 second)
+            playAudioForDuration(turnAudio, 1000);
             setPlayerPos(newPos);
             setPlayerDir(newDir);
             timerRef.current = setTimeout(() => executeStepRef.current?.(stepIndex + 1), 600);

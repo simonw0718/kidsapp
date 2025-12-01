@@ -5,6 +5,10 @@ import { useGameLogic, type GameDifficulty } from './hooks/useGameLogic';
 import { ImageCard } from './components/ImageCard';
 import { StimulusDisplay } from './components/StimulusDisplay';
 import { PictureMatchErrorBoundary } from './components/PictureMatchErrorBoundary';
+import { ProgressBar } from './components/ProgressBar';
+import { EndScreen } from './components/EndScreen';
+import { HistoryModal } from './components/HistoryModal';
+import { useHistory } from './hooks/useHistory';
 import './picture-match.css';
 
 interface PictureMatchGameProps {
@@ -21,7 +25,35 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
     // For now, let's pass 'english' to useGameLogic if mode is 'dinosaur' so it behaves like English mode (audio plays)
     const logicMode = mode === 'zhuyin' ? 'zhuyin' : 'english';
 
-    const { currentQuestion, options, status, selectedId, handleOptionClick, nextQuestion, replayAudio, isPlaying, unlockAudio, play } = useGameLogic(difficulty, logicMode);
+    const {
+        currentQuestion,
+        options,
+        status,
+        selectedId,
+        handleOptionClick,
+        nextQuestion,
+        replayAudio,
+        isPlaying,
+        unlockAudio,
+        play,
+        markGameStarted,
+        questionIndex,
+        results,
+        isGameFinished,
+        restartGame,
+        totalQuestions,
+        score
+    } = useGameLogic(difficulty, logicMode);
+
+    const { history, addRecord, clearHistory } = useHistory();
+    const [showHistory, setShowHistory] = useState(false);
+
+    // Save history when game finishes
+    React.useEffect(() => {
+        if (isGameFinished) {
+            addRecord(score, totalQuestions, mode, difficulty.toString());
+        }
+    }, [isGameFinished, score, totalQuestions, mode, difficulty, addRecord]);
 
     const difficultyOptions: { label: string; value: GameDifficulty }[] = [
         { label: '簡單 (Lv1)', value: 1 },
@@ -33,11 +65,16 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
 
     const handleStartGame = () => {
         unlockAudio();
+        markGameStarted(); // Mark game as started to enable auto-play for subsequent questions
         setGameStarted(true);
         // Manually trigger the first audio play since useGameLogic might have tried and failed or not tried yet
         if (currentQuestion?.audio && (mode === 'english' || mode === 'dinosaur')) {
             play(currentQuestion.audio, currentQuestion.word);
         }
+    };
+
+    const handleRestart = () => {
+        restartGame();
     };
 
     if (!currentQuestion) return <div>Loading...</div>;
@@ -48,6 +85,13 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                 title={mode === 'english' ? '字卡 - 英文' : mode === 'dinosaur' ? '字卡 - 恐龍' : '字卡 - 注音'}
                 headerRight={
                     <div className="pm-header-controls">
+                        <button
+                            className="pm-history-btn"
+                            onClick={() => setShowHistory(true)}
+                            title="History"
+                        >
+                            📜
+                        </button>
                         <button onClick={onSwitchMode} className="pm-mode-switch-btn">
                             切換模式
                         </button>
@@ -76,8 +120,20 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                                 className="pm-start-image"
                             />
                         </div>
+                    ) : isGameFinished ? (
+                        <EndScreen
+                            score={score}
+                            total={totalQuestions}
+                            onRestart={handleRestart}
+                        />
                     ) : (
                         <>
+                            <ProgressBar
+                                total={totalQuestions}
+                                current={questionIndex}
+                                results={results}
+                            />
+
                             <StimulusDisplay
                                 item={currentQuestion}
                                 mode={mode}
@@ -110,13 +166,20 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                                     className={`pm-next-btn ${status === 'correct' ? 'pm-next-btn--visible' : ''}`}
                                     disabled={status !== 'correct'}
                                 >
-                                    下一題 ➜
+                                    {questionIndex >= totalQuestions - 1 ? '完成' : '下一題 ➜'}
                                 </button>
                             </div>
                         </>
                     )}
                 </div>
             </PageContainer>
+
+            <HistoryModal
+                isOpen={showHistory}
+                onClose={() => setShowHistory(false)}
+                history={history}
+                onClear={clearHistory}
+            />
         </PictureMatchErrorBoundary>
     );
 };

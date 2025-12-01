@@ -3,12 +3,17 @@ import { PageContainer } from '../../components/common/PageContainer';
 import { BackToHomeButton } from '../../components/common/BackToHomeButton';
 import './color-garden.css';
 import { ColorGardenGame } from './ColorGardenGame';
+import { ColorLearningGame } from './ColorLearningGame';
 
 const ColorGardenEntry: React.FC = () => {
-    const [mode, setMode] = useState<'entry' | 'coloring'>('entry');
+    const [mode, setMode] = useState<'entry' | 'coloring' | 'learning'>('entry');
 
     if (mode === 'coloring') {
         return <ColorGardenGame onSwitchMode={() => setMode('entry')} />;
+    }
+
+    if (mode === 'learning') {
+        return <ColorLearningGame onSwitchMode={() => setMode('entry')} />;
     }
 
     return (
@@ -43,12 +48,12 @@ const ColorGardenEntry: React.FC = () => {
                     </button>
 
                     <button
-                        className="cg-entry-btn cg-entry-btn--disabled"
-                        disabled
+                        onClick={() => setMode('learning')}
+                        className="cg-entry-btn cg-entry-btn--learning"
                     >
                         <span className="cg-entry-icon">🌈</span>
                         <span className="cg-entry-label">顏色學習</span>
-                        <span className="cg-entry-sublabel">Coming Soon</span>
+                        <span className="cg-entry-sublabel">Color Learning</span>
                     </button>
                 </div>
             </div>

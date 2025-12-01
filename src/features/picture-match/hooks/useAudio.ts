@@ -6,6 +6,7 @@ interface UseAudioReturn {
     isPlaying: boolean;
     error: string | null;
     unlockAudio: () => void;
+    preload: (url: string) => void;
 }
 
 export const useAudio = (): UseAudioReturn => {
@@ -50,12 +51,17 @@ export const useAudio = (): UseAudioReturn => {
         audioRef.current.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
         audioRef.current.play()
             .then(() => {
-                audioRef.current?.pause();
-                setIsUnlocked(true);
-                console.log('Audio unlocked for iOS');
+                // Add a small delay before pausing to prevent interrupting subsequent play calls
+                setTimeout(() => {
+                    audioRef.current?.pause();
+                    setIsUnlocked(true);
+                    console.log('Audio unlocked for iOS');
+                }, 100);
             })
             .catch((err) => {
                 console.warn('Failed to unlock audio:', err);
+                // Still mark as unlocked even if it fails, to avoid repeated attempts
+                setIsUnlocked(true);
             });
     }, [isUnlocked]);
 
@@ -95,32 +101,53 @@ export const useAudio = (): UseAudioReturn => {
         if (!audioRef.current) return;
 
         try {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            audioRef.current.src = url;
+            const audio = audioRef.current;
+            audio.pause();
+            audio.currentTime = 0;
+            audio.src = url;
+            audio.load(); // Explicitly load
 
-            // We wrap play in a promise to handle immediate errors (like 404 if browser checks immediately)
-            // But audio loading is async, so we also need to handle the 'error' event.
-            // A robust way is to check if the file exists or just let the error listener handle it?
-            // Actually, the error listener in useEffect doesn't have access to 'text'.
-            // So let's override the error listener for this specific play call if possible, 
-            // or just use a one-off handler.
+            // Create a promise that resolves when audio is ready to play
+            const readyToPlay = new Promise<void>((resolve, reject) => {
+                const onCanPlay = () => {
+                    cleanup();
+                    resolve();
+                };
+                const onError = (e: Event) => {
+                    cleanup();
+                    reject(e);
+                };
+                const cleanup = () => {
+                    audio.removeEventListener('canplay', onCanPlay);
+                    audio.removeEventListener('error', onError);
+                };
 
-            const playPromise = audioRef.current.play();
+                audio.addEventListener('canplay', onCanPlay);
+                audio.addEventListener('error', onError);
 
+                // Timeout if loading takes too long (e.g. 3 seconds)
+                setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Audio load timeout'));
+                }, 3000);
+            });
+
+            // Wait for ready or timeout, but don't block indefinitely
+            // If it's already ready (readyState >= 3), the event might not fire if we missed it,
+            // so check readyState too.
+            if (audio.readyState >= 3) {
+                // Already ready
+            } else {
+                await readyToPlay;
+            }
+
+            const playPromise = audio.play();
             if (playPromise !== undefined) {
-                playPromise
-                    .then(() => {
-                        setIsPlaying(true);
-                    })
-                    .catch((err) => {
-                        console.warn('Audio play failed (catch), trying TTS:', err);
-                        if (text) speakText(text);
-                        else setIsPlaying(false);
-                    });
+                await playPromise;
+                setIsPlaying(true);
             }
         } catch (err) {
-            console.warn('Audio play failed (try-catch), trying TTS:', err);
+            console.warn('Audio play failed, trying TTS:', err);
             if (text) speakText(text);
         }
     }, [speakText]);
@@ -134,5 +161,12 @@ export const useAudio = (): UseAudioReturn => {
         setIsPlaying(false);
     }, []);
 
-    return { play, stop, isPlaying, error, unlockAudio };
+    const preload = useCallback((url: string) => {
+        if (!url) return;
+        const audio = new Audio();
+        audio.src = url;
+        audio.load();
+    }, []);
+
+    return { play, stop, isPlaying, error, unlockAudio, preload };
 };

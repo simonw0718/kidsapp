@@ -1,0 +1,505 @@
+/* Color Learning Mode Styles */
+
+.cl-game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 24px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Navigation */
+.cl-submode-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.cl-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 40px;
+    background: transparent;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cl-nav-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.cl-nav-btn.active {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.cl-nav-icon {
+    font-size: 1.4rem;
+}
+
+/* Content Area */
+.cl-content-area {
+    flex: 1;
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Mode 2-1: Names */
+.cl-names-container {
+    width: 100%;
+    max-width: 1000px;
+}
+
+.cl-names-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 32px;
+    justify-items: center;
+    align-items: start;
+    padding: 20px;
+}
+
+.cl-names-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cl-names-chip.active .color-chip-circle {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Mode 2-2: Teaching (Placeholder) */
+.cl-teaching-container {
+    text-align: center;
+}
+
+/* Mode 2-3: Sorting Game */
+.cl-sorting-game {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.cl-game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.cl-back-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #555;
+}
+
+.cl-game-instruction {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Game Menu */
+.cl-game-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding-top: 40px;
+}
+
+.cl-game-menu h3 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+}
+
+.cl-game-options {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.cl-game-opt-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    border: 2px solid #eee;
+    border-radius: 24px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 160px;
+}
+
+.cl-game-opt-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: #4CAF50;
+}
+
+.cl-opt-icon {
+    font-size: 3rem;
+}
+
+/* Slots (Drop Zones) */
+.cl-slots-container {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    min-height: 140px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 20px;
+    flex-wrap: wrap;
+}
+
+.cl-slot {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.cl-slot.empty:hover {
+    border-color: #4CAF50;
+    background: #e8f5e9;
+}
+
+.cl-slot-placeholder {
+    font-size: 2rem;
+    color: #ddd;
+    font-weight: bold;
+}
+
+/* Source Pool */
+.cl-pool-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px;
+    min-height: 120px;
+}
+
+.cl-pool-item {
+    transition: all 0.2s;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.cl-pool-item.selected {
+    background: #e3f2fd;
+    box-shadow: 0 0 0 2px #2196F3;
+    transform: scale(1.1);
+}
+
+/* Success Screen */
+.cl-game-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding-top: 40px;
+    animation: popIn 0.5s;
+}
+
+.cl-success-icon {
+    font-size: 5rem;
+    animation: bounce 1s infinite;
+}
+
+.cl-success-grid {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.cl-retry-btn {
+    padding: 12px 32px;
+    font-size: 1.2rem;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.cl-retry-btn:hover {
+    background: #43A047;
+    transform: scale(1.05);
+}
+
+/* Submit Button */
+.cl-submit-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.cl-submit-btn {
+    padding: 16px 48px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    background: #4CAF50;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    transition: all 0.2s;
+}
+
+.cl-submit-btn:hover:not(.disabled) {
+    background: #43A047;
+    transform: scale(1.05);
+}
+
+.cl-submit-btn:active:not(.disabled) {
+    transform: scale(0.95);
+}
+
+.cl-submit-btn.disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Error Feedback */
+.cl-slot.error {
+    border-color: #f44336;
+    background: #ffebee;
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+/* Color Mixing Game */
+.cl-mixing-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cl-mixing-instruction {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+.cl-mixing-stage {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cl-mixing-colors {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    transition: all 1s ease-in-out;
+}
+
+.cl-mixing-colors.merging {
+    gap: 0px;
+}
+
+.cl-mixing-colors.merging .cl-mixing-color-left,
+.cl-mixing-colors.merging .cl-mixing-color-right {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 1s ease-in-out;
+}
+
+.cl-mixing-plus-sign {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #666;
+    min-width: 40px;
+    text-align: center;
+}
+
+.cl-mixing-result-center {
+    animation: popIn 0.5s ease-out;
+}
+
+.cl-mixing-options {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+}
+
+.cl-mixing-option {
+    background: white;
+    border: 3px solid #ddd;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cl-mixing-option:hover:not(:disabled) {
+    transform: scale(1.1);
+    border-color: #4CAF50;
+}
+
+.cl-mixing-option.selected {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+}
+
+.cl-mixing-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cl-mixing-option-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Mixing Success/Failure */
+.cl-mixing-success,
+.cl-mixing-failure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 40px;
+    animation: popIn 0.5s;
+}
+
+.cl-failure-icon {
+    font-size: 5rem;
+}
+
+.cl-mixing-result-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.cl-mixing-plus,
+.cl-mixing-equals,
+.cl-mixing-question {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #666;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cl-nav-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .cl-nav-icon {
+        font-size: 1.2rem;
+    }
+
+    .cl-names-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 20px;
+    }
+
+    .cl-slot {
+        width: 70px;
+        height: 70px;
+    }
+
+    .cl-pool-item {
+        transform: scale(0.8);
+    }
+
+    .cl-submit-btn {
+        padding: 12px 32px;
+        font-size: 1.2rem;
+    }
+}
