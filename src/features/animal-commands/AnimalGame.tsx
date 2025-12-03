@@ -12,6 +12,29 @@ import type { Difficulty } from './data/levelTemplates';
 import './animal-commands.css';
 
 import { useGameLock } from '../../core/hooks/useGameLock';
+import { audioManager } from '../../core/audio/audioPlayer';
+
+// Helper component to handle audio playback on mount
+const CelebrationWithAudio: React.FC<{ character: string; navigate: (path: string) => void }> = ({ character, navigate }) => {
+    useEffect(() => {
+        audioManager.play('/audio/victory.mp3');
+    }, []);
+
+    return (
+        <>
+            <img
+                src={`/images/animals-game/celebration_${character}.jpg`}
+                alt="Celebration"
+                className="ac-celebration-img"
+            />
+            <div className="ac-celebration-actions">
+                <button className="ac-btn-primary" onClick={() => navigate('/animal-commands')}>
+                    回首頁
+                </button>
+            </div>
+        </>
+    );
+};
 
 export const AnimalGame: React.FC = () => {
     // [Zoom Lock] Lock viewport for game
@@ -178,16 +201,7 @@ export const AnimalGame: React.FC = () => {
                         {/* Show celebration image for completing adventure mode (Hard difficulty) */}
                         {adventureType && currentDifficulty === 'Hard' ? (
                             <div className="ac-celebration-content">
-                                <img
-                                    src={`/images/animals-game/celebration_${character}.jpg`}
-                                    alt="Celebration"
-                                    className="ac-celebration-img"
-                                />
-                                <div className="ac-celebration-actions">
-                                    <button className="ac-btn-primary" onClick={() => navigate('/animal-commands')}>
-                                        回首頁
-                                    </button>
-                                </div>
+                                <CelebrationWithAudio character={character} navigate={navigate} />
                             </div>
                         ) : (
                             <div className="ac-win-content">

@@ -60,7 +60,7 @@ export const useAudio = (): UseAudioReturn => {
 
         try {
             // Use audioManager to play
-            audioManager.play(url);
+            await audioManager.play(url);
             setIsPlaying(true);
 
             // Simulate "ended" event after a reasonable duration

@@ -9,6 +9,10 @@ const App: React.FC = () => {
     const unlockAudio = () => {
       import("./core/audio/audioPlayer").then(({ audioManager }) => {
         audioManager.unlock();
+        // Global Preload for common sounds
+        audioManager.preload('victory', '/audio/victory.mp3');
+        audioManager.preload('correct', '/audio/correct_sound.mp3');
+        audioManager.preload('failure', '/audio/failure_sound.mp3');
       });
       document.removeEventListener("click", unlockAudio);
       document.removeEventListener("touchstart", unlockAudio);
