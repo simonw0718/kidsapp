@@ -50,8 +50,11 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         return filtered;
     }, [difficulty]);
 
+    // History buffer to prevent recent repeats (size 3)
+    const questionHistory = useRef<string[]>([]);
+
     // Pure-ish function to pick a question
-    const pickQuestion = useCallback(() => {
+    const pickQuestion = useCallback((history: string[] = []) => {
         const filteredList = getFilteredVocab();
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
 
@@ -59,6 +62,7 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         console.log('[DEBUG] Difficulty:', difficulty);
         console.log('[DEBUG] Filtered list size:', filteredList.length);
         console.log('[DEBUG] Source list size:', sourceList.length);
+        console.log('[DEBUG] Question history:', history);
 
         // Safety check: ensure we have vocab items
         if (!sourceList || sourceList.length === 0) {
@@ -83,8 +87,12 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
             return { target, options: sourceList };
         }
 
-        const target = weightManager.selectByWeight(sourceList, (item) => item.id);
-        const otherItems = sourceList.filter(item => item.id !== target.id);
+        // Filter out recently used questions
+        const availableList = sourceList.filter(item => !history.includes(item.id));
+        const selectionList = availableList.length >= 4 ? availableList : sourceList;
+
+        const target = weightManager.selectByWeight(selectionList, (item) => item.id);
+        const otherItems = selectionList.filter(item => item.id !== target.id);
         const shuffledOthers = [...otherItems].sort(() => 0.5 - Math.random());
         const distractors = shuffledOthers.slice(0, 3);
         const options = [target, ...distractors].sort(() => 0.5 - Math.random());
@@ -94,10 +102,10 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         console.log('[DEBUG] Options difficulties:', options.map(o => `${o.word}(${o.difficulty})`).join(', '));
 
         return { target, options };
-    }, [getFilteredVocab]);
+    }, [getFilteredVocab, difficulty]);
 
     const [gameState, setGameState] = useState<GameState>(() => {
-        const { target, options } = pickQuestion();
+        const { target, options } = pickQuestion([]);
         return {
             currentQuestion: target,
             options,
@@ -162,7 +170,11 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     }, [isProcessing]);
 
     const generateQuestion = useCallback(() => {
-        const { target, options } = pickQuestion();
+        const { target, options } = pickQuestion(questionHistory.current);
+
+        // Update history buffer (keep last 3)
+        const newHistory = [...questionHistory.current, target.id];
+        questionHistory.current = newHistory.slice(-3);
 
         // Preload audio for better stability
         if (target.audio) {
@@ -186,6 +198,7 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         setResults([]);
         setIsGameFinished(false);
         setGameState(prev => ({ ...prev, score: 0 }));
+        questionHistory.current = []; // Clear history on restart
         generateQuestion();
     }, [generateQuestion]);
 

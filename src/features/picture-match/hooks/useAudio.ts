@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { audioManager } from '../../../core/audio/audioPlayer';
 
 interface UseAudioReturn {
     play: (url: string, text?: string) => Promise<void>;
@@ -10,60 +11,19 @@ interface UseAudioReturn {
 }
 
 export const useAudio = (): UseAudioReturn => {
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isUnlocked, setIsUnlocked] = useState(false);
 
     useEffect(() => {
-        // Initialize audio element
-        const audio = new Audio();
-        audioRef.current = audio;
-
-        const handleEnded = () => setIsPlaying(false);
-
-        // Error handler: if audio file fails, try TTS
-        const handleError = (e: Event | string) => {
-            console.warn('Audio playback error, attempting TTS fallback:', e);
-            // We can't easily trigger TTS here because we don't have the text in this scope
-            // So we'll handle the fallback in the play method's catch block or logic
-            setIsPlaying(false);
-            setError('Failed to play audio');
-        };
-
-        audio.addEventListener('ended', handleEnded);
-        audio.addEventListener('error', handleError);
-
         return () => {
-            audio.removeEventListener('ended', handleEnded);
-            audio.removeEventListener('error', handleError);
-            audio.pause();
-            audioRef.current = null;
-            window.speechSynthesis.cancel(); // Stop any TTS
+            window.speechSynthesis.cancel(); // Stop any TTS on unmount
         };
     }, []);
 
-    // iOS audio unlock - must be called from user interaction
+    // iOS audio unlock - delegates to audioManager
     const unlockAudio = useCallback(() => {
-        if (isUnlocked || !audioRef.current) return;
-
-        // Play and immediately pause a silent audio to unlock iOS audio
-        audioRef.current.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
-        audioRef.current.play()
-            .then(() => {
-                // Add a small delay before pausing to prevent interrupting subsequent play calls
-                setTimeout(() => {
-                    audioRef.current?.pause();
-                    setIsUnlocked(true);
-                    console.log('Audio unlocked for iOS');
-                }, 100);
-            })
-            .catch((err) => {
-                console.warn('Failed to unlock audio:', err);
-                // Still mark as unlocked even if it fails, to avoid repeated attempts
-                setIsUnlocked(true);
-            });
-    }, [isUnlocked]);
+        audioManager.unlock();
+    }, []);
 
     const speakText = useCallback((text: string) => {
         if (!window.speechSynthesis) {
@@ -98,54 +58,17 @@ export const useAudio = (): UseAudioReturn => {
             return;
         }
 
-        if (!audioRef.current) return;
-
         try {
-            const audio = audioRef.current;
-            audio.pause();
-            audio.currentTime = 0;
-            audio.src = url;
-            audio.load(); // Explicitly load
+            // Use audioManager to play
+            audioManager.play(url);
+            setIsPlaying(true);
 
-            // Create a promise that resolves when audio is ready to play
-            const readyToPlay = new Promise<void>((resolve, reject) => {
-                const onCanPlay = () => {
-                    cleanup();
-                    resolve();
-                };
-                const onError = (e: Event) => {
-                    cleanup();
-                    reject(e);
-                };
-                const cleanup = () => {
-                    audio.removeEventListener('canplay', onCanPlay);
-                    audio.removeEventListener('error', onError);
-                };
-
-                audio.addEventListener('canplay', onCanPlay);
-                audio.addEventListener('error', onError);
-
-                // Timeout if loading takes too long (e.g. 3 seconds)
-                setTimeout(() => {
-                    cleanup();
-                    reject(new Error('Audio load timeout'));
-                }, 3000);
-            });
-
-            // Wait for ready or timeout, but don't block indefinitely
-            // If it's already ready (readyState >= 3), the event might not fire if we missed it,
-            // so check readyState too.
-            if (audio.readyState >= 3) {
-                // Already ready
-            } else {
-                await readyToPlay;
-            }
-
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                await playPromise;
-                setIsPlaying(true);
-            }
+            // Simulate "ended" event after a reasonable duration
+            // (AudioContext doesn't provide ended events easily, so we estimate)
+            // For game sounds, they're typically short (< 2 seconds)
+            setTimeout(() => {
+                setIsPlaying(false);
+            }, 2000);
         } catch (err) {
             console.warn('Audio play failed, trying TTS:', err);
             if (text) speakText(text);
@@ -153,19 +76,14 @@ export const useAudio = (): UseAudioReturn => {
     }, [speakText]);
 
     const stop = useCallback(() => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-        }
+        audioManager.stop();
         window.speechSynthesis.cancel();
         setIsPlaying(false);
     }, []);
 
     const preload = useCallback((url: string) => {
         if (!url) return;
-        const audio = new Audio();
-        audio.src = url;
-        audio.load();
+        audioManager.preload(url, url);
     }, []);
 
     return { play, stop, isPlaying, error, unlockAudio, preload };

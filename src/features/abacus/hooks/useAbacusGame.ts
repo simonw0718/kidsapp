@@ -1,6 +1,7 @@
 // src/features/abacus/hooks/useAbacusGame.ts
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import type { AbacusQuestion, Operator } from "../types";
+import { audioManager } from "../../../core/audio/audioPlayer";
 
 type Status = "idle" | "correct" | "incorrect";
 
@@ -19,16 +20,31 @@ export type UseAbacusGameOptions = {
   allowedOperators?: Operator[];
 };
 
+/** 檢查題目是否重複 */
+const isDuplicateQuestion = (q1: AbacusQuestion, q2: AbacusQuestion): boolean => {
+  return q1.a === q2.a && q1.b === q2.b && q1.operator === q2.operator;
+};
+
+/** 檢查是否為 +1/-1 題目 */
+const isSimpleQuestion = (q: AbacusQuestion): boolean => {
+  return q.b === 1;
+};
+
 /** 出題：會依照 maxResult 限制答案大小，減法也保證不會出現負數 */
 const generateQuestion = (
   minValue: number,
   maxValue: number,
   maxResult: number,
-  allowedOperators: Operator[]
+  allowedOperators: Operator[],
+  existingQuestions: AbacusQuestion[] = [],
+  recentSimpleCount: number = 0
 ): AbacusQuestion => {
   // 保證一定找到符合條件的題目
-  // 保證一定找到符合條件的題目
-  while (true) {
+  let attempts = 0;
+  const maxAttempts = 100;
+
+  while (attempts < maxAttempts) {
+    attempts++;
     const operator =
       allowedOperators[randomInt(0, allowedOperators.length - 1)];
 
@@ -44,6 +60,17 @@ const generateQuestion = (
 
     // 超過最大總和就丟掉重抽
     if (answer > maxResult) continue;
+
+    const newQuestion: AbacusQuestion = { a, b, operator, answer, options: [] };
+
+    // 檢查是否與現有題目重複
+    const isDuplicate = existingQuestions.some(q => isDuplicateQuestion(q, newQuestion));
+    if (isDuplicate) continue;
+
+    // 限制連續 +1/-1 題目（如果最近2題都是簡單題，跳過）
+    if (recentSimpleCount >= 2 && isSimpleQuestion(newQuestion)) {
+      continue;
+    }
 
     // 選項產生
     const optionsSet = new Set<number>();
@@ -65,8 +92,28 @@ const generateQuestion = (
       [options[i], options[j]] = [options[j], options[i]];
     }
 
-    return { a, b, operator, answer, options };
+    newQuestion.options = options;
+    return newQuestion;
   }
+
+  // 如果嘗試太多次還找不到，放寬限制重新生成
+  const operator = allowedOperators[randomInt(0, allowedOperators.length - 1)];
+  let a = randomInt(minValue, maxValue);
+  let b = randomInt(minValue, maxValue);
+  if (operator === "-" && b > a) [a, b] = [b, a];
+  const answer = operator === "+" ? a + b : a - b;
+  const optionsSet = new Set<number>([answer]);
+  while (optionsSet.size < 3) {
+    const delta = randomInt(1, 4);
+    const candidate = answer + (Math.random() < 0.5 ? -delta : delta);
+    if (candidate >= 0 && candidate <= maxResult) optionsSet.add(candidate);
+  }
+  const options = Array.from(optionsSet);
+  for (let i = options.length - 1; i > 0; i -= 1) {
+    const j = randomInt(0, i);
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+  return { a, b, operator, answer, options };
 };
 
 export const useAbacusGame = (options?: UseAbacusGameOptions) => {
@@ -84,35 +131,95 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
   const [status, setStatus] = useState<Status>("idle");
   const [selected, setSelected] = useState<number | null>(null);
 
+  // Game round management (5 questions per round)
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [results, setResults] = useState<boolean[]>([]); // Track correct/incorrect for each question
+  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [score, setScore] = useState(0);
+  const [hasAnsweredCurrent, setHasAnsweredCurrent] = useState(false); // Track if user has attempted current question
+  const [allQuestions, setAllQuestions] = useState<AbacusQuestion[]>([question]); // Track all questions in this round
+  const [recentSimpleCount, setRecentSimpleCount] = useState(0); // Track recent +1/-1 questions
+  const totalQuestions = 5;
+
+  // Preload audio on mount
+  useEffect(() => {
+    audioManager.preload('correct', '/audio/correct_sound.mp3');
+    audioManager.preload('failure', '/audio/failure_sound.mp3');
+  }, []);
+
   const nextQuestion = useCallback(() => {
-    setQuestion(
-      generateQuestion(minValue, maxValue, maxResult, allowedOperators)
-    );
-    setStatus("idle");
-    setSelected(null);
-  }, [minValue, maxValue, maxResult, allowedOperators]);
+    if (questionIndex >= totalQuestions - 1) {
+      // Game finished
+      setIsGameFinished(true);
+    } else {
+      // Calculate recent simple question count (last 2 questions)
+      const recentQuestions = allQuestions.slice(-2);
+      const simpleCount = recentQuestions.filter(isSimpleQuestion).length;
+
+      // Generate next question with duplicate prevention and simple question limiting
+      const newQuestion = generateQuestion(
+        minValue,
+        maxValue,
+        maxResult,
+        allowedOperators,
+        allQuestions,
+        simpleCount
+      );
+
+      // Move to next question
+      setQuestionIndex(prev => prev + 1);
+      setQuestion(newQuestion);
+      setAllQuestions(prev => [...prev, newQuestion]);
+      setRecentSimpleCount(simpleCount);
+      setStatus("idle");
+      setSelected(null);
+      setHasAnsweredCurrent(false);
+    }
+  }, [minValue, maxValue, maxResult, allowedOperators, questionIndex, totalQuestions, allQuestions]);
 
   const submitAnswer = useCallback(
     (value: number) => {
-      setSelected(value);
-      if (value === question.answer) {
-        // Play correct sound
-        const correctAudio = new Audio('/audio/correct_sound.mp3');
-        correctAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
-        correctAudio.play().catch(err => console.warn('Failed to play correct sound:', err));
+      // Prevent multiple submissions when already correct
+      if (status === "correct" || isGameFinished) return;
 
+      setSelected(value);
+      const isCorrect = value === question.answer;
+
+      // Only record result on first attempt for this question
+      if (!hasAnsweredCurrent) {
+        setResults(prev => [...prev, isCorrect]);
+        setHasAnsweredCurrent(true);
+        if (isCorrect) {
+          setScore(prev => prev + 1);
+        }
+      }
+
+      if (isCorrect) {
+        // Play correct sound using AudioManager
+        audioManager.play('correct', 0.2);
         setStatus("correct");
       } else {
-        // Play failure sound
-        const failureAudio = new Audio('/audio/failure_sound.mp3');
-        failureAudio.volume = 0.2; // 音量控制：0.0 (靜音) ~ 1.0 (最大)，預設 0.5
-        failureAudio.play().catch(err => console.warn('Failed to play failure sound:', err));
-
+        // Play failure sound using AudioManager
+        audioManager.play('failure', 0.2);
         setStatus("incorrect");
       }
     },
-    [question.answer]
+    [question.answer, status, isGameFinished, hasAnsweredCurrent]
   );
+
+  const restartGame = useCallback(() => {
+    const newQuestion = generateQuestion(minValue, maxValue, maxResult, allowedOperators);
+    setQuestionIndex(0);
+    setResults([]);
+    setIsGameFinished(false);
+    setScore(0);
+    setQuestion(newQuestion);
+    setAllQuestions([newQuestion]);
+    setRecentSimpleCount(0);
+    setStatus("idle");
+    setSelected(null);
+    setHasAnsweredCurrent(false);
+  }, [minValue, maxValue, maxResult, allowedOperators]);
 
   return {
     question,
@@ -120,5 +227,11 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
     selected,
     submitAnswer,
     nextQuestion,
+    questionIndex,
+    results,
+    isGameFinished,
+    score,
+    totalQuestions,
+    restartGame,
   };
 };

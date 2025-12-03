@@ -19,25 +19,32 @@ const BRUSH_SIZE_MAX = 80;
 const BRUSH_SIZE_DEFAULT = 10;
 
 const PALETTE_COLORS = [
-    // Column 1 (Warm)
-    '#FF4444', // Red
-    '#FF9800', // Deep Orange
-    '#FF8C00', // Orange
-    '#FFEB3B', // Light Yellow
-    '#FFD700', // Yellow
+    // Column 1 (Reds & Pinks)
+    '#FF1744', // Bright Red
+    '#E91E63', // Pink
+    '#FFECEA', // Skin Tone
+    '#FF6F00', // Dark Orange
+    '#FF9800', // Orange
 
-    // Column 2 (Cool/Nature)
+    // Column 2 (Yellows & Greens)
+    '#FFD600', // Bright Yellow
     '#CDDC39', // Lime
     '#8BC34A', // Light Green
     '#4CAF50', // Green
+    '#00897B', // Teal
+
+    // Column 3 (Blues & Purples)
     '#00BCD4', // Cyan
     '#2196F3', // Blue
-
-    // Column 3 (Neutral/Others)
+    '#1565C0', // Dark Blue
     '#9C27B0', // Purple
-    '#F48FB1', // Pink
+    '#7B1FA2', // Dark Purple
+
+    // Column 4 (Browns & Neutrals)
     '#795548', // Brown
-    '#607D8B', // Grey
+    '#5D4037', // Dark Brown
+    '#607D8B', // Blue Grey
+    '#424242', // Dark Grey
     '#000000', // Black
 ];
 
@@ -141,7 +148,27 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-        // Draw the canvas content first
+        // Load and draw the background image first
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = imageSrc;
+
+        await new Promise<void>((resolve) => {
+            if (img.complete) {
+                resolve();
+            } else {
+                img.onload = () => resolve();
+                img.onerror = () => resolve(); // Proceed even if image fails to load
+            }
+        });
+
+        // Calculate dimensions to match object-fit: contain
+        const scale = Math.min(tempCanvas.width / img.width, tempCanvas.height / img.height);
+        const x = (tempCanvas.width - img.width * scale) / 2;
+        const y = (tempCanvas.height - img.height * scale) / 2;
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+        // Draw the canvas content (drawing strokes) on top
         ctx.drawImage(canvas, 0, 0);
 
         // Convert to blob
@@ -358,11 +385,15 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                     </div>
 
                     {/* 3. Brush Button */}
-                    <div style={{ position: 'relative', width: '100%' }}>
+                    <div style={{ position: 'relative', width: '100%', padding: '4px' }}>
                         <button
-                            className={`cg-tool-btn cg-btn-img ${toolMode === 'brush' ? 'active' : ''}`}
+                            className={`cg-tool-btn cg-btn-img ${toolMode === 'brush' ? 'active cg-brush-active' : ''}`}
                             onClick={() => handleToolClick('brush')}
                             title="畫筆"
+                            style={toolMode === 'brush' ? {
+                                filter: `drop-shadow(0 0 8px ${selectedColor}) drop-shadow(0 0 16px ${selectedColor})`,
+                                borderRadius: '16px'
+                            } : undefined}
                         >
                             <img src="/assets/images/color-garden/tool-brush.png" alt="Brush" />
                             {/* Show current color indicator on brush */}
@@ -413,10 +444,10 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
                             <div
                                 className="cg-palette-popover"
                                 style={{
-                                    gridTemplateColumns: 'repeat(3, 1fr)', // 3 Columns
+                                    gridTemplateColumns: 'repeat(4, 1fr)', // 4 Columns
                                     gridAutoFlow: 'column', // Fill columns first (vertical grouping)
                                     gridTemplateRows: 'repeat(5, 1fr)', // 5 Rows
-                                    width: '240px', // Increased width for 3 columns
+                                    width: '300px', // Increased width for 4 columns
                                     height: 'auto',
                                     maxHeight: '400px'
                                 }}

@@ -291,31 +291,39 @@ body,
 }
 
 /* [聲調符號位置] */
+/* [聲調符號位置] */
 .bpm-tone {
   position: absolute;
-  right: -0.8em;
-  /* [調整] 聲調在注音右側的距離 - 增加間距讓調號更明顯 */
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.3em;
-  /* [調整] 調號大小 - 放大讓調號更清楚 */
+  right: -0.55em;
+  /* [調整] 聲調在注音右側的距離 */
+  top: 85%;
+  /* [調整] 垂直位置下移 (原 50% -> 65%) 以解決視覺偏高的問題 */
+  transform: translateY(-50%) scale(1.5, 1.8);
+  /* [調整] 垂直拉得更長 (User preference: 1.5, 1.8) */
+  font-size: 1.2em;
+  /* [調整] 調號大小 */
   font-weight: 900;
-  /* [調整] 調號粗細 - 加粗讓調號更明顯 */
+  /* [調整] 調號粗細 */
   color: #d32f2f;
-  /* [調整] 調號顏色 - 紅色讓調號更醒目 */
+  /* [調整] 改回紅色 */
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  /* 確保高度明確，幫助置中 */
 }
 
 .bpm-tone-dot {
   position: absolute;
   right: 0;
-  top: -1em;
-  /* [調整] 輕聲在注音上方的距離 - 增加間距 */
-  font-size: 1.3em;
-  /* [調整] 輕聲大小 - 放大 */
+  top: -0.6em;
+  /* [調整] 輕聲位置 */
+  font-size: 1.4em;
+  /* [調整] 輕聲大小 */
   font-weight: 900;
-  /* [調整] 輕聲粗細 - 加粗 */
   color: #d32f2f;
-  /* [調整] 輕聲顏色 - 紅色 */
+  /* [調整] 改回紅色 */
 }
 
 .bpm-tilde {

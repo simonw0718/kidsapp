@@ -6,7 +6,13 @@ interface EndScreenProps {
     onRestart: () => void;
 }
 
+import { audioManager } from '../../../core/audio/audioPlayer';
+
 export const EndScreen: React.FC<EndScreenProps> = ({ score, total, onRestart }) => {
+    React.useEffect(() => {
+        audioManager.play('/audio/victory.mp3');
+    }, []);
+
     return (
         <div className="pm-end-screen">
             <div className="pm-end-content">
