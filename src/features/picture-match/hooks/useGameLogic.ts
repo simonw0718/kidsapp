@@ -5,20 +5,12 @@ import type { VocabItem, DifficultyLevel } from '../data/vocab';
 import { useAudio } from './useAudio';
 import { weightManager } from '../../../core/learning/weightManager';
 
-interface GameState {
-    currentQuestion: VocabItem | null;
-    options: VocabItem[];
-    status: 'idle' | 'correct' | 'incorrect';
-    selectedId: string | null;
-    score: number;
-}
-
 export type GameDifficulty = DifficultyLevel | 'mix' | 'dinosaur';
 
 export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | 'zhuyin' | 'dinosaur' = 'english') => {
     // Old useState removed - Fixed duplicate declaration
 
-    const { play, isPlaying, unlockAudio, preload } = useAudio();
+    const { play, isPlaying, unlockAudio } = useAudio();
 
     const getFilteredVocab = useCallback(() => {
         let filtered: VocabItem[];
@@ -52,6 +44,18 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
 
     // History buffer to prevent recent repeats (size 3)
     const questionHistory = useRef<string[]>([]);
+
+    // Dummy "Ready GO" question for iOS audio unlock
+    const READY_GO_QUESTION: VocabItem = {
+        id: 'ready-go',
+        word: 'Ready Go',
+        chinese: '準備開始',
+        zhuyin: '',
+        image: '/images/picture-match/ready-go.png',
+        audio: '', // No audio for this dummy question
+        difficulty: 0 as any, // Cast to avoid type error
+        category: 'system' as any // Cast to avoid type error
+    };
 
     // Pure-ish function to pick a question
     const pickQuestion = useCallback((history: string[] = []) => {
@@ -98,28 +102,36 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         const options = [target, ...distractors].sort(() => 0.5 - Math.random());
 
         // Debug logging for selected items
-        console.log('[DEBUG] Target:', target.word, 'Difficulty:', target.difficulty);
-        console.log('[DEBUG] Options difficulties:', options.map(o => `${o.word}(${o.difficulty})`).join(', '));
+        console.log(`[DEBUG] Target: "${target.word}" - "Difficulty:" ${target.difficulty}`);
+        console.log(`[DEBUG] Options difficulties: ${options.map(o => `${o.word}(${o.difficulty})`).join(', ')}`);
 
         return { target, options };
     }, [getFilteredVocab, difficulty]);
 
-    const [gameState, setGameState] = useState<GameState>(() => {
-        const { target, options } = pickQuestion([]);
-        return {
-            currentQuestion: target,
-            options,
-            status: 'idle',
-            selectedId: null,
-            score: 0,
-        };
-    });
-
-    // New state for 10-question game
+    // Game state
+    const [currentQuestion, setCurrentQuestion] = useState<VocabItem | null>(null);
+    const [options, setOptions] = useState<VocabItem[]>([]);
+    const [status, setStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [score, setScore] = useState(0);
     const [questionIndex, setQuestionIndex] = useState(0);
-    const [results, setResults] = useState<boolean[]>([]); // Track result for each question
+    const [results, setResults] = useState<boolean[]>([]);
     const [isGameFinished, setIsGameFinished] = useState(false);
-    const [hasAnsweredCurrent, setHasAnsweredCurrent] = useState(false); // Track if user has attempted current question
+
+    // Initialize game with Ready GO question
+    useEffect(() => {
+        // Start with Ready GO question
+        setCurrentQuestion(READY_GO_QUESTION);
+        setOptions([READY_GO_QUESTION]); // Only one option for Ready GO
+        setQuestionIndex(0);
+        setScore(0);
+        setResults([]);
+        setIsGameFinished(false);
+        setStatus('idle');
+        setSelectedId(null);
+        // Clear history
+        questionHistory.current = [];
+    }, [difficulty, mode]); // Reset when difficulty/mode changes
 
     // Add processing lock to prevent rapid clicks
     const [isProcessing, setIsProcessing] = useState(false);
@@ -169,41 +181,59 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         }
     }, [isProcessing]);
 
-    const generateQuestion = useCallback(() => {
-        const { target, options } = pickQuestion(questionHistory.current);
+    // Track if user has attempted current question
+    const [hasAnsweredCurrent, setHasAnsweredCurrent] = useState(false);
 
-        // Update history buffer (keep last 3)
-        const newHistory = [...questionHistory.current, target.id];
-        questionHistory.current = newHistory.slice(-3);
+    // Track if game has started to prevent double audio playback
+    const gameStartedRef = useRef(false);
 
-        // Preload audio for better stability
-        if (target.audio) {
-            preload(target.audio);
+    // Auto-play audio when question changes (but not on initial load)
+    useEffect(() => {
+        // Only auto-play if game has started AND it's not the first real question (which is handled manually by startGame)
+        // AND it's not the Ready GO question
+        if (gameStartedRef.current && currentQuestion?.audio && mode === 'english' && !isGameFinished) {
+            if (currentQuestion.id !== 'ready-go') {
+                // We need to check if this is the "first real question" which was already played by startGame
+                // But since startGame sets gameStartedRef to true, we might double play if we don't be careful.
+                // However, startGame plays audio THEN sets state. This effect runs AFTER state update.
+                // To avoid double play on the very first question, we can use a flag or check index.
+
+                // Actually, simpler: startGame plays audio. This effect runs. 
+                // We can just rely on the fact that startGame handles the first one.
+                // But how do we prevent this effect from running for the first one?
+                // We can check if we just transitioned from Ready GO.
+
+                // Let's use a ref to track if we should skip next auto-play
+                if (shouldSkipNextAutoPlay.current) {
+                    shouldSkipNextAutoPlay.current = false;
+                    return;
+                }
+
+                play(currentQuestion.audio, currentQuestion.word);
+            }
         }
+    }, [currentQuestion, mode, play, isGameFinished]);
 
-        setGameState(prev => ({
-            ...prev,
-            currentQuestion: target,
-            options,
-            status: 'idle',
-            selectedId: null,
-        }));
-        setIsProcessing(false);
-        setHasAnsweredCurrent(false);
-    }, [pickQuestion, preload]);
+    const shouldSkipNextAutoPlay = useRef(false);
 
-    // Restart game function
     const restartGame = useCallback(() => {
-        setQuestionIndex(0);
+        // Restart with Ready GO
+        setCurrentQuestion(READY_GO_QUESTION as any);
+        setOptions([READY_GO_QUESTION as any]);
+        // Set index to -1 so progress bar shows 0/10 or hidden
+        setQuestionIndex(-1);
+        setScore(0);
         setResults([]);
         setIsGameFinished(false);
-        setGameState(prev => ({ ...prev, score: 0 }));
-        questionHistory.current = []; // Clear history on restart
-        generateQuestion();
-    }, [generateQuestion]);
+        setStatus('idle');
+        setSelectedId(null);
+        questionHistory.current = [];
+        setIsProcessing(false);
+        setHasAnsweredCurrent(false);
+        gameStartedRef.current = false;
+        shouldSkipNextAutoPlay.current = false;
+    }, []);
 
-    // Initial question - regenerate when difficulty changes
-    // Skip first run because useState already initialized it
     const isFirstRun = useRef(true);
     useEffect(() => {
         if (isFirstRun.current) {
@@ -214,20 +244,16 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         restartGame();
     }, [difficulty, restartGame]);
 
-    // Track if game has started to prevent double audio playback
-    const gameStartedRef = useRef(false);
-
-    // Auto-play audio when question changes (but not on initial load)
-    useEffect(() => {
-        if (gameStartedRef.current && gameState.currentQuestion?.audio && mode === 'english' && !isGameFinished) {
-            play(gameState.currentQuestion.audio, gameState.currentQuestion.word);
-        }
-    }, [gameState.currentQuestion, mode, play, isGameFinished]);
-
     const handleOptionClick = useCallback(async (item: VocabItem) => {
         // Prevent rapid clicks and clicks during processing
-        if (gameState.status === 'correct' || isProcessing || isGameFinished) {
-            console.log('Click ignored: status=', gameState.status, 'isProcessing=', isProcessing, 'isFinished=', isGameFinished);
+        if (status === 'correct' || isProcessing || isGameFinished) {
+            return;
+        }
+
+        // Special handling for Ready GO question - SHOULD NOT BE REACHED via this handler anymore
+        // because we will use a dedicated startGame function, but keeping as fallback
+        if (currentQuestion?.id === 'ready-go') {
+            startGame();
             return;
         }
 
@@ -235,11 +261,11 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         console.log('Option clicked:', item.word);
 
         try {
-            const isCorrect = item.id === gameState.currentQuestion?.id;
+            const isCorrect = item.id === currentQuestion?.id;
 
             // Update weight for adaptive learning
-            if (gameState.currentQuestion) {
-                weightManager.updateWeight(gameState.currentQuestion.id, isCorrect);
+            if (currentQuestion) {
+                weightManager.updateWeight(currentQuestion.id, isCorrect);
             }
 
             // Strict scoring: only record result on first attempt for this question
@@ -247,74 +273,101 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
                 setResults(prev => [...prev, isCorrect]);
                 setHasAnsweredCurrent(true);
                 if (isCorrect) {
-                    setGameState(prev => ({ ...prev, score: prev.score + 1 }));
+                    setScore(prev => prev + 1);
                 }
             }
 
-            if (isCorrect) {
-                // Play correct sound (fire and forget)
-                if (correctSoundRef.current) {
-                    correctSoundRef.current.currentTime = 0;
-                    correctSoundRef.current.play()
-                        .catch(err => console.warn('Failed to play correct sound:', err));
-                }
+            setSelectedId(item.id);
 
-                setGameState(prev => ({
-                    ...prev,
-                    status: 'correct',
-                    selectedId: item.id,
-                }));
+            if (isCorrect) {
+                // Play correct sound
+                play('/audio/correct_sound.mp3');
+                setStatus('correct');
                 setIsProcessing(false);
             } else {
-                // Play failure sound (fire and forget)
-                if (failureSoundRef.current) {
-                    failureSoundRef.current.currentTime = 0;
-                    failureSoundRef.current.play()
-                        .catch(err => console.warn('Failed to play failure sound:', err));
-                }
-
-                setGameState(prev => ({
-                    ...prev,
-                    status: 'incorrect',
-                    selectedId: item.id,
-                }));
+                // Play failure sound
+                play('/audio/failure_sound.mp3');
+                setStatus('incorrect');
 
                 // Reset processing state after a delay to show feedback
                 setTimeout(() => {
                     setIsProcessing(false);
-                }, 300); // Reduced delay to 300ms
+                }, 300);
             }
         } catch (error) {
             console.error('Error in handleOptionClick:', error);
             setIsProcessing(false);
         }
-    }, [gameState.status, gameState.currentQuestion, isProcessing, isGameFinished, hasAnsweredCurrent]);
+    }, [status, currentQuestion, isProcessing, isGameFinished, hasAnsweredCurrent, play]);
 
     const nextQuestion = useCallback(() => {
         if (questionIndex >= 9) {
             setIsGameFinished(true);
-        } else {
-            setQuestionIndex(prev => prev + 1);
-            generateQuestion();
+            return;
         }
-    }, [generateQuestion, questionIndex]);
+
+        const { target, options } = pickQuestion(questionHistory.current);
+
+        // Update history
+        questionHistory.current = [target.id, ...questionHistory.current.slice(0, 2)];
+
+        setCurrentQuestion(target);
+        setOptions(options);
+        setStatus('idle');
+        setSelectedId(null);
+        setIsProcessing(false);
+        setHasAnsweredCurrent(false);
+        setQuestionIndex(prev => prev + 1);
+    }, [pickQuestion, questionIndex]);
+
+    // New function to synchronously start the game and return the first audio
+    const startGame = useCallback(() => {
+        // 1. Pick the first real question
+        const { target, options } = pickQuestion([]);
+
+        // 2. Update history
+        questionHistory.current = [target.id];
+
+        // 3. Update state
+        setCurrentQuestion(target);
+        setOptions(options);
+        setStatus('idle');
+        setSelectedId(null);
+        setIsProcessing(false);
+        setHasAnsweredCurrent(false);
+
+        // Set index to 0 (first real question)
+        setQuestionIndex(0);
+
+        // Mark game as started
+        gameStartedRef.current = true;
+
+        // Flag to skip the useEffect auto-play since we will play it synchronously
+        shouldSkipNextAutoPlay.current = true;
+
+        return target;
+    }, [pickQuestion]);
 
     const replayAudio = useCallback(() => {
         // Unlock audio on first user interaction (iOS requirement)
         unlockAudio();
 
-        if (gameState.currentQuestion?.audio) {
-            play(gameState.currentQuestion.audio, gameState.currentQuestion.word);
+        if (currentQuestion?.audio) {
+            play(currentQuestion.audio, currentQuestion.word);
         }
-    }, [gameState.currentQuestion, unlockAudio, play]);
+    }, [currentQuestion, unlockAudio, play]);
 
     const markGameStarted = useCallback(() => {
         gameStartedRef.current = true;
     }, []);
 
     return {
-        ...gameState,
-        handleOptionClick,
+        currentQuestion,
+        options,
+        status,
+        selectedId,
+        score,
+        handleOptionClick, // Export as handleSelect to match component expectation
         nextQuestion,
         replayAudio,
         isPlaying,
@@ -326,5 +379,6 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         isGameFinished,
         restartGame,
         totalQuestions: 10,
+        startGame, // Export new function
     };
 };

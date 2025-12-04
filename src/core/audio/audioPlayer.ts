@@ -54,6 +54,37 @@ class AudioManager {
   };
 
   /**
+   * Explicitly resume AudioContext (useful for iOS)
+   * Returns a promise that resolves when context is running
+   */
+  public async resumeContext(): Promise<void> {
+    if (!this.context) return;
+
+    if (this.context.state === 'suspended') {
+      await this.context.resume();
+      console.log('AudioContext explicitly resumed');
+    }
+  }
+
+  /**
+   * Play a silent buffer to wake up AudioContext (iOS trick)
+   */
+  public playSilentBuffer(): void {
+    if (!this.context) return;
+
+    try {
+      const silentBuffer = this.context.createBuffer(1, 1, 22050);
+      const source = this.context.createBufferSource();
+      source.buffer = silentBuffer;
+      source.connect(this.context.destination);
+      source.start(0);
+      console.log('Silent buffer played to wake up AudioContext');
+    } catch (error) {
+      console.error('Failed to play silent buffer:', error);
+    }
+  }
+
+  /**
    * Preloads an audio file and decodes it into an AudioBuffer.
    */
   public async preload(id: string, url: string): Promise<void> {
@@ -124,6 +155,39 @@ class AudioManager {
     // AudioContext doesn't have a global stop for all sources
     // Sources stop automatically when buffer ends
     // This is a no-op for compatibility
+  }
+
+  /**
+   * Plays a generated beep sound to test AudioContext.
+   * Useful for debugging or initial user interaction check.
+   */
+  public playTestSound() {
+    if (!this.context) return;
+
+    if (this.context.state === 'suspended') {
+      this.context.resume();
+    }
+
+    try {
+      const oscillator = this.context.createOscillator();
+      const gainNode = this.context.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, this.context.currentTime); // A4
+      oscillator.frequency.exponentialRampToValueAtTime(880, this.context.currentTime + 0.1);
+
+      gainNode.gain.setValueAtTime(0.5, this.context.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(this.context.destination);
+
+      oscillator.start();
+      oscillator.stop(this.context.currentTime + 0.5);
+      console.log('Test sound played (Oscillator)');
+    } catch (e) {
+      console.error('Failed to play test sound:', e);
+    }
   }
 }
 

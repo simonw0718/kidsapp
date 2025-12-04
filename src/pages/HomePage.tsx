@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePwaInstallPrompt } from "../core/pwa/usePwaInstallPrompt";
+import { audioManager } from "../core/audio/audioPlayer";
 
 export const HomePage: React.FC = () => {
   const { isInstallable, isInstalled, promptInstall } = usePwaInstallPrompt();
@@ -23,6 +24,13 @@ export const HomePage: React.FC = () => {
     await promptInstall();
     // 不管使用者接受或拒絕，先把 banner 收起來
     setDismissed(true);
+  };
+
+  const handleSoundCheck = () => {
+    // Force unlock audio context
+    audioManager.unlock();
+    // Play test sound (Oscillator beep) to verify AudioContext
+    audioManager.playTestSound();
   };
 
   return (
@@ -71,25 +79,49 @@ export const HomePage: React.FC = () => {
           </p>
         </div>
 
-        <Link
-          to="/settings"
-          style={{
-            textDecoration: 'none',
-            fontSize: '24px',
-            padding: '8px',
-            background: 'white',
-            borderRadius: '50%',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          aria-label="設定"
-        >
-          ⚙️
-        </Link>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={handleSoundCheck}
+            style={{
+              border: 'none',
+              fontSize: '24px',
+              padding: '8px',
+              background: 'white',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+            aria-label="音效測試"
+            title="點擊測試音效"
+          >
+            🔊
+          </button>
+
+          <Link
+            to="/settings"
+            style={{
+              textDecoration: 'none',
+              fontSize: '24px',
+              padding: '8px',
+              background: 'white',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            aria-label="設定"
+          >
+            ⚙️
+          </Link>
+        </div>
       </header>
 
       <section

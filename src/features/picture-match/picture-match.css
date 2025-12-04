@@ -149,6 +149,54 @@
     animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* === Inline Ready GO (New) === */
+.pm-ready-go-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    cursor: pointer;
+}
+
+.pm-ready-go-inline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pm-ready-go-inline-image {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    transition: transform 0.2s;
+}
+
+.pm-ready-go-inline-image:hover {
+    transform: scale(1.05);
+}
+
+.pm-ready-go-hint {
+    font-size: 1.5rem;
+    color: #666;
+    font-weight: bold;
+    margin: 0;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
 /* === Responsive: Mobile Portrait === */
 @media (max-width: 480px) and (orientation: portrait) {
     .pm-game-container {

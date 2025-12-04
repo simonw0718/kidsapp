@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
-import { audioManager } from '../../../core/audio/audioPlayer';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface UseAudioReturn {
     play: (url: string, text?: string) => Promise<void>;
@@ -10,19 +9,71 @@ interface UseAudioReturn {
     preload: (url: string) => void;
 }
 
+// Track active audio instances for cleanup
+const activeAudioInstances: HTMLAudioElement[] = [];
+
+// Helper function to play audio with HTMLAudioElement (iOS-friendly)
+const playAudioElement = (audio: HTMLAudioElement, maxDuration: number = 3000) => {
+    const sound = audio.cloneNode() as HTMLAudioElement;
+    sound.volume = 1.0;
+
+    // Track this instance
+    activeAudioInstances.push(sound);
+
+    // Play the sound
+    sound.play().catch(e => console.warn('Audio play failed:', e));
+
+    // Stop after max duration and cleanup
+    const timeoutId = setTimeout(() => {
+        sound.pause();
+        sound.currentTime = 0;
+        const index = activeAudioInstances.indexOf(sound);
+        if (index > -1) {
+            activeAudioInstances.splice(index, 1);
+        }
+    }, maxDuration);
+
+    // Also cleanup when sound ends naturally
+    sound.addEventListener('ended', () => {
+        clearTimeout(timeoutId);
+        const index = activeAudioInstances.indexOf(sound);
+        if (index > -1) {
+            activeAudioInstances.splice(index, 1);
+        }
+    });
+};
+
+// Helper to stop all active audio
+const stopAllAudio = () => {
+    activeAudioInstances.forEach(sound => {
+        sound.pause();
+        sound.currentTime = 0;
+    });
+    activeAudioInstances.length = 0;
+};
+
 export const useAudio = (): UseAudioReturn => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Cache for preloaded audio elements
+    const audioCache = useRef<Map<string, HTMLAudioElement>>(new Map());
+
     useEffect(() => {
         return () => {
             window.speechSynthesis.cancel(); // Stop any TTS on unmount
+            stopAllAudio(); // Stop all audio on unmount
         };
     }, []);
 
-    // iOS audio unlock - delegates to audioManager
+    // iOS audio unlock - play a silent sound to unlock
     const unlockAudio = useCallback(() => {
-        audioManager.unlock();
+        // Create and play a silent audio element
+        const silentAudio = new Audio();
+        silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        silentAudio.play().catch(() => {
+            console.log('Audio unlock attempted');
+        });
     }, []);
 
     const speakText = useCallback((text: string) => {
@@ -59,31 +110,41 @@ export const useAudio = (): UseAudioReturn => {
         }
 
         try {
-            // Use audioManager to play
-            await audioManager.play(url);
+            // Get or create audio element
+            let audioElement = audioCache.current.get(url);
+            if (!audioElement) {
+                audioElement = new Audio(url);
+                audioCache.current.set(url, audioElement);
+            }
+
+            // Play using HTMLAudioElement
+            playAudioElement(audioElement);
             setIsPlaying(true);
 
-            // Simulate "ended" event after a reasonable duration
-            // (AudioContext doesn't provide ended events easily, so we estimate)
-            // For game sounds, they're typically short (< 2 seconds)
+            // Reset playing state after audio duration
             setTimeout(() => {
                 setIsPlaying(false);
             }, 2000);
         } catch (err) {
             console.warn('Audio play failed, trying TTS:', err);
+            setError('Audio playback failed');
             if (text) speakText(text);
         }
     }, [speakText]);
 
     const stop = useCallback(() => {
-        audioManager.stop();
+        stopAllAudio();
         window.speechSynthesis.cancel();
         setIsPlaying(false);
     }, []);
 
     const preload = useCallback((url: string) => {
         if (!url) return;
-        audioManager.preload(url, url);
+        if (!audioCache.current.has(url)) {
+            const audio = new Audio(url);
+            audio.preload = 'auto';
+            audioCache.current.set(url, audio);
+        }
     }, []);
 
     return { play, stop, isPlaying, error, unlockAudio, preload };

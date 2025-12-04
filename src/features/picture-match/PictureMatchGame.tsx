@@ -44,7 +44,8 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
         isGameFinished,
         restartGame,
         totalQuestions,
-        score
+        score,
+        startGame // Destructure new function
     } = useGameLogic(difficulty, logicMode);
 
     const { history, addRecord, clearHistory } = useHistory();
@@ -59,10 +60,11 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                 await Promise.all([
                     audioManager.preload('correct', '/audio/correct_sound.mp3'),
                     audioManager.preload('failure', '/audio/failure_sound.mp3'),
+                    audioManager.preload('victory', '/audio/victory.mp3'),
                 ]);
+                setIsLoadingAudio(false);
             } catch (error) {
                 console.error('Failed to preload audio:', error);
-            } finally {
                 setIsLoadingAudio(false);
             }
         };
@@ -76,6 +78,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
         }
     }, [isGameFinished, score, totalQuestions, mode, difficulty, addRecord]);
 
+    // Difficulty options
     const difficultyOptions: { label: string; value: GameDifficulty }[] = [
         { label: '簡單 (Lv1)', value: 1 },
         { label: '中等 (Lv2)', value: 2 },
@@ -85,13 +88,30 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
     ];
 
     const handleStartGame = () => {
+        // CRITICAL: Make this behave EXACTLY like clicking an answer option
+        // This is the key to making iOS allow audio playback
+
+        // Step 1: Unlock audio (like clicking an option does)
         unlockAudio();
-        markGameStarted(); // Mark game as started to enable auto-play for subsequent questions
-        setGameStarted(true);
-        // Manually trigger the first audio play since useGameLogic might have tried and failed or not tried yet
-        if (currentQuestion?.audio && (mode === 'english' || mode === 'dinosaur')) {
-            play(currentQuestion.audio, currentQuestion.word);
+
+        // Step 2: Synchronously start the game and get the first question
+        // This updates the state to the first real question AND returns it
+        const firstQuestion = startGame();
+
+        // Step 3: Play audio IMMEDIATELY in this same click handler (synchronous)
+        // This mimics what happens when you click an answer option
+        if (firstQuestion?.audio && (mode === 'english' || mode === 'dinosaur')) {
+            // Don't await, don't delay - play immediately in this click event
+            play(firstQuestion.audio, firstQuestion.word).catch(error => {
+                console.error('Failed to play audio:', error);
+            });
         }
+
+        // Step 4: Mark game as started
+        markGameStarted();
+        setGameStarted(true);
+
+        console.log('Ready GO clicked - audio should play now (synchronous start)');
     };
 
     const handleRestart = () => {
@@ -133,15 +153,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                 }
             >
                 <div className="pm-game-container">
-                    {!gameStarted ? (
-                        <div className="pm-start-overlay" onClick={handleStartGame}>
-                            <img
-                                src="/images/picture-match/ready-go.png"
-                                alt="Ready GO!"
-                                className="pm-start-image"
-                            />
-                        </div>
-                    ) : isGameFinished ? (
+                    {isGameFinished ? (
                         <EndScreen
                             score={score}
                             total={totalQuestions}
@@ -151,7 +163,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                         <>
                             <ProgressBar
                                 total={totalQuestions}
-                                current={questionIndex}
+                                current={questionIndex} // Now 0-based for real questions
                                 results={results}
                             />
 
@@ -162,24 +174,38 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                                 isPlaying={isPlaying}
                             />
 
-                            <div className="pm-card-grid">
-                                {options.map(item => (
-                                    <ImageCard
-                                        key={item.id}
-                                        item={item}
-                                        onClick={handleOptionClick}
-                                        state={
-                                            status === 'correct' && item.id === currentQuestion.id
-                                                ? 'correct'
-                                                : status === 'incorrect' && item.id === selectedId
-                                                    ? 'incorrect'
-                                                    : 'idle'
-                                        }
-                                        disabled={status === 'correct'}
-                                        showFlipped={(mode === 'english' || mode === 'dinosaur') && status === 'correct' && item.id === currentQuestion.id}
-                                    />
-                                ))}
-                            </div>
+                            {/* Show Ready GO inline in options area instead of overlay */}
+                            {!gameStarted ? (
+                                <div className="pm-card-grid pm-ready-go-container" onClick={handleStartGame}>
+                                    <div className="pm-ready-go-inline">
+                                        <img
+                                            src="/images/picture-match/ready-go.png"
+                                            alt="點擊開始遊戲"
+                                            className="pm-ready-go-inline-image"
+                                        />
+                                        <p className="pm-ready-go-hint">點擊圖片開始遊戲</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="pm-card-grid">
+                                    {options.map(item => (
+                                        <ImageCard
+                                            key={item.id}
+                                            item={item}
+                                            onClick={handleOptionClick}
+                                            state={
+                                                status === 'correct' && item.id === currentQuestion.id
+                                                    ? 'correct'
+                                                    : status === 'incorrect' && item.id === selectedId
+                                                        ? 'incorrect'
+                                                        : 'idle'
+                                            }
+                                            disabled={status === 'correct'}
+                                            showFlipped={(mode === 'english' || mode === 'dinosaur') && status === 'correct' && item.id === currentQuestion.id}
+                                        />
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="pm-next-btn-container">
                                 <button

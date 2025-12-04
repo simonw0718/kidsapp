@@ -13,13 +13,16 @@ import './animal-commands.css';
 
 import { useGameLock } from '../../core/hooks/useGameLock';
 import { audioManager } from '../../core/audio/audioPlayer';
-import { AudioLoadingOverlay } from '../../components/common/AudioLoadingOverlay';
 
 // Helper component to handle audio playback on mount
-const CelebrationWithAudio: React.FC<{ character: string; navigate: (path: string) => void }> = ({ character, navigate }) => {
+const CelebrationWithAudio: React.FC<{ character: string; navigate: (path: string) => void; shouldPlayAudio: boolean }> = ({ character, navigate, shouldPlayAudio }) => {
     useEffect(() => {
-        audioManager.play('/audio/victory.mp3');
-    }, []);
+        // Only play audio once when component mounts and shouldPlayAudio is true
+        if (shouldPlayAudio) {
+            audioManager.play('/audio/victory.mp3');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array - only run on mount
 
     return (
         <>
@@ -52,6 +55,8 @@ export const AnimalGame: React.FC = () => {
 
     // State for Adventure progression
     const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(initialDifficulty);
+    // Track if all three levels have been completed (for victory audio)
+    const [hasCompletedAllLevels, setHasCompletedAllLevels] = useState(false);
 
     // Generate seed for Adventure
     const getSeed = () => {
@@ -93,22 +98,19 @@ export const AnimalGame: React.FC = () => {
         stopGame
     } = useAnimalGame(initialMode, currentDifficulty, seed);
 
-    const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-
-    // Preload audio on mount
+    // Detect when Hard level is won to mark all levels as completed
     useEffect(() => {
-        const preloadAudio = async () => {
-            setIsLoadingAudio(true);
-            try {
-                await audioManager.preload('victory', '/audio/victory.mp3');
-            } catch (error) {
-                console.error('Failed to preload audio:', error);
-            } finally {
-                setIsLoadingAudio(false);
-            }
-        };
-        preloadAudio();
-    }, []);
+        if (isWon && adventureType && currentDifficulty === 'Hard' && !hasCompletedAllLevels) {
+            setHasCompletedAllLevels(true);
+        }
+    }, [isWon, adventureType, currentDifficulty, hasCompletedAllLevels]);
+
+    // Reset game state when difficulty changes (to prevent isWon from persisting)
+    useEffect(() => {
+        if (adventureType) {
+            resetLevel();
+        }
+    }, [currentDifficulty, adventureType, resetLevel]);
 
     const handleNextLevel = () => {
         if (adventureType) {
@@ -212,48 +214,50 @@ export const AnimalGame: React.FC = () => {
                         )}
                     </div>
                 </div>
+            </div>
 
-                {/* Win Modal */}
-                {isWon && (
-                    <div className="ac-win-modal">
-                        {/* Show celebration image for completing adventure mode (Hard difficulty) */}
-                        {adventureType && currentDifficulty === 'Hard' ? (
-                            <div className="ac-celebration-content">
-                                <CelebrationWithAudio character={character} navigate={navigate} />
-                            </div>
-                        ) : (
-                            <div className="ac-win-content">
-                                <h2>🎉 過關了！</h2>
-                                <p>太棒了！你成功幫助{character === 'rabbit' ? '小兔子' : '小恐龍'}吃到食物了！</p>
-                                <div className="ac-win-actions">
-                                    <button className="ac-btn-primary" onClick={handleNextLevel}>
-                                        {adventureType && currentDifficulty === 'Hard' ? '完成挑戰' : '下一關'}
-                                    </button>
-                                    <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
-                                        回首頁
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Lost Modal */}
-                {isLost && (
-                    <div className="ac-win-modal">
+            {/* Win Modal - MOVED OUTSIDE game container */}
+            {isWon && (
+                <div className="ac-win-modal">
+                    {/* Show celebration image ONLY when all three levels are completed */}
+                    {hasCompletedAllLevels ? (
+                        <div className="ac-celebration-content">
+                            <CelebrationWithAudio character={character} navigate={navigate} shouldPlayAudio={hasCompletedAllLevels} />
+                        </div>
+                    ) : (
                         <div className="ac-win-content">
-                            <h2>😢 失敗了</h2>
-                            <p>哎呀！撞到了！再試一次吧！</p>
+                            <h2>🎉 過關了！</h2>
+                            <p>太棒了！你成功幫助{character === 'rabbit' ? '小兔子' : '小恐龍'}吃到食物了！</p>
                             <div className="ac-win-actions">
-                                <button className="ac-btn-primary" onClick={resetLevel}>
-                                    重試
+                                <button className="ac-btn-primary" onClick={handleNextLevel}>
+                                    {adventureType && currentDifficulty === 'Hard' ? '完成挑戰' : '下一關'}
+                                </button>
+                                <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
+                                    回首頁
                                 </button>
                             </div>
                         </div>
+                    )}
+                </div>
+            )}
+
+            {/* Lost Modal - MOVED OUTSIDE game container */}
+            {isLost && (
+                <div className="ac-win-modal">
+                    <div className="ac-win-content">
+                        <h2>😢 失敗了</h2>
+                        <p>哎呀！撞到了！再試一次吧！</p>
+                        <div className="ac-win-actions">
+                            <button className="ac-btn-primary" onClick={resetLevel}>
+                                重新開始
+                            </button>
+                            <button className="ac-btn-secondary" onClick={() => navigate('/animal-commands')}>
+                                回首頁
+                            </button>
+                        </div>
                     </div>
-                )}
-            </div>
-            <AudioLoadingOverlay isLoading={isLoadingAudio} message="載入音效中..." />
+                </div>
+            )}
         </PageContainer>
     );
 };

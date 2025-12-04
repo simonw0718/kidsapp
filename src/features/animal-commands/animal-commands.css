@@ -1326,9 +1326,17 @@
         width: 100%;
         display: flex;
         justify-content: center;
+        align-items: center;
         overflow: visible;
         /* [重要] 允許地圖物件超出邊界 */
         z-index: 10;
+    }
+
+    .ac-map-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
     }
 
     .ac-right-panel {
