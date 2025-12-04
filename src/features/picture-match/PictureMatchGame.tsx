@@ -9,6 +9,8 @@ import { ProgressBar } from './components/ProgressBar';
 import { EndScreen } from './components/EndScreen';
 import { HistoryModal } from './components/HistoryModal';
 import { useHistory } from './hooks/useHistory';
+import { AudioLoadingOverlay } from '../../components/common/AudioLoadingOverlay';
+import { audioManager } from '../../core/audio/audioPlayer';
 import './picture-match.css';
 
 interface PictureMatchGameProps {
@@ -47,6 +49,25 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
 
     const { history, addRecord, clearHistory } = useHistory();
     const [showHistory, setShowHistory] = useState(false);
+    const [isLoadingAudio, setIsLoadingAudio] = useState(true);
+
+    // Preload audio on mount
+    React.useEffect(() => {
+        const preloadAudio = async () => {
+            try {
+                // Preload common game sounds
+                await Promise.all([
+                    audioManager.preload('correct', '/audio/correct_sound.mp3'),
+                    audioManager.preload('failure', '/audio/failure_sound.mp3'),
+                ]);
+            } catch (error) {
+                console.error('Failed to preload audio:', error);
+            } finally {
+                setIsLoadingAudio(false);
+            }
+        };
+        preloadAudio();
+    }, []);
 
     // Save history when game finishes
     React.useEffect(() => {
@@ -180,7 +201,7 @@ export const PictureMatchGame: React.FC<PictureMatchGameProps> = ({ mode, onSwit
                 history={history}
                 onClear={clearHistory}
             />
+            <AudioLoadingOverlay isLoading={isLoadingAudio} message="載入音效中..." />
         </PictureMatchErrorBoundary>
     );
 };
-

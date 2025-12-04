@@ -138,7 +138,6 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
   const [score, setScore] = useState(0);
   const [hasAnsweredCurrent, setHasAnsweredCurrent] = useState(false); // Track if user has attempted current question
   const [allQuestions, setAllQuestions] = useState<AbacusQuestion[]>([question]); // Track all questions in this round
-  const [recentSimpleCount, setRecentSimpleCount] = useState(0); // Track recent +1/-1 questions
   const totalQuestions = 5;
 
   // Preload audio on mount
@@ -170,7 +169,6 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
       setQuestionIndex(prev => prev + 1);
       setQuestion(newQuestion);
       setAllQuestions(prev => [...prev, newQuestion]);
-      setRecentSimpleCount(simpleCount);
       setStatus("idle");
       setSelected(null);
       setHasAnsweredCurrent(false);
@@ -215,7 +213,6 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
     setScore(0);
     setQuestion(newQuestion);
     setAllQuestions([newQuestion]);
-    setRecentSimpleCount(0);
     setStatus("idle");
     setSelected(null);
     setHasAnsweredCurrent(false);

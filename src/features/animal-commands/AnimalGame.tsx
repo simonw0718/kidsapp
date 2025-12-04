@@ -13,6 +13,7 @@ import './animal-commands.css';
 
 import { useGameLock } from '../../core/hooks/useGameLock';
 import { audioManager } from '../../core/audio/audioPlayer';
+import { AudioLoadingOverlay } from '../../components/common/AudioLoadingOverlay';
 
 // Helper component to handle audio playback on mount
 const CelebrationWithAudio: React.FC<{ character: string; navigate: (path: string) => void }> = ({ character, navigate }) => {
@@ -91,6 +92,23 @@ export const AnimalGame: React.FC = () => {
         startGame,
         stopGame
     } = useAnimalGame(initialMode, currentDifficulty, seed);
+
+    const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+
+    // Preload audio on mount
+    useEffect(() => {
+        const preloadAudio = async () => {
+            setIsLoadingAudio(true);
+            try {
+                await audioManager.preload('victory', '/audio/victory.mp3');
+            } catch (error) {
+                console.error('Failed to preload audio:', error);
+            } finally {
+                setIsLoadingAudio(false);
+            }
+        };
+        preloadAudio();
+    }, []);
 
     const handleNextLevel = () => {
         if (adventureType) {
@@ -235,6 +253,7 @@ export const AnimalGame: React.FC = () => {
                     </div>
                 )}
             </div>
+            <AudioLoadingOverlay isLoading={isLoadingAudio} message="載入音效中..." />
         </PageContainer>
     );
 };
