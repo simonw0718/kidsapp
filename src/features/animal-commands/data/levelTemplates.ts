@@ -13,6 +13,35 @@ export interface DifficultyParams {
     mazeLevel: 0 | 1 | 2;
 }
 
+// Path complexity metrics for difficulty validation
+export interface PathComplexity {
+    totalSteps: number;        // Total steps in shortest path
+    turnCount: number;         // Number of direction changes
+    jumpCount: number;         // Number of jumps required
+    backtrackCount: number;    // Number of times path doubles back
+    choicePoints: number;      // Number of decision points (forks)
+    deadEndEncounters: number; // Potential dead ends player might hit
+}
+
+// Calculate complexity score from path metrics
+export function calculateComplexityScore(complexity: PathComplexity): number {
+    return (
+        complexity.totalSteps * 1 +
+        complexity.turnCount * 2 +
+        complexity.jumpCount * 3 +
+        complexity.backtrackCount * 4 +
+        complexity.choicePoints * 5 +
+        complexity.deadEndEncounters * 6
+    );
+}
+
+// Complexity score ranges for each difficulty
+export const COMPLEXITY_RANGES: Record<Difficulty, [number, number]> = {
+    Easy: [0, 20],      // Simple, straightforward paths
+    Medium: [20, 50],   // Moderate complexity with some planning
+    Hard: [50, 100]     // High complexity requiring strategic thinking
+};
+
 export interface LevelTemplate {
     name: string;
     difficulty: Difficulty;
@@ -33,8 +62,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 2 }],
         lakeZones: [],
         difficultyParams: {
-            minSteps: 3, maxSteps: 6, requiredJumps: 0,
-            obstacleDensity: [1, 3], lakeDensity: [0, 0],
+            minSteps: 3, maxSteps: 5, requiredJumps: 0,
+            obstacleDensity: [0, 2], lakeDensity: [0, 0],
             branchComplexity: 0, deadEndTolerance: 0, mazeLevel: 0
         }
     },
@@ -46,8 +75,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 1 }, { x: 3, y: 2 }],
         lakeZones: [],
         difficultyParams: {
-            minSteps: 4, maxSteps: 6, requiredJumps: 0,
-            obstacleDensity: [1, 3], lakeDensity: [0, 0],
+            minSteps: 3, maxSteps: 5, requiredJumps: 0,
+            obstacleDensity: [0, 2], lakeDensity: [0, 0],
             branchComplexity: 0, deadEndTolerance: 0, mazeLevel: 0
         }
     },
@@ -59,8 +88,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 3 }],
         lakeZones: [],
         difficultyParams: {
-            minSteps: 4, maxSteps: 6, requiredJumps: 0,
-            obstacleDensity: [1, 3], lakeDensity: [0, 0],
+            minSteps: 3, maxSteps: 5, requiredJumps: 0,
+            obstacleDensity: [0, 2], lakeDensity: [0, 0],
             branchComplexity: 0, deadEndTolerance: 0, mazeLevel: 0
         }
     },
@@ -72,8 +101,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 2 }],
         lakeZones: [],
         difficultyParams: {
-            minSteps: 4, maxSteps: 6, requiredJumps: 0,
-            obstacleDensity: [1, 3], lakeDensity: [0, 0],
+            minSteps: 3, maxSteps: 5, requiredJumps: 0,
+            obstacleDensity: [0, 2], lakeDensity: [0, 0],
             branchComplexity: 0, deadEndTolerance: 0, mazeLevel: 0
         }
     },
@@ -85,8 +114,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 1, y: 1 }, { x: 2, y: 0 }],
         lakeZones: [],
         difficultyParams: {
-            minSteps: 3, maxSteps: 6, requiredJumps: 0,
-            obstacleDensity: [1, 3], lakeDensity: [0, 0],
+            minSteps: 3, maxSteps: 5, requiredJumps: 0,
+            obstacleDensity: [0, 2], lakeDensity: [0, 0],
             branchComplexity: 0, deadEndTolerance: 0, mazeLevel: 0
         }
     },
@@ -99,8 +128,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 2 }, { x: 3, y: 3 }],
         lakeZones: [{ x: 2, y: 3 }],
         difficultyParams: {
-            minSteps: 5, maxSteps: 8, requiredJumps: 1,
-            obstacleDensity: [1, 3], lakeDensity: [0, 1],
+            minSteps: 6, maxSteps: 10, requiredJumps: 1,
+            obstacleDensity: [3, 5], lakeDensity: [1, 2],
             branchComplexity: 1, deadEndTolerance: 1, mazeLevel: 1
         }
     },
@@ -112,8 +141,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 3 }, { x: 3, y: 2 }],
         lakeZones: [{ x: 1, y: 2 }],
         difficultyParams: {
-            minSteps: 5, maxSteps: 8, requiredJumps: 1,
-            obstacleDensity: [1, 3], lakeDensity: [0, 1],
+            minSteps: 6, maxSteps: 10, requiredJumps: 1,
+            obstacleDensity: [3, 5], lakeDensity: [1, 2],
             branchComplexity: 1, deadEndTolerance: 1, mazeLevel: 1
         }
     },
@@ -125,8 +154,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 3, y: 1 }, { x: 2, y: 2 }],
         lakeZones: [{ x: 1, y: 1 }],
         difficultyParams: {
-            minSteps: 6, maxSteps: 8, requiredJumps: 1,
-            obstacleDensity: [1, 3], lakeDensity: [0, 1],
+            minSteps: 6, maxSteps: 10, requiredJumps: 1,
+            obstacleDensity: [3, 5], lakeDensity: [1, 2],
             branchComplexity: 1, deadEndTolerance: 1, mazeLevel: 1
         }
     },
@@ -138,8 +167,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 1, y: 3 }, { x: 2, y: 3 }, { x: 3, y: 2 }],
         lakeZones: [{ x: 2, y: 1 }],
         difficultyParams: {
-            minSteps: 5, maxSteps: 8, requiredJumps: 1,
-            obstacleDensity: [1, 3], lakeDensity: [0, 1],
+            minSteps: 6, maxSteps: 10, requiredJumps: 1,
+            obstacleDensity: [3, 5], lakeDensity: [1, 2],
             branchComplexity: 1, deadEndTolerance: 1, mazeLevel: 1
         }
     },
@@ -151,8 +180,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 3 }, { x: 3, y: 2 }],
         lakeZones: [{ x: 1, y: 3 }],
         difficultyParams: {
-            minSteps: 5, maxSteps: 8, requiredJumps: 1,
-            obstacleDensity: [1, 3], lakeDensity: [0, 1],
+            minSteps: 6, maxSteps: 10, requiredJumps: 1,
+            obstacleDensity: [3, 5], lakeDensity: [1, 2],
             branchComplexity: 1, deadEndTolerance: 1, mazeLevel: 1
         }
     },
@@ -165,8 +194,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 1, y: 4 }, { x: 2, y: 3 }, { x: 3, y: 2 }],
         lakeZones: [{ x: 1, y: 2 }, { x: 2, y: 1 }],
         difficultyParams: {
-            minSteps: 8, maxSteps: 12, requiredJumps: 2,
-            obstacleDensity: [2, 4], lakeDensity: [1, 2],
+            minSteps: 11, maxSteps: 18, requiredJumps: 2,
+            obstacleDensity: [6, 10], lakeDensity: [2, 4],
             branchComplexity: 2, deadEndTolerance: 2, mazeLevel: 2
         }
     },
@@ -178,8 +207,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 3, y: 4 }, { x: 2, y: 3 }, { x: 2, y: 1 }],
         lakeZones: [{ x: 1, y: 3 }, { x: 3, y: 2 }],
         difficultyParams: {
-            minSteps: 8, maxSteps: 12, requiredJumps: 2,
-            obstacleDensity: [2, 4], lakeDensity: [1, 2],
+            minSteps: 11, maxSteps: 18, requiredJumps: 2,
+            obstacleDensity: [6, 10], lakeDensity: [2, 4],
             branchComplexity: 2, deadEndTolerance: 2, mazeLevel: 2
         }
     },
@@ -191,8 +220,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 2, y: 1 }, { x: 3, y: 1 }, { x: 2, y: 3 }],
         lakeZones: [{ x: 1, y: 2 }, { x: 3, y: 2 }],
         difficultyParams: {
-            minSteps: 9, maxSteps: 12, requiredJumps: 2,
-            obstacleDensity: [2, 4], lakeDensity: [1, 2],
+            minSteps: 11, maxSteps: 18, requiredJumps: 2,
+            obstacleDensity: [6, 10], lakeDensity: [2, 4],
             branchComplexity: 2, deadEndTolerance: 2, mazeLevel: 2
         }
     },
@@ -204,8 +233,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 3, y: 1 }, { x: 2, y: 2 }, { x: 1, y: 3 }],
         lakeZones: [{ x: 3, y: 3 }, { x: 1, y: 1 }],
         difficultyParams: {
-            minSteps: 8, maxSteps: 12, requiredJumps: 2,
-            obstacleDensity: [2, 4], lakeDensity: [1, 2],
+            minSteps: 11, maxSteps: 18, requiredJumps: 2,
+            obstacleDensity: [6, 10], lakeDensity: [2, 4],
             branchComplexity: 2, deadEndTolerance: 2, mazeLevel: 2
         }
     },
@@ -217,8 +246,8 @@ export const LEVEL_TEMPLATES: LevelTemplate[] = [
         obstacleZones: [{ x: 1, y: 1 }, { x: 2, y: 2 }, { x: 3, y: 3 }],
         lakeZones: [{ x: 2, y: 1 }, { x: 1, y: 3 }],
         difficultyParams: {
-            minSteps: 8, maxSteps: 12, requiredJumps: 2,
-            obstacleDensity: [2, 4], lakeDensity: [1, 2],
+            minSteps: 11, maxSteps: 18, requiredJumps: 2,
+            obstacleDensity: [6, 10], lakeDensity: [2, 4],
             branchComplexity: 2, deadEndTolerance: 2, mazeLevel: 2
         }
     }

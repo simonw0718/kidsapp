@@ -264,3 +264,201 @@ export const generateLevel = (mode: GameMode, difficulty: Difficulty, seed?: str
 export const getModeConfig = (mode: GameMode): ModeConfig => {
     return GAME_MODES.find(m => m.id === mode) || GAME_MODES[0];
 };
+
+// ===== Path Complexity Analysis =====
+
+import type { PathComplexity } from './levelTemplates';
+import { calculateComplexityScore, COMPLEXITY_RANGES } from './levelTemplates';
+
+/**
+ * Analyze path complexity by finding the shortest path and calculating metrics
+ */
+export function analyzePathComplexity(
+    start: Position & { dir: Direction },
+    goal: Position,
+    obstacles: Position[],
+    lakes: Position[],
+    gridSize: number,
+    canJump: boolean
+): PathComplexity | null {
+    interface PathState {
+        x: number;
+        y: number;
+        dir: Direction;
+        steps: number;
+        jumps: number;
+        turns: number;
+        path: Array<{ x: number; y: number; action: string }>;
+    }
+
+    const queue: PathState[] = [{
+        x: start.x,
+        y: start.y,
+        dir: start.dir,
+        steps: 0,
+        jumps: 0,
+        turns: 0,
+        path: []
+    }];
+
+    const visited = new Set<string>();
+    visited.add(`${start.x},${start.y},${start.dir}`);
+
+    const isObstacle = (x: number, y: number) => obstacles.some(o => o.x === x && o.y === y);
+    const isLake = (x: number, y: number) => lakes.some(l => l.x === x && l.y === y);
+    const isValid = (x: number, y: number) => x >= 0 && x < gridSize && y >= 0 && y < gridSize;
+
+    const directionMap: Record<Direction, { dx: number; dy: number }> = {
+        up: { dx: 0, dy: -1 },
+        down: { dx: 0, dy: 1 },
+        left: { dx: -1, dy: 0 },
+        right: { dx: 1, dy: 0 }
+    };
+
+    const turnLeft: Record<Direction, Direction> = {
+        up: 'left', left: 'down', down: 'right', right: 'up'
+    };
+
+    const turnRight: Record<Direction, Direction> = {
+        up: 'right', right: 'down', down: 'left', left: 'up'
+    };
+
+    while (queue.length > 0) {
+        const curr = queue.shift()!;
+
+        if (curr.x === goal.x && curr.y === goal.y) {
+            // Found path - calculate complexity metrics
+            return {
+                totalSteps: curr.steps,
+                turnCount: curr.turns,
+                jumpCount: curr.jumps,
+                backtrackCount: calculateBacktracks(curr.path),
+                choicePoints: 0, // Would need full map analysis
+                deadEndEncounters: 0 // Would need full map analysis
+            };
+        }
+
+        // Try moving forward
+        const { dx, dy } = directionMap[curr.dir];
+        const nextX = curr.x + dx;
+        const nextY = curr.y + dy;
+
+        if (isValid(nextX, nextY) && !isLake(nextX, nextY) && !isObstacle(nextX, nextY)) {
+            const key = `${nextX},${nextY},${curr.dir}`;
+            if (!visited.has(key)) {
+                visited.add(key);
+                queue.push({
+                    x: nextX,
+                    y: nextY,
+                    dir: curr.dir,
+                    steps: curr.steps + 1,
+                    jumps: curr.jumps,
+                    turns: curr.turns,
+                    path: [...curr.path, { x: nextX, y: nextY, action: 'forward' }]
+                });
+            }
+        }
+
+        // Try jumping
+        if (canJump) {
+            const jumpX = curr.x + dx * 2;
+            const jumpY = curr.y + dy * 2;
+            const midX = curr.x + dx;
+            const midY = curr.y + dy;
+
+            if (isValid(jumpX, jumpY) && !isObstacle(jumpX, jumpY) && !isLake(jumpX, jumpY) && !isLake(midX, midY)) {
+                const key = `${jumpX},${jumpY},${curr.dir}`;
+                if (!visited.has(key)) {
+                    visited.add(key);
+                    queue.push({
+                        x: jumpX,
+                        y: jumpY,
+                        dir: curr.dir,
+                        steps: curr.steps + 1,
+                        jumps: curr.jumps + 1,
+                        turns: curr.turns,
+                        path: [...curr.path, { x: jumpX, y: jumpY, action: 'jump' }]
+                    });
+                }
+            }
+        }
+
+        // Try turning left
+        const leftDir = turnLeft[curr.dir];
+        const leftKey = `${curr.x},${curr.y},${leftDir}`;
+        if (!visited.has(leftKey)) {
+            visited.add(leftKey);
+            queue.push({
+                x: curr.x,
+                y: curr.y,
+                dir: leftDir,
+                steps: curr.steps,
+                jumps: curr.jumps,
+                turns: curr.turns + 1,
+                path: [...curr.path, { x: curr.x, y: curr.y, action: 'turnLeft' }]
+            });
+        }
+
+        // Try turning right
+        const rightDir = turnRight[curr.dir];
+        const rightKey = `${curr.x},${curr.y},${rightDir}`;
+        if (!visited.has(rightKey)) {
+            visited.add(rightKey);
+            queue.push({
+                x: curr.x,
+                y: curr.y,
+                dir: rightDir,
+                steps: curr.steps,
+                jumps: curr.jumps,
+                turns: curr.turns + 1,
+                path: [...curr.path, { x: curr.x, y: curr.y, action: 'turnRight' }]
+            });
+        }
+    }
+
+    return null; // No path found
+}
+
+/**
+ * Calculate number of backtracks in path
+ */
+function calculateBacktracks(path: Array<{ x: number; y: number; action: string }>): number {
+    let backtracks = 0;
+    for (let i = 2; i < path.length; i++) {
+        const curr = path[i];
+        const prevPrev = path[i - 2];
+
+        // Check if we're returning to a previous position
+        if (curr.x === prevPrev.x && curr.y === prevPrev.y) {
+            backtracks++;
+        }
+    }
+    return backtracks;
+}
+
+/**
+ * Validate if a level matches its target difficulty based on complexity
+ */
+export function validateLevelDifficulty(
+    level: LevelConfig,
+    targetDifficulty: Difficulty
+): boolean {
+    const complexity = analyzePathComplexity(
+        level.start,
+        level.goal,
+        level.obstacles,
+        level.lakes || [],
+        level.gridSize,
+        level.allowedCommands.includes('jump')
+    );
+
+    if (!complexity) {
+        return false; // No valid path
+    }
+
+    const score = calculateComplexityScore(complexity);
+    const [minScore, maxScore] = COMPLEXITY_RANGES[targetDifficulty];
+
+    return score >= minScore && score <= maxScore;
+}
+
