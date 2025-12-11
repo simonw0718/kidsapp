@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { audioManager } from '../../core/audio/audioPlayer';
+import { audioManager } from '../../../core/audio/audioPlayer';
 
 interface UseAudioReturn {
     play: (url: string, text?: string) => Promise<void>;

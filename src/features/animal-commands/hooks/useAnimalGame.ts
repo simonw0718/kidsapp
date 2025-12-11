@@ -7,7 +7,7 @@ import { turnLeftCommand } from '../commands/turnLeft';
 import { turnRightCommand } from '../commands/turnRight';
 import { jumpCommand } from '../commands/jump';
 import type { GameContext } from '../commands/types';
-import { audioManager } from '../../core/audio/audioPlayer';
+import { audioManager } from '../../../core/audio/audioPlayer';
 
 // Register commands
 commandRegistry.register(forwardCommand);
