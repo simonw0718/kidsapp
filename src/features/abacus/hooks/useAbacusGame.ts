@@ -1,5 +1,5 @@
 // src/features/abacus/hooks/useAbacusGame.ts
-import { useCallback, useMemo, useState, useEffect } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { AbacusQuestion, Operator } from "../types";
 import { audioManager } from "../../../core/audio/audioPlayer";
 
@@ -139,12 +139,6 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
   const [hasAnsweredCurrent, setHasAnsweredCurrent] = useState(false); // Track if user has attempted current question
   const [allQuestions, setAllQuestions] = useState<AbacusQuestion[]>([question]); // Track all questions in this round
   const totalQuestions = 5;
-
-  // Preload audio on mount
-  useEffect(() => {
-    audioManager.preload('correct', '/audio/correct_sound.mp3');
-    audioManager.preload('failure', '/audio/failure_sound.mp3');
-  }, []);
 
   const nextQuestion = useCallback(() => {
     if (questionIndex >= totalQuestions - 1) {

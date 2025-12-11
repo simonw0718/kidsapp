@@ -76,6 +76,7 @@ export const AbacusPlayPage: React.FC = () => {
   const { history, addRecord, clearHistory } = useAbacusHistory();
   const [showHistory, setShowHistory] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(true);
+  const [gameStarted, setGameStarted] = useState(false);
 
   // Preload audio on mount
   React.useEffect(() => {
@@ -94,6 +95,21 @@ export const AbacusPlayPage: React.FC = () => {
     };
     preloadAudio();
   }, []);
+
+  // Handle Ready GO click to start game and unlock audio
+  const handleStartGame = async () => {
+    // Play silent audio to unlock (iOS requirement - must be synchronous in user event)
+    const silentAudio = new Audio();
+    silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+    silentAudio.play().catch(() => console.log('Silent audio played for unlock'));
+
+    // Also unlock AudioContext
+    audioManager.unlock();
+    await audioManager.resumeContext();
+
+    setGameStarted(true);
+    console.log('Ready GO clicked - audio unlocked');
+  };
 
   // Save history when game finishes
   React.useEffect(() => {
@@ -114,6 +130,11 @@ export const AbacusPlayPage: React.FC = () => {
       setAvatarIndex(Math.floor(Math.random() * avatarCount));
     }
   }, [question, avatarCount]);
+
+  // Reset gameStarted when difficulty changes
+  React.useEffect(() => {
+    setGameStarted(false);
+  }, [difficulty]);
 
   // 點選答案
   const handleOptionClick = (value: number) => {
@@ -235,15 +256,29 @@ export const AbacusPlayPage: React.FC = () => {
             current={questionIndex}
             results={results}
           />
-          <PureMathLayout
-            question={question}
-            status={status}
-            selected={selected}
-            statusImg={statusImg}
-            statusImgAlt={statusImgAlt}
-            onOptionClick={handleOptionClick}
-            onNext={handleNext}
-          />
+          {!gameStarted ? (
+            /* Ready GO Overlay */
+            <div className="abacus-ready-go-container" onClick={handleStartGame}>
+              <div className="abacus-ready-go-content">
+                <img
+                  src="/images/picture-match/ready-go.png"
+                  alt="點擊開始遊戲"
+                  className="abacus-ready-go-image"
+                />
+                <p className="abacus-ready-go-hint">點擊圖片開始遊戲</p>
+              </div>
+            </div>
+          ) : (
+            <PureMathLayout
+              question={question}
+              status={status}
+              selected={selected}
+              statusImg={statusImg}
+              statusImgAlt={statusImgAlt}
+              onOptionClick={handleOptionClick}
+              onNext={handleNext}
+            />
+          )}
         </>
       ) : (
         /* Abacus Mode Layout */
@@ -253,103 +288,117 @@ export const AbacusPlayPage: React.FC = () => {
             current={questionIndex}
             results={results}
           />
-          <div className="abacus-play-layout">
-            {/* 左側：算盤區 */}
-            <div className="abacus-left">
-              <div className="abacus-left-inner">
-                <AbacusBoard />
+          {!gameStarted ? (
+            /* Ready GO Overlay */
+            <div className="abacus-ready-go-container" onClick={handleStartGame}>
+              <div className="abacus-ready-go-content">
+                <img
+                  src="/images/picture-match/ready-go.png"
+                  alt="點擊開始遊戲"
+                  className="abacus-ready-go-image"
+                />
+                <p className="abacus-ready-go-hint">點擊圖片開始遊戲</p>
               </div>
             </div>
-
-            {/* 右側：題目＋選項 */}
-            <div className="abacus-right">
-              {/* 題目區塊 */}
-              <div className="abacus-question-panel">
-                <div className="abacus-question-text">
-                  {question.a} {question.operator} {question.b} = ?
+          ) : (
+            <div className="abacus-play-layout">
+              {/* 左側：算盤區 */}
+              <div className="abacus-left">
+                <div className="abacus-left-inner">
+                  <AbacusBoard />
                 </div>
-
-                {/* 題目下方插圖：think / answer 成對切換 */}
-                {statusImg && (
-                  <img
-                    key={statusImg} // 🔑 用圖片 URL 當 key，強制 Safari 重建 <img>，避免不更新
-                    src={statusImg}
-                    alt={statusImgAlt}
-                    className="abacus-question-illustration"
-                  />
-                )}
               </div>
 
-              {/* 選項區塊 */}
-              <div className="abacus-options-panel">
-                {/* 答案是～（用 BpmWord 元件） */}
-                <div className="abacus-answer-label">
-                  <BpmWord char="答" onset="ㄉ" rime="ㄚ" tone="ˊ" />
-                  <BpmWord char="案" rime="ㄢ" tone="ˋ" />
-                  <BpmWord char="是" onset="ㄕ" tone="ˋ" />
-                  <span className="bpm-tilde">～</span>
-                </div>
+              {/* 右側：題目＋選項 */}
+              <div className="abacus-right">
+                {/* 題目區塊 */}
+                <div className="abacus-question-panel">
+                  <div className="abacus-question-text">
+                    {question.a} {question.operator} {question.b} = ?
+                  </div>
 
-                <div className="abacus-options">
-                  {question.options.map((option) => {
-                    const isSelected = selected === option;
-                    const isCorrect = option === question.answer;
-
-                    let className = "abacus-option-button";
-                    if (status !== "idle" && isSelected) {
-                      className += isCorrect
-                        ? " abacus-option-button--correct"
-                        : " abacus-option-button--incorrect abacus-option-button--disabled";
-                    }
-
-                    const disabled =
-                      status === "correct" ||
-                      (status === "incorrect" && isSelected && !isCorrect);
-
-                    return (
-                      <button
-                        key={option}
-                        type="button"
-                        className={className}
-                        onClick={() => handleOptionClick(option)}
-                        disabled={disabled}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* 預留「下一題」固定高度，避免版面跳動 */}
-                <div className="abacus-next-button-slot">
-                  {status === "correct" && (
-                    <button
-                      type="button"
-                      className="abacus-next-button"
-                      onClick={handleNext}
-                    >
-                      <span className="abacus-next-button-inner">
-                        <BpmWord
-                          char="下"
-                          onset="ㄒ"
-                          rime="ㄧㄚ"
-                          tone="ˋ"
-                        />
-                        <BpmWord char="一" onset="ㄧ" />
-                        <BpmWord
-                          char="題"
-                          onset="ㄊ"
-                          rime="ㄧ"
-                          tone="ˊ"
-                        />
-                        <span className="abacus-next-arrow">➜</span>
-                      </span>
-                    </button>
+                  {/* 題目下方插圖：think / answer 成對切換 */}
+                  {statusImg && (
+                    <img
+                      key={statusImg} // 🔑 用圖片 URL 當 key，強制 Safari 重建 <img>，避免不更新
+                      src={statusImg}
+                      alt={statusImgAlt}
+                      className="abacus-question-illustration"
+                    />
                   )}
                 </div>
+
+                {/* 選項區塊 */}
+                <div className="abacus-options-panel">
+                  {/* 答案是～（用 BpmWord 元件） */}
+                  <div className="abacus-answer-label">
+                    <BpmWord char="答" onset="ㄉ" rime="ㄚ" tone="ˊ" />
+                    <BpmWord char="案" rime="ㄢ" tone="ˋ" />
+                    <BpmWord char="是" onset="ㄕ" tone="ˋ" />
+                    <span className="bpm-tilde">～</span>
+                  </div>
+
+                  <div className="abacus-options">
+                    {question.options.map((option) => {
+                      const isSelected = selected === option;
+                      const isCorrect = option === question.answer;
+
+                      let className = "abacus-option-button";
+                      if (status !== "idle" && isSelected) {
+                        className += isCorrect
+                          ? " abacus-option-button--correct"
+                          : " abacus-option-button--incorrect abacus-option-button--disabled";
+                      }
+
+                      const disabled =
+                        status === "correct" ||
+                        (status === "incorrect" && isSelected && !isCorrect);
+
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          className={className}
+                          onClick={() => handleOptionClick(option)}
+                          disabled={disabled}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 預留「下一題」固定高度，避免版面跳動 */}
+                  <div className="abacus-next-button-slot">
+                    {status === "correct" && (
+                      <button
+                        type="button"
+                        className="abacus-next-button"
+                        onClick={handleNext}
+                      >
+                        <span className="abacus-next-button-inner">
+                          <BpmWord
+                            char="下"
+                            onset="ㄒ"
+                            rime="ㄧㄚ"
+                            tone="ˋ"
+                          />
+                          <BpmWord char="一" onset="ㄧ" />
+                          <BpmWord
+                            char="題"
+                            onset="ㄊ"
+                            rime="ㄧ"
+                            tone="ˊ"
+                          />
+                          <span className="abacus-next-arrow">➜</span>
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </>
       )}
       {CustomModalComponent}

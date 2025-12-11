@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { audioManager } from '../../core/audio/audioPlayer';
 
 interface UseAudioReturn {
     play: (url: string, text?: string) => Promise<void>;
@@ -15,7 +16,8 @@ const activeAudioInstances: HTMLAudioElement[] = [];
 // Helper function to play audio with HTMLAudioElement (iOS-friendly)
 const playAudioElement = (audio: HTMLAudioElement, maxDuration: number = 3000) => {
     const sound = audio.cloneNode() as HTMLAudioElement;
-    sound.volume = 1.0;
+    // Use master volume from audioManager
+    sound.volume = audioManager.getVolume();
 
     // Track this instance
     activeAudioInstances.push(sound);

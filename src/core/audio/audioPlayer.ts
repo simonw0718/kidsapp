@@ -4,6 +4,7 @@ class AudioManager {
   private context: AudioContext | null = null;
   private buffers: Map<string, AudioBuffer> = new Map();
   private isUnlocked: boolean = false;
+  private masterVolume: number = 0.7; // Default 70%
 
   constructor() {
     // Initialize AudioContext lazily or on demand
@@ -24,6 +25,12 @@ class AudioManager {
 
     } catch (e) {
       console.error('Web Audio API not supported:', e);
+    }
+
+    // Load volume from localStorage
+    const savedVolume = localStorage.getItem('app-volume');
+    if (savedVolume) {
+      this.masterVolume = parseInt(savedVolume) / 100;
     }
   }
 
@@ -139,12 +146,26 @@ class AudioManager {
     source.buffer = buffer;
 
     const gainNode = this.context.createGain();
-    gainNode.gain.value = volume;
+    gainNode.gain.value = volume * this.masterVolume; // Apply master volume
 
     source.connect(gainNode);
     gainNode.connect(this.context.destination);
 
     source.start(0);
+  }
+
+  /**
+   * Set master volume (0.0 to 1.0)
+   */
+  public setVolume(volume: number) {
+    this.masterVolume = Math.max(0, Math.min(1, volume)); // Clamp between 0 and 1
+  }
+
+  /**
+   * Get current master volume
+   */
+  public getVolume(): number {
+    return this.masterVolume;
   }
 
   /**

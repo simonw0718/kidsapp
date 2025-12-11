@@ -7,6 +7,7 @@ import { turnLeftCommand } from '../commands/turnLeft';
 import { turnRightCommand } from '../commands/turnRight';
 import { jumpCommand } from '../commands/jump';
 import type { GameContext } from '../commands/types';
+import { audioManager } from '../../core/audio/audioPlayer';
 
 // Register commands
 commandRegistry.register(forwardCommand);
@@ -25,8 +26,20 @@ const activeAudioInstances: HTMLAudioElement[] = [];
 
 // Helper function to play audio with duration limit
 const playAudio = (audio: HTMLAudioElement, maxDuration: number = 1000) => {
+    // Limit total active audio instances to prevent memory issues
+    const MAX_AUDIO_INSTANCES = 10;
+    if (activeAudioInstances.length >= MAX_AUDIO_INSTANCES) {
+        // Stop and remove oldest instance
+        const oldest = activeAudioInstances.shift();
+        if (oldest) {
+            oldest.pause();
+            oldest.currentTime = 0;
+        }
+    }
+
     const sound = audio.cloneNode() as HTMLAudioElement;
-    sound.volume = 1.0;
+    // Use master volume from audioManager
+    sound.volume = audioManager.getVolume();
 
     // Track this instance
     activeAudioInstances.push(sound);
@@ -98,6 +111,14 @@ export const useAnimalGame = (initialMode: GameMode = 1, difficulty: Difficulty 
         setIsCollision(false);
         setCurrentCommandIndex(-1);
     }, [gameMode, difficulty, seed]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            stopAllAudio();
+        };
+    }, []);
 
     const resetLevel = useCallback(() => {
         if (timerRef.current) clearTimeout(timerRef.current);
@@ -319,6 +340,13 @@ export const useAnimalGame = (initialMode: GameMode = 1, difficulty: Difficulty 
 
     const startGame = () => {
         if (commands.length === 0 || modeConfig.isDirect) return;
+        // Prevent multiple simultaneous executions
+        if (isPlaying) return;
+
+        // Clear any existing timers and audio
+        if (timerRef.current) clearTimeout(timerRef.current);
+        stopAllAudio();
+
         setIsPlaying(true);
         setIsWon(false);
         setIsLost(false);

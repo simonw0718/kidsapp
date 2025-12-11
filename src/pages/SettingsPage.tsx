@@ -4,6 +4,7 @@ import { BackToHomeButton } from '../components/common/BackToHomeButton';
 import { useModal } from '../components/common/CustomModal';
 import { VOCAB_LIST } from '../features/picture-match/data/vocab';
 import { avatarPairs } from '../features/abacus/utils/avatarAssets';
+import { audioManager } from '../core/audio/audioPlayer';
 import './settings.css';
 
 const CACHE_NAME = 'kidsapp-v11'; // Must match sw.js
@@ -39,11 +40,27 @@ export const SettingsPage: React.FC = () => {
     const [cachedCount, setCachedCount] = useState<number>(0);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const { showConfirm, showAlert, CustomModalComponent } = useModal();
+    const [volume, setVolume] = useState<number>(() => {
+        const saved = localStorage.getItem('app-volume');
+        return saved ? parseInt(saved) : 70; // Default 70%
+    });
 
     // Check cache status on mount
     useEffect(() => {
         checkCacheStatus();
     }, []);
+
+    // Save volume to localStorage when it changes
+    useEffect(() => {
+        localStorage.setItem('app-volume', volume.toString());
+        // Update audioManager volume
+        audioManager.setVolume(volume / 100);
+    }, [volume]);
+
+    const handleVolumeTest = () => {
+        // Play test sound at current volume
+        audioManager.playTestSound();
+    };
 
     const checkCacheStatus = async () => {
         if (!('caches' in window)) return;
@@ -265,6 +282,39 @@ export const SettingsPage: React.FC = () => {
                             disabled={status === 'downloading'}
                         >
                             🗑️ 清除暫存
+                        </button>
+                    </div>
+                </div>
+
+                <div className="settings-section">
+                    <h3 className="settings-title">🔊 音量控制</h3>
+                    <p className="settings-info">
+                        調整所有遊戲的音效音量大小
+                    </p>
+
+                    <div className="volume-control">
+                        <div className="volume-header">
+                            <span className="volume-label">音量</span>
+                            <span className="volume-value">{volume}%</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={volume}
+                            onChange={(e) => setVolume(parseInt(e.target.value))}
+                            className="volume-slider"
+                        />
+                        <div className="volume-marks">
+                            <span>🔇 靜音</span>
+                            <span>🔊 最大</span>
+                        </div>
+                        <button
+                            className="settings-btn btn-test"
+                            onClick={handleVolumeTest}
+                            style={{ marginTop: '16px', background: '#4CAF50' }}
+                        >
+                            🎵 測試音量
                         </button>
                     </div>
                 </div>
