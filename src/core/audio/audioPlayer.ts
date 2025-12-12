@@ -99,6 +99,12 @@ class AudioManager {
     if (!this.context) return;
 
     try {
+      // Ensure AudioContext is running before decoding (critical for iOS/Safari)
+      if (this.context.state === 'suspended') {
+        await this.context.resume();
+        console.log('AudioContext resumed during preload');
+      }
+
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await this.context.decodeAudioData(arrayBuffer);
@@ -197,15 +203,17 @@ class AudioManager {
       oscillator.frequency.setValueAtTime(440, this.context.currentTime); // A4
       oscillator.frequency.exponentialRampToValueAtTime(880, this.context.currentTime + 0.1);
 
-      gainNode.gain.setValueAtTime(0.5, this.context.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
+      // Apply master volume to test sound
+      const baseVolume = 0.5;
+      gainNode.gain.setValueAtTime(baseVolume * this.masterVolume, this.context.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01 * this.masterVolume, this.context.currentTime + 0.5);
 
       oscillator.connect(gainNode);
       gainNode.connect(this.context.destination);
 
       oscillator.start();
       oscillator.stop(this.context.currentTime + 0.5);
-      console.log('Test sound played (Oscillator)');
+      console.log(`Test sound played (Oscillator) at ${Math.round(this.masterVolume * 100)}% volume`);
     } catch (e) {
       console.error('Failed to play test sound:', e);
     }

@@ -26,11 +26,17 @@ export const HomePage: React.FC = () => {
     setDismissed(true);
   };
 
-  const handleSoundCheck = () => {
-    // Force unlock audio context
-    audioManager.unlock();
-    // Play test sound (Oscillator beep) to verify AudioContext
-    audioManager.playTestSound();
+  const handleSoundCheck = async () => {
+    try {
+      // Force unlock audio context
+      audioManager.unlock();
+      // Ensure AudioContext is resumed
+      await audioManager.resumeContext();
+      // Play test sound (Oscillator beep) to verify AudioContext
+      audioManager.playTestSound();
+    } catch (error) {
+      console.error('Failed to play test sound:', error);
+    }
   };
 
   return (

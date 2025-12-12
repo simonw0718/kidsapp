@@ -57,9 +57,15 @@ export const SettingsPage: React.FC = () => {
         audioManager.setVolume(volume / 100);
     }, [volume]);
 
-    const handleVolumeTest = () => {
-        // Play test sound at current volume
-        audioManager.playTestSound();
+    const handleVolumeTest = async () => {
+        try {
+            // Ensure AudioContext is resumed before playing
+            await audioManager.resumeContext();
+            // Play test sound at current volume
+            audioManager.playTestSound();
+        } catch (error) {
+            console.error('Failed to play test sound:', error);
+        }
     };
 
     const checkCacheStatus = async () => {

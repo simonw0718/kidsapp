@@ -38,7 +38,7 @@ const playAudio = (audio: HTMLAudioElement, maxDuration: number = 1000) => {
     }
 
     const sound = audio.cloneNode() as HTMLAudioElement;
-    // Use master volume from audioManager
+    // Read volume dynamically from audioManager to respect volume changes
     sound.volume = audioManager.getVolume();
 
     // Track this instance
