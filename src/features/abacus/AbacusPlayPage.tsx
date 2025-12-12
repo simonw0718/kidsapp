@@ -19,7 +19,7 @@ import { AbacusEndScreen } from "./components/AbacusEndScreen";
 import { AbacusHistoryModal } from "./components/AbacusHistoryModal";
 import { useAbacusHistory } from "./hooks/useAbacusHistory";
 import { AudioLoadingOverlay } from "../../components/common/AudioLoadingOverlay";
-import { audioManager } from "../../core/audio/audioPlayer";
+import { useGameAudio } from "../../hooks/useGameAudio";
 
 type DifficultyLevel = 1 | 2 | 3;
 
@@ -78,37 +78,24 @@ export const AbacusPlayPage: React.FC = () => {
   const [isLoadingAudio, setIsLoadingAudio] = useState(true);
   const [gameStarted, setGameStarted] = useState(false);
 
-  // Preload audio on mount
+  // Preload logic removed in favor of direct file path usage for consistency with Picture Match
+  // This helps avoid issues with preloaded buffers on iOS PWA
   React.useEffect(() => {
-    const preloadAudio = async () => {
-      try {
-        await Promise.all([
-          audioManager.preload('correct', '/audio/correct_sound.mp3'),
-          audioManager.preload('failure', '/audio/failure_sound.mp3'),
-          audioManager.preload('victory', '/audio/victory.mp3'),
-        ]);
-      } catch (error) {
-        console.error('Failed to preload audio:', error);
-      } finally {
-        setIsLoadingAudio(false);
-      }
-    };
-    preloadAudio();
+    setIsLoadingAudio(false);
   }, []);
 
+  const { unlockAudio } = useGameAudio();
+
   // Handle Ready GO click to start game and unlock audio
-  const handleStartGame = async () => {
-    // Play silent audio to unlock (iOS requirement - must be synchronous in user event)
-    const silentAudio = new Audio();
-    silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
-    silentAudio.play().catch(() => console.log('Silent audio played for unlock'));
+  const handleStartGame = () => {
+    // CRITICAL: Unlock audio for iOS using HTML5 Audio method
+    unlockAudio();
 
-    // Also unlock AudioContext
-    audioManager.unlock();
-    await audioManager.resumeContext();
-
-    setGameStarted(true);
-    console.log('Ready GO clicked - audio unlocked');
+    // Small delay to ensure state update
+    setTimeout(() => {
+      setGameStarted(true);
+      console.log('Ready GO clicked - HTML5 audio unlocked');
+    }, 100);
   };
 
   // Save history when game finishes
@@ -172,12 +159,11 @@ export const AbacusPlayPage: React.FC = () => {
     if (level === difficulty) return;
 
     setDifficulty(level);
-    nextQuestion();
-
-    // (handled by useEffect)
+    setGameStarted(false);
 
     showAlert(difficultyDescriptions[level]);
   };
+
 
   // 根據 avatarIndex & 狀態選圖
   const currentPair =
@@ -207,7 +193,7 @@ export const AbacusPlayPage: React.FC = () => {
             📜
           </button>
 
-          {/* Mode Switch Button */}
+          {/* Mode Switch Button - goes to entry page */}
           <button
             type="button"
             className="abacus-mode-switch-btn"
@@ -216,27 +202,17 @@ export const AbacusPlayPage: React.FC = () => {
             切換模式
           </button>
 
-          {/* 難度選擇：1 / 2 / 3 紅圈圈 */}
-          <div className="abacus-difficulty-toggle">
-            <span className="abacus-difficulty-label">難度</span>
-            {[1, 2, 3].map((level) => (
-              <button
-                key={level}
-                type="button"
-                className={
-                  "abacus-difficulty-pill" +
-                  (difficulty === level
-                    ? " abacus-difficulty-pill--active"
-                    : "")
-                }
-                onClick={() =>
-                  handleDifficultyChange(level as DifficultyLevel)
-                }
-              >
-                {level}
-              </button>
-            ))}
-          </div>
+          {/* Difficulty Dropdown */}
+          <select
+            value={difficulty}
+            onChange={(e) => handleDifficultyChange(parseInt(e.target.value) as DifficultyLevel)}
+            className="pm-difficulty-select"
+            style={{ marginRight: '8px' }}
+          >
+            <option value={1}>難度 1 (1-19加法)</option>
+            <option value={2}>難度 2 (1-19加減)</option>
+            <option value={3}>難度 3 (1-40加減)</option>
+          </select>
 
           <BackToHomeButton />
         </div>

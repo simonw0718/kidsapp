@@ -1,7 +1,7 @@
 // src/features/abacus/hooks/useAbacusGame.ts
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import type { AbacusQuestion, Operator } from "../types";
-import { audioManager } from "../../../core/audio/audioPlayer";
+import { useGameAudio } from "../../../hooks/useGameAudio";
 
 type Status = "idle" | "correct" | "incorrect";
 
@@ -125,6 +125,9 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
   const defaultOperators = useMemo<Operator[]>(() => ["+"], []);
   const allowedOperators = options?.allowedOperators ?? defaultOperators;
 
+  // Use shared audio hook for HTML5 Audio playback
+  const { play } = useGameAudio();
+
   const [question, setQuestion] = useState<AbacusQuestion>(() =>
     generateQuestion(minValue, maxValue, maxResult, allowedOperators)
   );
@@ -187,12 +190,12 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
       }
 
       if (isCorrect) {
-        // Play correct sound using AudioManager
-        audioManager.play('correct', 0.2);
+        // Play correct sound using useGameAudio (HTML5 Audio)
+        play('/audio/correct_sound.mp3');
         setStatus("correct");
       } else {
-        // Play failure sound using AudioManager
-        audioManager.play('failure', 0.2);
+        // Play failure sound using useGameAudio
+        play('/audio/failure_sound.mp3');
         setStatus("incorrect");
       }
     },
@@ -211,6 +214,12 @@ export const useAbacusGame = (options?: UseAbacusGameOptions) => {
     setSelected(null);
     setHasAnsweredCurrent(false);
   }, [minValue, maxValue, maxResult, allowedOperators]);
+
+  // Auto-restart game when configuration changes (difficulty switch)
+  // This ensures we always start fresh with correct difficulty
+  useEffect(() => {
+    restartGame();
+  }, [restartGame]);
 
   return {
     question,

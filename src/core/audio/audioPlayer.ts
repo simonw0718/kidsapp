@@ -123,9 +123,14 @@ class AudioManager {
   public async play(id: string, volume: number = 1.0) {
     if (!this.context) return;
 
-    // Auto-unlock if not yet unlocked (though browser might block it if not in user event)
+    // Auto-unlock if not yet unlocked or suspended
     if (this.context.state === 'suspended') {
-      this.context.resume();
+      try {
+        await this.context.resume();
+        console.log('AudioContext explicitly resumed inside play()');
+      } catch (err) {
+        console.error('Failed to resume AudioContext in play():', err);
+      }
     }
 
     let buffer = this.buffers.get(id);
@@ -141,23 +146,28 @@ class AudioManager {
           return;
         }
       } else {
-        console.warn(`Audio not found: ${id}`);
+        console.warn(`Audio buffer not found for ID: ${id}`);
         return;
       }
     }
 
     if (!buffer) return;
 
-    const source = this.context.createBufferSource();
-    source.buffer = buffer;
+    try {
+      const source = this.context.createBufferSource();
+      source.buffer = buffer;
 
-    const gainNode = this.context.createGain();
-    gainNode.gain.value = volume * this.masterVolume; // Apply master volume
+      const gainNode = this.context.createGain();
+      gainNode.gain.value = volume * this.masterVolume; // Apply master volume
 
-    source.connect(gainNode);
-    gainNode.connect(this.context.destination);
+      source.connect(gainNode);
+      gainNode.connect(this.context.destination);
 
-    source.start(0);
+      source.start(0);
+      console.log(`Playing audio: ${id} at volume ${gainNode.gain.value}`);
+    } catch (e) {
+      console.error(`Error playing audio ${id}:`, e);
+    }
   }
 
   /**

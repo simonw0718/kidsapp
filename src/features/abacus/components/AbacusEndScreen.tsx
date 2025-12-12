@@ -57,10 +57,15 @@ const ZhuyinPhrase: React.FC<{ text: string; zhuyin: string }> = ({ text, zhuyin
 
 import { audioManager } from '../../../core/audio/audioPlayer';
 
+import { useGameAudio } from "../../../hooks/useGameAudio";
+
 export const AbacusEndScreen: React.FC<AbacusEndScreenProps> = ({ score, total, onRestart }) => {
+    const { play } = useGameAudio();
+
     React.useEffect(() => {
-        audioManager.play('/audio/victory.mp3');
-    }, []);
+        // Use direct file path for victory sound via HTML5 Audio
+        play('/audio/victory.mp3');
+    }, [play]);
 
     const percentage = Math.round((score / total) * 100);
 
