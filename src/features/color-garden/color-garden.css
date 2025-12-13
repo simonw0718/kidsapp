@@ -19,11 +19,23 @@
 }
 
 .cg-entry-options {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 40px;
     justify-content: center;
     max-width: 600px;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    .cg-entry-options {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .cg-entry-btn {
+        width: 240px;
+        height: 200px;
+    }
 }
 
 .cg-entry-btn {
@@ -742,4 +754,175 @@
 .cg-slot-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* === Portrait Overlay === */
+.cg-portrait-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(246, 246, 246, 0.98);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.cg-portrait-content h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.cg-portrait-content p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* === Mobile Landscape Optimization (iPhone/Small screens) === */
+@media (max-height: 500px) and (orientation: landscape) {
+
+    /* Override CSS variables for tighter spacing */
+    .color-garden-page {
+        --page-padding-top: 4px;
+        --page-padding-bottom: 4px;
+        --page-padding-horizontal: 16px;
+        /* Keep safe area consideration */
+    }
+
+    /* Compact Header */
+    .color-garden-page .page-header {
+        margin-bottom: 4px;
+        min-height: 32px;
+    }
+
+    .color-garden-page .page-title {
+        font-size: 1.1rem;
+    }
+
+    .color-garden-page .cg-mode-switch-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+        border-width: 1px;
+    }
+
+    .color-garden-page .back-to-home-button {
+        padding: 0;
+        font-size: 24px;
+    }
+
+    /* Compact Game Layout */
+    .cg-game-layout {
+        padding: 4px;
+        gap: 8px;
+    }
+
+    /* Compact Toolbar */
+    .cg-toolbar {
+        width: 76px;
+        /* Fixed small width */
+        min-width: 76px;
+        /* Don't shrink below this */
+        max-width: 76px;
+        padding: 8px 4px;
+        gap: 6px;
+        border-radius: 12px;
+        justify-content: flex-start;
+        /* Align to top */
+    }
+
+    /* Force side-by-side layout for small buttons (Folder/Camera & Undo/Clear) */
+    .cg-toolbar-row {
+        gap: 4px;
+        flex-direction: row !important;
+        /* Force row even if space is tight */
+        flex-wrap: nowrap;
+        width: 100%;
+        min-height: 32px;
+    }
+
+    /* Ensure specific buttons are small enough to fit two in a row */
+    .cg-btn-small {
+        width: 30px !important;
+        /* Fixed width for small icons */
+        height: 30px !important;
+        flex: 0 0 auto;
+        /* Don't grow or shrink */
+    }
+
+    /* Main tools (Brush, etc.) */
+    .cg-tool-btn:not(.cg-btn-small) {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto;
+        /* Center horizontally */
+    }
+
+    .cg-tool-btn {
+        border-radius: 10px;
+        /* Reduce shadow for cleaner look on small screens */
+        box-shadow:
+            0 2px 0 rgba(0, 0, 0, 0.2),
+            0 3px 3px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    /* Ensure Bottom Row sits at bottom */
+    .cg-toolbar-bottom {
+        margin-top: auto;
+    }
+
+    /* Entry Page Landscape Fix */
+    .cg-entry-options {
+        gap: 24px;
+        max-width: 100%;
+    }
+
+    .cg-entry-btn {
+        width: 160px;
+        height: 160px;
+        border-radius: 20px;
+    }
+
+    .cg-entry-icon {
+        font-size: 3rem;
+        margin-bottom: 4px;
+    }
+
+    .cg-entry-label {
+        font-size: 1.2rem;
+    }
+
+    .cg-entry-sublabel {
+        font-size: 0.8rem;
+    }
+
+    /* Adjust Popovers */
+    .cg-palette-popover {
+        width: 280px;
+        padding: 10px;
+        gap: 8px;
+        grid-template-columns: repeat(5, 1fr);
+        /* 5 columns */
+        grid-template-rows: repeat(4, 1fr);
+        /* Position adjustment */
+        right: 115%;
+    }
+
+    .cg-palette-color {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .cg-slider-popover {
+        width: 44px;
+        height: 140px;
+        padding: 10px 4px;
+        right: 115%;
+    }
 }

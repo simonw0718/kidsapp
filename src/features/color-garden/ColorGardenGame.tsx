@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageContainer } from '../../components/common/PageContainer';
 import { BackToHomeButton } from '../../components/common/BackToHomeButton';
 import { ColoringCanvas, type ColoringCanvasHandle } from './components/ColoringCanvas';
@@ -63,6 +63,7 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     const [toolMode, setToolMode] = useState<'brush' | 'eraser'>('brush');
     const [showPalette, setShowPalette] = useState(false);
     const [activeSlider, setActiveSlider] = useState<'brush' | 'eraser' | null>(null);
+    const [isPortrait, setIsPortrait] = useState(false);
 
     // Image Selection State
     const [selectedImageId, setSelectedImageId] = useState(AVAILABLE_IMAGES[0]?.id || 'animal_pikachu_01');
@@ -333,8 +334,24 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     // Simple iOS detection
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    useEffect(() => {
+        const checkOrientation = () => {
+            const isPortraitMode = window.matchMedia("(orientation: portrait)").matches;
+            // Only show warning on mobile devices (width < 768px generally, or logic based on user agent)
+            // But requirement says "iphone", so let's stick to checking generic portrait for now or combine with mobile check.
+            // Let's assume on desktop we don't care about orientation as much, but on mobile we do.
+            const isMobile = window.innerWidth <= 1024; // Broad definition of mobile/tablet
+            setIsPortrait(isPortraitMode && isMobile);
+        };
+
+        checkOrientation();
+        window.addEventListener('resize', checkOrientation);
+        return () => window.removeEventListener('resize', checkOrientation);
+    }, []);
+
     return (
         <PageContainer
+            className="color-garden-page"
             title="自由著色"
             headerRight={
                 <div className="cg-header-controls">
@@ -602,6 +619,25 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
 
             {/* Confirmation Modal */}
             {CustomModalComponent}
+
+            {/* Portrait Warning Overlay */}
+            {isPortrait && (
+                <div className="cg-portrait-overlay">
+                    <div className="cg-portrait-content">
+                        <img
+                            src="/assets/images/common/rotate-device.png"
+                            alt="Rotate Device"
+                            style={{ width: '80px', marginBottom: '20px' }}
+                            onError={(e) => {
+                                // Fallback if image doesn't exist, use an icon or just text
+                                e.currentTarget.style.display = 'none';
+                            }}
+                        />
+                        <h2>請將裝置轉為橫向</h2>
+                        <p>獲得最佳繪畫體驗</p>
+                    </div>
+                </div>
+            )}
         </PageContainer>
     );
 };
