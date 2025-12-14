@@ -42,8 +42,8 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         return filtered;
     }, [difficulty]);
 
-    // History buffer to prevent recent repeats (size 3)
-    const questionHistory = useRef<string[]>([]);
+    // History of ALL used questions in this round to prevent repeats
+    const roundHistory = useRef<Set<string>>(new Set());
 
     // Dummy "Ready GO" question for iOS audio unlock
     const READY_GO_QUESTION: VocabItem = {
@@ -58,20 +58,20 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     };
 
     // Pure-ish function to pick a question
-    const pickQuestion = useCallback((history: string[] = []) => {
+    const pickQuestion = useCallback(() => {
         const filteredList = getFilteredVocab();
+        // If filtered list is empty (e.g. error), fallback to full list
         const sourceList = filteredList.length > 0 ? filteredList : VOCAB_LIST;
 
         // Debug logging
         console.log('[DEBUG] Difficulty:', difficulty);
         console.log('[DEBUG] Filtered list size:', filteredList.length);
         console.log('[DEBUG] Source list size:', sourceList.length);
-        console.log('[DEBUG] Question history:', history);
+        console.log('[DEBUG] Round history size:', roundHistory.current.size);
 
         // Safety check: ensure we have vocab items
         if (!sourceList || sourceList.length === 0) {
             console.error('No vocabulary items available');
-            // Return a fallback question to prevent crash
             return {
                 target: {
                     id: 'fallback',
@@ -84,26 +84,44 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
             };
         }
 
-        // Ensure we have enough items for the game
+        // Just blindly return first item if we really don't have enough data
         if (sourceList.length < 4) {
             console.warn('Not enough vocabulary items, using all available');
             const target = sourceList[0];
             return { target, options: sourceList };
         }
 
-        // Filter out recently used questions
-        const availableList = sourceList.filter(item => !history.includes(item.id));
-        const selectionList = availableList.length >= 4 ? availableList : sourceList;
+        // 1. Identify available TARGETS (items not yet used as target)
+        // Convert Set to Array for filtering
+        const availableTargets = sourceList.filter(item => !roundHistory.current.has(item.id));
 
-        const target = weightManager.selectByWeight(selectionList, (item) => item.id);
-        const otherItems = selectionList.filter(item => item.id !== target.id);
-        const shuffledOthers = [...otherItems].sort(() => 0.5 - Math.random());
-        const distractors = shuffledOthers.slice(0, 3);
+        console.log(`[DEBUG] Available targets: ${availableTargets.length}/${sourceList.length}`);
+
+        // If we ran out of unique targets, reset history or fallback to full list
+        // Strategy: Fallback to full list but keep history (so we start repeating only when necessary)
+        // OR: Just pick from full list if we really have to.
+        let selectionPool = availableTargets;
+        if (availableTargets.length === 0) {
+            console.warn('[DEBUG] Round history exhausted! Resetting or looping.');
+            // Optional: roundHistory.current.clear(); 
+            // For now, let's just use the full sourceList so the game continues but repeats.
+            selectionPool = sourceList;
+        }
+
+        // 2. Pick a Target
+        const target = weightManager.selectByWeight(selectionPool, (item) => item.id);
+
+        // 3. Pick Distractors (Options)
+        // Options can come from the ENTIRE sourceList, not just unused ones.
+        // It makes the game harder if distractors reappear, which is fine.
+        const potentialDistractors = sourceList.filter(item => item.id !== target.id);
+        const shuffledDistractors = [...potentialDistractors].sort(() => 0.5 - Math.random());
+        const distractors = shuffledDistractors.slice(0, 3);
+
         const options = [target, ...distractors].sort(() => 0.5 - Math.random());
 
         // Debug logging for selected items
-        console.log(`[DEBUG] Target: "${target.word}" - "Difficulty:" ${target.difficulty}`);
-        console.log(`[DEBUG] Options difficulties: ${options.map(o => `${o.word}(${o.difficulty})`).join(', ')}`);
+        console.log(`[DEBUG] Target: "${target.word}" (Diff: ${target.difficulty})`);
 
         return { target, options };
     }, [getFilteredVocab, difficulty]);
@@ -130,7 +148,7 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         setStatus('idle');
         setSelectedId(null);
         // Clear history
-        questionHistory.current = [];
+        roundHistory.current.clear();
     }, [difficulty, mode]); // Reset when difficulty/mode changes
 
     // Add processing lock to prevent rapid clicks
@@ -227,7 +245,7 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
         setIsGameFinished(false);
         setStatus('idle');
         setSelectedId(null);
-        questionHistory.current = [];
+        roundHistory.current.clear();
         setIsProcessing(false);
         setHasAnsweredCurrent(false);
         gameStartedRef.current = false;
@@ -306,10 +324,10 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
             return;
         }
 
-        const { target, options } = pickQuestion(questionHistory.current);
+        const { target, options } = pickQuestion();
 
         // Update history
-        questionHistory.current = [target.id, ...questionHistory.current.slice(0, 2)];
+        roundHistory.current.add(target.id);
 
         setCurrentQuestion(target);
         setOptions(options);
@@ -323,10 +341,10 @@ export const useGameLogic = (difficulty: GameDifficulty = 1, mode: 'english' | '
     // New function to synchronously start the game and return the first audio
     const startGame = useCallback(() => {
         // 1. Pick the first real question
-        const { target, options } = pickQuestion([]);
+        const { target, options } = pickQuestion();
 
         // 2. Update history
-        questionHistory.current = [target.id];
+        roundHistory.current.add(target.id);
 
         // 3. Update state
         setCurrentQuestion(target);
