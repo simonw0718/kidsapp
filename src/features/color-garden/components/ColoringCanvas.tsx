@@ -18,10 +18,9 @@ export interface ColoringCanvasHandle {
 
 export const ColoringCanvas = forwardRef<ColoringCanvasHandle, ColoringCanvasProps>(({ imageSrc, color, brushSize, mode }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const cursorRef = useRef<HTMLDivElement>(null);
     const { canvasRef, startDrawing, draw, stopDrawing, undo, clearCanvas, initializeCanvas, resizeCanvas, getImageData, restoreImageData } = useCanvas({ color, brushSize, mode });
 
-    // Cursor State
-    const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
     const [isHovering, setIsHovering] = useState(false);
 
     useImperativeHandle(ref, () => ({
@@ -32,29 +31,39 @@ export const ColoringCanvas = forwardRef<ColoringCanvasHandle, ColoringCanvasPro
         restoreImageData
     }));
 
+    const updateCursor = (x: number, y: number) => {
+        if (cursorRef.current) {
+            cursorRef.current.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        }
+    };
+
     // Handle Touch Events
     const handleTouchStart = (e: React.TouchEvent) => {
         e.preventDefault(); // Prevent scrolling
+        if (e.touches.length === 0) return;
+
         const touch = e.touches[0];
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
             startDrawing(x, y);
-            setCursorPos({ x, y });
+            updateCursor(x, y);
             setIsHovering(true);
         }
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
         e.preventDefault();
+        if (e.touches.length === 0) return;
+
         const touch = e.touches[0];
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
             const x = touch.clientX - rect.left;
             const y = touch.clientY - rect.top;
             draw(x, y);
-            setCursorPos({ x, y });
+            updateCursor(x, y);
         }
     };
 
@@ -67,7 +76,10 @@ export const ColoringCanvas = forwardRef<ColoringCanvasHandle, ColoringCanvasPro
     const handleMouseDown = (e: React.MouseEvent) => {
         const rect = canvasRef.current?.getBoundingClientRect();
         if (rect) {
-            startDrawing(e.clientX - rect.left, e.clientY - rect.top);
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            startDrawing(x, y);
+            updateCursor(x, y);
         }
     };
 
@@ -76,8 +88,12 @@ export const ColoringCanvas = forwardRef<ColoringCanvasHandle, ColoringCanvasPro
         if (rect) {
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
+
+            // If drawing, draw
             draw(x, y);
-            setCursorPos({ x, y });
+
+            // Always update cursor
+            updateCursor(x, y);
         }
     };
 
@@ -148,21 +164,24 @@ export const ColoringCanvas = forwardRef<ColoringCanvasHandle, ColoringCanvasPro
             />
 
             {/* Eraser/Brush Cursor */}
-            {isHovering && cursorPos && (mode === 'eraser' || mode === 'brush') && (
+            {(mode === 'eraser' || mode === 'brush') && (
                 <div
+                    ref={cursorRef}
                     style={{
                         position: 'absolute',
-                        left: cursorPos.x,
-                        top: cursorPos.y,
+                        left: 0,
+                        top: 0,
                         width: brushSize,
                         height: brushSize,
                         borderRadius: '50%',
                         border: mode === 'eraser' ? '1px solid #333' : '1px solid rgba(0,0,0,0.2)',
                         backgroundColor: mode === 'eraser' ? 'rgba(255, 255, 255, 0.5)' : 'transparent',
-                        transform: 'translate(-50%, -50%)',
                         pointerEvents: 'none',
                         zIndex: 10,
-                        boxShadow: mode === 'eraser' ? '0 0 2px rgba(0,0,0,0.5)' : 'none'
+                        boxShadow: mode === 'eraser' ? '0 0 2px rgba(0,0,0,0.5)' : 'none',
+                        display: isHovering ? 'block' : 'none',
+                        // Initialize off-screen or use the updateCursor to set position
+                        willChange: 'transform'
                     }}
                 />
             )}

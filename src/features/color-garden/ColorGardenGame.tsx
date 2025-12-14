@@ -337,11 +337,10 @@ export const ColorGardenGame: React.FC<ColorGardenGameProps> = ({ onSwitchMode }
     useEffect(() => {
         const checkOrientation = () => {
             const isPortraitMode = window.matchMedia("(orientation: portrait)").matches;
-            // Only show warning on mobile devices (width < 768px generally, or logic based on user agent)
-            // But requirement says "iphone", so let's stick to checking generic portrait for now or combine with mobile check.
-            // Let's assume on desktop we don't care about orientation as much, but on mobile we do.
-            const isMobile = window.innerWidth <= 1024; // Broad definition of mobile/tablet
-            setIsPortrait(isPortraitMode && isMobile);
+            // Only show warning on mobile phones (width < 600px generally)
+            // iPad portrait width is usually 768px or 820px, so 600px is a safe cutoff for "phone".
+            const isPhone = window.innerWidth <= 600;
+            setIsPortrait(isPortraitMode && isPhone);
         };
 
         checkOrientation();
